@@ -12,7 +12,20 @@
           "package_name": "com.group147.appartmentblog"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "991427386007-4el16qavddatu5k4pjnerem9vfbfdvvc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group147.appartmentblog",
+            "certificate_hash": "67ee39ea17aef32d4dc6f9216ad1dd9d4670faaf"
+          }
+        },
+        {
+          "client_id": "991427386007-eulrm75qm0tllc7krenb016oriqc2lge.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBNB5QIZ2b2reYQT2_UBWwwwFDzOuIaz2g"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991427386007-eulrm75qm0tllc7krenb016oriqc2lge.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
