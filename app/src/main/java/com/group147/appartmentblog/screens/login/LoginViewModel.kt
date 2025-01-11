@@ -17,15 +17,33 @@ class LoginViewModel : AppartmentBlogViewModel() {
         return authService.hasUser()
     }
 
-    fun onSignUpWithGoogle(credential: Credential, onSuccess: () -> Unit, onError: () -> Unit) {
-        launchCatching {
+    fun onLogin(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        launchCatching(onError) {
+            val authResult = authService.loginWithEmail(email, password)
+
+            if (authResult?.user != null) {
+                onSuccess()
+            } else {
+                Log.e(ERROR_TAG, "Failed to login with email and password")
+                onError("")
+            }
+        }
+    }
+
+    fun onLoginWithGoogle(credential: Credential, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        launchCatching(onError) {
             if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 authService.loginWithGoogle(googleIdTokenCredential.idToken)
                 onSuccess()
             } else {
                 Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
-                onError()
+                onError("")
             }
         }
     }

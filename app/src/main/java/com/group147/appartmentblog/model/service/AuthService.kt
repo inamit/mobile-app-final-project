@@ -1,8 +1,10 @@
 package com.group147.appartmentblog.model.service
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -14,25 +16,26 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class AuthService {
+    val auth = Firebase.auth
     val currentUser: Flow<User?>
         get() = callbackFlow {
             val listener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser.toAppUser())
+                FirebaseAuth.AuthStateListener { authState ->
+                    this.trySend(authState.currentUser.toAppUser())
                 }
-            Firebase.auth.addAuthStateListener(listener)
-            awaitClose { Firebase.auth.removeAuthStateListener(listener) }
+            auth.addAuthStateListener(listener)
+            awaitClose { auth.removeAuthStateListener(listener) }
         }
 
     val currentUserId: String
-        get() = Firebase.auth.currentUser?.uid.orEmpty()
+        get() = auth.currentUser?.uid.orEmpty()
 
     fun hasUser(): Boolean {
-        return Firebase.auth.currentUser != null
+        return auth.currentUser != null
     }
 
     fun getUserProfile(): User {
-        return Firebase.auth.currentUser.toAppUser()
+        return auth.currentUser.toAppUser()
     }
 
     suspend fun updateDisplayName(newDisplayName: String) {
@@ -40,29 +43,29 @@ class AuthService {
             displayName = newDisplayName
         }
 
-        Firebase.auth.currentUser!!.updateProfile(profileUpdates).await()
+        auth.currentUser!!.updateProfile(profileUpdates).await()
     }
 
     suspend fun linkAccountWithEmail(email: String, password: String) {
         val credential = EmailAuthProvider.getCredential(email, password)
-        Firebase.auth.currentUser!!.linkWithCredential(credential).await()
+        auth.currentUser!!.linkWithCredential(credential).await()
     }
 
     suspend fun loginWithGoogle(idToken: String) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        Firebase.auth.signInWithCredential(firebaseCredential).await()
+        auth.signInWithCredential(firebaseCredential).await()
     }
 
-    suspend fun loginWithEmail(email: String, password: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, password).await()
+    suspend fun loginWithEmail(email: String, password: String): AuthResult? {
+        return auth.signInWithEmailAndPassword(email, password).await()
     }
 
-    suspend fun signOut() {
-        Firebase.auth.signOut()
+    fun signOut() {
+        auth.signOut()
     }
 
     suspend fun deleteAccount() {
-        Firebase.auth.currentUser!!.delete().await()
+        auth.currentUser!!.delete().await()
     }
 
     private fun FirebaseUser?.toAppUser(): User {

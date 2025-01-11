@@ -9,10 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 open class AppartmentBlogViewModel : ViewModel() {
-    fun launchCatching(block: suspend CoroutineScope.() -> Unit) =
+    fun launchCatching(onError: (String) -> Unit = {}, block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
                 Log.d(ERROR_TAG, throwable.message.orEmpty())
+                onError(throwable.message.orEmpty())
             },
             block = block
         )

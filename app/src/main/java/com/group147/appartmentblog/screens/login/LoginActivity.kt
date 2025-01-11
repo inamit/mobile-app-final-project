@@ -2,9 +2,9 @@ package com.group147.appartmentblog.screens.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -18,7 +18,6 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.group147.appartmentblog.ERROR_TAG
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.home.HomeActivity
 import kotlinx.coroutines.launch
@@ -43,14 +42,27 @@ class LoginActivity : AppCompatActivity() {
 
         val googleLoginButton = findViewById<View>(R.id.google_login_button)
         googleLoginButton.setOnClickListener {
-            try {
-                loginWithGoogle()
-            } catch (e: Exception) {
-                Toast.makeText(this, "Failed to login with Google", Toast.LENGTH_SHORT).show()
-                Log.e(ERROR_TAG, "Failed to login with Google", e)
-            }
+            loginWithGoogle()
         }
 
+        val loginButton = findViewById<View>(R.id.login_button)
+        loginButton.setOnClickListener {
+            loginWithEmailAndPassword()
+        }
+
+    }
+
+    private fun loginWithEmailAndPassword() {
+        val email = findViewById<EditText>(R.id.email_input).text.toString()
+        val password = findViewById<EditText>(R.id.password_input).text.toString()
+        viewModel.onLogin(email, password, {
+            val homeIntent = Intent(this, HomeActivity::class.java)
+            startActivity(homeIntent)
+            finish()
+        },
+            { message ->
+                Toast.makeText(this, "Failed to login. $message", Toast.LENGTH_SHORT).show()
+            })
     }
 
     private fun loginWithGoogle() {
@@ -69,22 +81,16 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         coroutineScope.launch {
-            try {
-                val result = credentialManager.getCredential(request = request, context = context)
-                viewModel.onSignUpWithGoogle(result.credential, {
-                    val homeIntent = Intent(context, HomeActivity::class.java)
-                    startActivity(homeIntent)
-                    finish()
-                },
-                    {
-                        Toast.makeText(context, "Failed to login with Google", Toast.LENGTH_SHORT)
-                            .show()
-                    })
-            } catch (e: Exception) {
-                Toast.makeText(context, "Failed to login with Google", Toast.LENGTH_SHORT)
-                    .show()
-                Log.e(ERROR_TAG, "Failed to get Google credential", e)
-            }
+            val result = credentialManager.getCredential(request = request, context = context)
+            viewModel.onLoginWithGoogle(result.credential, {
+                val homeIntent = Intent(context, HomeActivity::class.java)
+                startActivity(homeIntent)
+                finish()
+            },
+                {
+                    Toast.makeText(context, "Failed to login with Google", Toast.LENGTH_SHORT)
+                        .show()
+                })
         }
     }
 
