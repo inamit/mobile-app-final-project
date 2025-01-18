@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "991427386007",
+    "project_id": "appartment-blog",
+    "storage_bucket": "appartment-blog.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991427386007:android:c44b8970011aa1afc867d2",
+        "android_client_info": {
+          "package_name": "com.group147.appartmentblog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991427386007-4el16qavddatu5k4pjnerem9vfbfdvvc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group147.appartmentblog",
+            "certificate_hash": "67ee39ea17aef32d4dc6f9216ad1dd9d4670faaf"
+          }
+        },
+        {
+          "client_id": "991427386007-eulrm75qm0tllc7krenb016oriqc2lge.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNB5QIZ2b2reYQT2_UBWwwwFDzOuIaz2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991427386007-eulrm75qm0tllc7krenb016oriqc2lge.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
