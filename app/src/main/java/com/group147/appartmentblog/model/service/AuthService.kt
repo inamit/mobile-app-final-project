@@ -60,6 +60,11 @@ class AuthService {
         return auth.signInWithEmailAndPassword(email, password).await()
     }
 
+    suspend fun signUpWithEmail(email: String, password: String): AuthResult? {
+        return auth.createUserWithEmailAndPassword(email, password).await()
+    }
+
+
     fun signOut() {
         auth.signOut()
     }

@@ -19,6 +19,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.screens.signup.SignUpActivity
 import com.group147.appartmentblog.screens.home.HomeActivity
 import kotlinx.coroutines.launch
 
@@ -38,6 +39,12 @@ class LoginActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val signUpButton = findViewById<View>(R.id.sign_up_button)
+        signUpButton.setOnClickListener {
+            val signUpIntent = Intent(this, SignUpActivity::class.java)
+            startActivity(signUpIntent)
         }
 
         val googleLoginButton = findViewById<View>(R.id.google_login_button)
@@ -65,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
             })
     }
 
-    private fun loginWithGoogle() {
+    private fun  loginWithGoogle() {
         val context = this
         val coroutineScope = lifecycle.coroutineScope
         val credentialManager = CredentialManager.create(context)
