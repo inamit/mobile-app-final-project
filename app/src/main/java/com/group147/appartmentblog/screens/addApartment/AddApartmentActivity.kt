@@ -1,47 +1,67 @@
 package com.group147.appartmentblog.screens.addApartment
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
+import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu.OnMenuItemClickListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.databinding.ActivityAddApartmentBinding
 
-class AddApartmentActivity : AppCompatActivity() {
+class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
+    lateinit var binding: ActivityAddApartmentBinding
+    val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                binding.imagePreview.setImageURI(it)
+            }
+        }
+    val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                binding.imagePreview.setImageBitmap(it)
+            }
+        }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_add_apartment)
+        binding = ActivityAddApartmentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        handleImagePicker()
-    }
-
-    private fun handleImagePicker() {
-        val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-            {
-                if (uri != null) {
-                    Log.d("PhotoPicker", "Selected URI: $uri")
-                } else {
-                    Log.d("PhotoPicker", "No media selected")
-                }
+        binding.pickImage.setOnClickListener {
+            PopupMenu(this, it).apply {
+                setOnMenuItemClickListener(this@AddApartmentActivity)
+                menuInflater.inflate(R.menu.image_picker_menu, menu)
+                setForceShowIcon(true)
+                show()
             }
         }
+    }
 
-        findViewById<Button>(R.id.pickImage).setOnClickListener {
-            pickMedia.launch(
-                PickVisualMediaRequest.Builder()
-                    .setMediaType(PickVisualMedia.ImageOnly)
-                    .build()
-            )
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.camera -> {
+                cameraLauncher.launch(null)
+                true
+            }
+
+            R.id.gallery -> {
+                galleryLauncher.launch("image/*")
+                true
+            }
+
+            else -> false
         }
     }
 }
