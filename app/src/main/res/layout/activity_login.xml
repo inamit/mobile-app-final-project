@@ -8,7 +8,7 @@
     tools:context=".screens.login.LoginActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/image_preview"
         android:layout_width="255dp"
         android:layout_height="293dp"
         android:layout_marginStart="78dp"
@@ -34,7 +34,7 @@
         android:maxWidth="488dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/image_preview" />
 
     <EditText
         android:id="@+id/password_input"
