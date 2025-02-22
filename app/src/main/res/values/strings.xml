@@ -18,4 +18,6 @@
     <string name="title_edit_text_hint">Title</string>
     <string name="content_edit_text_hint">Content</string>
     <string name="save_button_text">Save</string>
+    <string name="from_gallery">From gallery</string>
+    <string name="from_camera">From camera</string>
 </resources>
