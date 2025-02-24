@@ -1,14 +1,11 @@
 package com.group147.appartmentblog.model.service
 
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.userProfileChangeRequest
 import com.group147.appartmentblog.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -27,28 +24,12 @@ class AuthService {
             awaitClose { auth.removeAuthStateListener(listener) }
         }
 
-    val currentUserId: String
-        get() = auth.currentUser?.uid.orEmpty()
-
     fun hasUser(): Boolean {
         return auth.currentUser != null
     }
 
     fun getUserProfile(): User {
         return auth.currentUser.toAppUser()
-    }
-
-    suspend fun updateDisplayName(newDisplayName: String) {
-        val profileUpdates = userProfileChangeRequest {
-            displayName = newDisplayName
-        }
-
-        auth.currentUser!!.updateProfile(profileUpdates).await()
-    }
-
-    suspend fun linkAccountWithEmail(email: String, password: String) {
-        val credential = EmailAuthProvider.getCredential(email, password)
-        auth.currentUser!!.linkWithCredential(credential).await()
     }
 
     suspend fun loginWithGoogle(idToken: String) {
