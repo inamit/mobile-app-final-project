@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import android.widget.EditText
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.screens.login.LoginActivity
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -24,6 +26,13 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+
+        val backButton = findViewById<ImageButton>(R.id.back_button)
+        backButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         userImageView = findViewById(R.id.user_image)
         uploadImageButton = findViewById(R.id.upload_image_button)
@@ -79,8 +88,9 @@ class SignUpActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Toast.makeText(this, "User registered successfully", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 Toast.makeText(this, "Failed to register user", Toast.LENGTH_SHORT).show()
+//                e.printStackTrace()
             }
     }
 }
