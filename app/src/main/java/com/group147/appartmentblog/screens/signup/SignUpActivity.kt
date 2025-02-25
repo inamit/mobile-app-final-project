@@ -68,28 +68,29 @@ class SignUpActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    uploadMoreDataToFirebase(username, phone)
+                    val uid = auth.currentUser?.uid
+                    uploadMoreDataToFirebase(uid!!, username, phone)
                 } else {
                     Toast.makeText(this, "Failed to register user", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
-    private fun uploadMoreDataToFirebase(username: String, phone: String) {
+    private fun uploadMoreDataToFirebase(uid: String, username: String, phone: String) {
         if (::selectedImageUri.isInitialized) {
-            saveAddedData(selectedImageUri, username, phone)
+            saveAddedData(uid, selectedImageUri, username, phone)
         } else {
             val defaultImage: Uri = Uri.parse("android.resource://com.group147.appartmentblog/drawable/ic_user_placeholder")
-            saveAddedData(defaultImage, username, phone)
+            saveAddedData(uid, defaultImage, username, phone)
         }
     }
 
-    private fun saveAddedData(imageUri: Uri, username: String, phone: String) {
-        val storageReference = FirebaseStorage.getInstance().reference.child("user_images/${UUID.randomUUID()}")
+    private fun saveAddedData(uid: String, imageUri: Uri, username: String, phone: String) {
+        val storageReference = FirebaseStorage.getInstance().reference.child("user_images/$uid")
         storageReference.putFile(imageUri)
             .addOnSuccessListener {
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    saveUserData(uri.toString(), username, phone)
+                    saveUserData(uri.toString(), username, phone, uid)
                 }
             }
             .addOnFailureListener { exception ->
@@ -97,7 +98,7 @@ class SignUpActivity : AppCompatActivity() {
             }
     }
 
-    private fun saveUserData(imageUrl: String?, username: String, phone: String) {
+    private fun saveUserData(imageUrl: String?, username: String, phone: String, uid: String) {
         val email = findViewById<EditText>(R.id.email_input).text.toString()
 
         val user = hashMapOf(
@@ -108,7 +109,8 @@ class SignUpActivity : AppCompatActivity() {
         )
 
         FirebaseFirestore.getInstance().collection("users")
-            .add(user)
+            .document(uid)
+            .set(user)
             .addOnSuccessListener {
                 Toast.makeText(this, "User registered successfully", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, LoginActivity::class.java)
