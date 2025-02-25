@@ -47,6 +47,20 @@
         app:layout_constraintTop_toBottomOf="@id/upload_image_button">
 
         <EditText
+            android:id="@+id/username_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="Username" />
+
+        <EditText
+            android:id="@+id/phone_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="Phone Number"/>
+
+        <EditText
             android:id="@+id/email_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
