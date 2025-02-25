@@ -68,23 +68,23 @@ class SignUpActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    uploadImageToFirebase(username, phone)
+                    uploadMoreDataToFirebase(username, phone)
                 } else {
                     Toast.makeText(this, "Failed to register user", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
-    private fun uploadImageToFirebase(username: String, phone: String) {
+    private fun uploadMoreDataToFirebase(username: String, phone: String) {
         if (::selectedImageUri.isInitialized) {
-            saveImage(selectedImageUri, username, phone)
+            saveAddedData(selectedImageUri, username, phone)
         } else {
             val defaultImage: Uri = Uri.parse("android.resource://com.group147.appartmentblog/drawable/ic_user_placeholder")
-            saveImage(defaultImage, username, phone)
+            saveAddedData(defaultImage, username, phone)
         }
     }
 
-    private fun saveImage(imageUri: Uri, username: String, phone: String) {
+    private fun saveAddedData(imageUri: Uri, username: String, phone: String) {
         val storageReference = FirebaseStorage.getInstance().reference.child("user_images/${UUID.randomUUID()}")
         storageReference.putFile(imageUri)
             .addOnSuccessListener {
