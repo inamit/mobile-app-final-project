@@ -7,9 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentTransaction
 import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginActivity
+import com.group147.appartmentblog.screens.map.MapFragment
 
 class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle
@@ -18,7 +20,7 @@ class HomeActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_home)
         onLogoutClicked()
-
+        onMapIconClicked(savedInstanceState)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -38,4 +40,11 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    fun onMapIconClicked(savedInstanceState: Bundle?){
+        if (savedInstanceState == null) {
+            val fragmentTransaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.fragment_container, MapFragment())
+            fragmentTransaction.commit()
+        }
+    }
 }
