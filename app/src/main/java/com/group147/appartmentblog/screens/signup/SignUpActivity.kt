@@ -91,7 +91,7 @@ class SignUpActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Failed to upload image: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -107,9 +107,11 @@ class SignUpActivity : AppCompatActivity() {
             .add(user)
             .addOnSuccessListener {
                 Toast.makeText(this, "User registered successfully", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to register user: $e", Toast.LENGTH_SHORT).show()
             }
     }
 }
