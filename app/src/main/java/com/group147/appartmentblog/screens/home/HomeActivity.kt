@@ -2,7 +2,6 @@ package com.group147.appartmentblog.screens.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -10,7 +9,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -18,7 +16,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginActivity
-import com.group147.appartmentblog.screens.userProfile.ProfileFragment
 
 class HomeActivity : AppCompatActivity() {
     var navController: NavController? = null
@@ -57,16 +54,6 @@ class HomeActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
-        }
-    }
-
-    private fun onProfileClicked() {
-        val btnProfile = findViewById<Button>(R.id.btnProfile)
-        btnProfile.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.main, ProfileFragment())
-                .addToBackStack(null)
-                .commit()
         }
     }
 
