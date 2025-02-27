@@ -96,6 +96,8 @@ class ProfileFragment : Fragment() {
                                 .load(imageUrl)
                                 .placeholder(R.drawable.ic_user_placeholder)
                                 .into(profileImageView)
+                        } else {
+                            profileImageView.setImageResource(R.drawable.ic_user_placeholder)
                         }
                     }
                 }
