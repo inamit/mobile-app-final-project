@@ -60,34 +60,36 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun registerUser() {
+        val username = findViewById<EditText>(R.id.username_input).text.toString()
+        val phone = findViewById<EditText>(R.id.phone_input).text.toString()
         val email = findViewById<EditText>(R.id.email_input).text.toString()
         val password = findViewById<EditText>(R.id.password_input).text.toString()
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    uploadImageToFirebase()
+                    uploadMoreDataToFirebase(username, phone)
                 } else {
                     Toast.makeText(this, "Failed to register user", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
-    private fun uploadImageToFirebase() {
+    private fun uploadMoreDataToFirebase(username: String, phone: String) {
         if (::selectedImageUri.isInitialized) {
-            saveImage(selectedImageUri)
+            saveAddedData(selectedImageUri, username, phone)
         } else {
             val defaultImage: Uri = Uri.parse("android.resource://com.group147.appartmentblog/drawable/ic_user_placeholder")
-            saveImage(defaultImage)
+            saveAddedData(defaultImage, username, phone)
         }
     }
 
-    private fun saveImage(imageUri: Uri) {
+    private fun saveAddedData(imageUri: Uri, username: String, phone: String) {
         val storageReference = FirebaseStorage.getInstance().reference.child("user_images/${UUID.randomUUID()}")
         storageReference.putFile(imageUri)
             .addOnSuccessListener {
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    saveUserData(uri.toString())
+                    saveUserData(uri.toString(), username, phone)
                 }
             }
             .addOnFailureListener { exception ->
@@ -95,10 +97,12 @@ class SignUpActivity : AppCompatActivity() {
             }
     }
 
-    private fun saveUserData(imageUrl: String?) {
+    private fun saveUserData(imageUrl: String?, username: String, phone: String) {
         val email = findViewById<EditText>(R.id.email_input).text.toString()
 
         val user = hashMapOf(
+            "username" to username,
+            "phone" to phone,
             "email" to email,
             "imageUrl" to imageUrl
         )
