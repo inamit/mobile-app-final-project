@@ -21,6 +21,7 @@ import com.group147.appartmentblog.screens.login.LoginActivity
 
 class HomeActivity : AppCompatActivity() {
     var navController: NavController? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,20 +33,23 @@ class HomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val navHostFragment: NavHostFragment? = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        val navHostFragment: NavHostFragment? =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
         navController = navHostFragment?.navController
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
 
         findViewById<FloatingActionButton>(R.id.add_apartment_button).setOnClickListener {
-            startActivity(Intent(this, AddApartmentActivity::class.java))
+            navController?.navigate(R.id.addApartmentActivity)
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.navbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         navController?.let { NavigationUI.onNavDestinationSelected(item, it) }
         return true

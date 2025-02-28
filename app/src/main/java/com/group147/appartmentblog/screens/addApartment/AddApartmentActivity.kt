@@ -14,6 +14,9 @@ import androidx.appcompat.widget.PopupMenu.OnMenuItemClickListener
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -81,6 +84,9 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
             insets
         }
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         binding.pickImage.setOnClickListener {
             PopupMenu(this, it).apply {
                 setOnMenuItemClickListener(this@AddApartmentActivity)
@@ -104,6 +110,10 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
                 "Location is required to upload a post",
                 Toast.LENGTH_SHORT
             ).show()
+            return
+        }
+
+        if (!validateForm()) {
             return
         }
 
@@ -140,7 +150,12 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
     private fun getCurrentLocation() {
         Log.i("AddApartmentActivity", "getCurrentLocation")
 
-        if (!LocationPermission.checkLocationPermission(this, binding.root, requestPermissionLauncher)) {
+        if (!LocationPermission.checkLocationPermission(
+                this,
+                binding.root,
+                requestPermissionLauncher
+            )
+        ) {
             return
         }
 
@@ -176,6 +191,31 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
             }
     }
 
+    fun validateForm(): Boolean {
+        var valid = true
+
+        val title = binding.titleEditText.text.toString()
+        val content = binding.contentEditText.text.toString()
+        val image = binding.imagePreview.drawable
+
+        if (title.isEmpty()) {
+            binding.titleEditText.error = "Title is required"
+            valid = false
+        }
+
+        if (content.isEmpty()) {
+            binding.contentEditText.error = "Content is required"
+            valid = false
+        }
+
+        if (image == null) {
+            binding.pickImage.error = "Image is required"
+            valid = false
+        }
+
+        return valid
+    }
+
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.camera -> {
@@ -190,5 +230,13 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
 
             else -> false
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
