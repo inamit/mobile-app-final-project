@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="MapFragment"
+        android:name="com.group147.appartmentblog.screens.map.MapFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map">
     </fragment>
