@@ -2,7 +2,6 @@ package com.group147.appartmentblog.screens.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -18,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginActivity
 
+
 class HomeActivity : AppCompatActivity() {
     var navController: NavController? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,6 @@ class HomeActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_home)
         onLogoutClicked()
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
