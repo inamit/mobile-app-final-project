@@ -21,4 +21,5 @@
     <string name="save_button_text">Save</string>
     <string name="from_gallery">From gallery</string>
     <string name="from_camera">From camera</string>
+    <string name="logout">Logout</string>
 </resources>
