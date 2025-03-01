@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.util.*
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginActivity
 
@@ -47,7 +46,9 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.signup_button).setOnClickListener {
-            registerUser()
+            if (validateInputs()) {
+                registerUser()
+            }
         }
     }
 
@@ -57,6 +58,26 @@ class SignUpActivity : AppCompatActivity() {
             selectedImageUri = data.data!!
             userImageView.setImageURI(selectedImageUri)
         }
+    }
+
+    private fun validateInputs(): Boolean {
+        val username = findViewById<EditText>(R.id.username_input).text.toString().trim()
+        val phone = findViewById<EditText>(R.id.phone_input).text.toString().trim()
+        val email = findViewById<EditText>(R.id.email_input).text.toString().trim()
+        val password = findViewById<EditText>(R.id.password_input).text.toString().trim()
+        val confirmPassword = findViewById<EditText>(R.id.confirm_password_input).text.toString().trim()
+
+        if (username.isEmpty() || phone.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(this, "Please fill out all the fields", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password != confirmPassword) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
     }
 
     private fun registerUser() {

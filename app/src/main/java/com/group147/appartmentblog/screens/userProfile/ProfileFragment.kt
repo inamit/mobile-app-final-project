@@ -21,17 +21,17 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.screens.login.LoginActivity
 
 class ProfileFragment : Fragment() {
 
     private lateinit var profileImageView: ImageView
-    private lateinit var updateImageButton: Button
+    private lateinit var editImageView: ImageView
     private lateinit var usernameInput: EditText
     private lateinit var phoneInput: EditText
     private lateinit var emailText: TextView
-    private lateinit var currentUsername: TextView
-    private lateinit var currentPhone: TextView
     private lateinit var updateProfileButton: Button
+    private lateinit var btnLogout: Button
     private lateinit var selectedImageUri: Uri
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
@@ -49,13 +49,14 @@ class ProfileFragment : Fragment() {
         storage = FirebaseStorage.getInstance()
 
         profileImageView = view.findViewById(R.id.profile_image)
-        updateImageButton = view.findViewById(R.id.update_image_button)
+        editImageView = view.findViewById(R.id.edit_icon)
         usernameInput = view.findViewById(R.id.username_input)
         phoneInput = view.findViewById(R.id.phone_input)
         emailText = view.findViewById(R.id.email_text)
-        currentUsername = view.findViewById(R.id.current_username)
-        currentPhone = view.findViewById(R.id.current_phone)
         updateProfileButton = view.findViewById(R.id.update_profile_button)
+        btnLogout = view.findViewById(R.id.btnLogout)
+
+        onLogoutClicked()
 
         imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
@@ -64,7 +65,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        updateImageButton.setOnClickListener {
+        editImageView.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             imagePickerLauncher.launch(intent)
@@ -87,9 +88,9 @@ class ProfileFragment : Fragment() {
             firestore.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        currentUsername.text = "Username: ${document.getString("username").orEmpty()}"
-                        currentPhone.text = "Phone number: ${document.getString("phone").orEmpty()}"
-                        emailText.text = "Email: ${document.getString("email").orEmpty()}"
+                        usernameInput.hint = document.getString("username").orEmpty()
+                        phoneInput.hint = document.getString("phone").orEmpty()
+                        emailText.text = document.getString("email").orEmpty()
                         val imageUrl = document.getString("imageUrl")
                         if (!imageUrl.isNullOrEmpty()) {
                             Glide.with(this)
@@ -149,5 +150,15 @@ class ProfileFragment : Fragment() {
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Failed to update profile: $e", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun onLogoutClicked() {
+        btnLogout.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(activity, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            activity?.finish()
+        }
     }
 }
