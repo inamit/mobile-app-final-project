@@ -194,37 +194,22 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
     fun validateForm(): Boolean {
         var valid = true
 
-        val title = binding.titleEditText.text
-        val floor = binding.floorEditText.text
-        val rooms = binding.roomsEditText.text
-        val price = binding.priceEditText.text
-        val content = binding.contentEditText.text
+        val requiredEditTexts = listOf(
+            Pair(binding.titleEditText, "Title is required"),
+            Pair(binding.floorEditText, "Floor is required"),
+            Pair(binding.roomsEditText, "Rooms is required"),
+            Pair(binding.priceEditText, "Price is required"),
+            Pair(binding.contentEditText, "Content is required"),
+        )
+
+        for ((editText, errorMessage) in requiredEditTexts) {
+            if (editText.text.isEmpty()) {
+                editText.error = errorMessage
+                valid = false
+            }
+        }
+
         val image = binding.imagePreview.drawable
-
-        if (title.isEmpty()) {
-            binding.titleEditText.error = "Title is required"
-            valid = false
-        }
-
-        if (floor.isEmpty()) {
-            binding.floorEditText.error = "Floor is required"
-            valid = false
-        }
-
-        if (rooms.isEmpty()) {
-            binding.roomsEditText.error = "Rooms is required"
-            valid = false
-        }
-
-        if (price.isEmpty()) {
-            binding.priceEditText.error = "Price is required"
-            valid = false
-        }
-
-        if (content.isEmpty()) {
-            binding.contentEditText.error = "Content is required"
-            valid = false
-        }
 
         if (image == null) {
             binding.pickImage.error = "Image is required"
