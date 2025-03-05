@@ -118,6 +118,9 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
             "userId" to Firebase.auth.currentUser?.uid,
             "title" to binding.titleEditText.text.toString(),
             "content" to binding.contentEditText.text.toString(),
+            "floor" to binding.floorEditText.text.toString().toInt(),
+            "rooms" to binding.roomsEditText.text.toString().toDouble(),
+            "price" to binding.priceEditText.text.toString().toDouble(),
             "location" to location
         )
         val db = Firebase.firestore
@@ -191,12 +194,30 @@ class AddApartmentActivity : AppCompatActivity(), OnMenuItemClickListener {
     fun validateForm(): Boolean {
         var valid = true
 
-        val title = binding.titleEditText.text.toString()
-        val content = binding.contentEditText.text.toString()
+        val title = binding.titleEditText.text
+        val floor = binding.floorEditText.text
+        val rooms = binding.roomsEditText.text
+        val price = binding.priceEditText.text
+        val content = binding.contentEditText.text
         val image = binding.imagePreview.drawable
 
         if (title.isEmpty()) {
             binding.titleEditText.error = "Title is required"
+            valid = false
+        }
+
+        if (floor.isEmpty()) {
+            binding.floorEditText.error = "Floor is required"
+            valid = false
+        }
+
+        if (rooms.isEmpty()) {
+            binding.roomsEditText.error = "Rooms is required"
+            valid = false
+        }
+
+        if (price.isEmpty()) {
+            binding.priceEditText.error = "Price is required"
             valid = false
         }
 

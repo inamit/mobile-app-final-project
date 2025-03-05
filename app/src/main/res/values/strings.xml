@@ -17,9 +17,12 @@
     <string name="apartment_image_content_description">Apartment Image</string>
     <string name="pick_image_button">Pick Image</string>
     <string name="title_edit_text_hint">Title</string>
-    <string name="content_edit_text_hint">Content</string>
+    <string name="content_edit_text_hint">Description</string>
     <string name="save_button_text">Save</string>
     <string name="from_gallery">From gallery</string>
     <string name="from_camera">From camera</string>
     <string name="logout">Logout</string>
+    <string name="price">Price</string>
+    <string name="number_of_rooms">Rooms</string>
+    <string name="floor">Floor</string>
 </resources>
