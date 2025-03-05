@@ -24,6 +24,9 @@
             android:required="false" />
 
         <activity
+            android:name=".screens.addApartment.AddApartmentActivity"
+            android:exported="false" />
+        <activity
             android:name=".screens.home.HomeActivity"
             android:exported="false" />
         <activity
