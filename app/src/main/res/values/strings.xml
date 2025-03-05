@@ -9,4 +9,20 @@
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="sign_up">Sign Up</string>
     <string name="continue_with_google">Continue with Google</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="feed">Feed</string>
+    <string name="map">Map</string>
+    <string name="account">Account</string>
+    <string name="add_apartment">Add new apartment</string>
+    <string name="apartment_image_content_description">Apartment Image</string>
+    <string name="pick_image_button">Pick Image</string>
+    <string name="title_edit_text_hint">Title</string>
+    <string name="content_edit_text_hint">Description</string>
+    <string name="save_button_text">Save</string>
+    <string name="from_gallery">From gallery</string>
+    <string name="from_camera">From camera</string>
+    <string name="logout">Logout</string>
+    <string name="price">Price</string>
+    <string name="number_of_rooms">Rooms</string>
+    <string name="floor">Floor</string>
 </resources>
