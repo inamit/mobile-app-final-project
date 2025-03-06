@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mapFragment">
+    app:startDestination="@id/feedFragment">
 
     <fragment
         android:id="@+id/feedFragment"
@@ -25,4 +25,9 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
     </fragment>
+    <activity
+        android:id="@+id/addApartmentActivity"
+        android:name="com.group147.appartmentblog.screens.addApartment.AddApartmentActivity"
+        android:label="activity_add_apartment"
+        tools:layout="@layout/activity_add_apartment" />
 </navigation>
