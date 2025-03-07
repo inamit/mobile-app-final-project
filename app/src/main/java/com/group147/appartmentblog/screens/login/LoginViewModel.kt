@@ -1,12 +1,8 @@
 package com.group147.appartmentblog.screens.login
 
 import android.util.Log
-import androidx.credentials.Credential
-import androidx.credentials.CustomCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.group147.appartmentblog.ERROR_TAG
-import com.group147.appartmentblog.UNEXPECTED_CREDENTIAL
 import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.screens.AppartmentBlogViewModel
 
@@ -35,14 +31,14 @@ class LoginViewModel : AppartmentBlogViewModel() {
         }
     }
 
-    fun onLoginWithGoogle(credential: Credential, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun onLoginWithGoogle(account: GoogleSignInAccount, onSuccess: () -> Unit, onError: (String) -> Unit) {
         launchCatching(onError) {
-            if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                authService.loginWithGoogle(googleIdTokenCredential.idToken)
+            val idToken = account.idToken
+            if (idToken != null) {
+                authService.loginWithGoogle(idToken)
                 onSuccess()
             } else {
-                Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
+                Log.e(ERROR_TAG, "Google ID token is null")
                 onError("")
             }
         }

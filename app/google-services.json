@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "991427386007-u0enrc34477firgvaiu32ca3kmif57kj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group147.appartmentblog",
+            "certificate_hash": "74b0893b02c1687563e94930728f5cdfa4ff582b"
+          }
+        },
+        {
           "client_id": "991427386007-eulrm75qm0tllc7krenb016oriqc2lge.apps.googleusercontent.com",
           "client_type": 3
         }
