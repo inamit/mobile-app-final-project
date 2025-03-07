@@ -10,4 +10,17 @@ class PostRepository(private val postDao: PostDao) {
     fun insertPost(post: Post) {
         postDao.insertPost(post)
     }
+
+    fun updatePost(post: Post) {
+        postDao.updatePost(post)
+    }
+
+    fun deletePost(post: Post) {
+        postDao.deletePost(post)
+    }
+
+    fun getPostById(post: Long) {
+        postDao.getPostById(post)
+    }
+
 }
