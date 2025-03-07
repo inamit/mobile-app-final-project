@@ -15,5 +15,6 @@ data class Post(
     val title: String = "",
     val price: Double = 0.0,
     val rooms: Int = 0,
-    val location: GeoPoint
+    val location: GeoPoint,
+    val imageUrl: String = ""
 )
