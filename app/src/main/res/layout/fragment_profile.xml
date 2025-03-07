@@ -1,5 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/profileFragment"
@@ -26,13 +27,15 @@
             android:layout_gravity="center"
             android:layout_marginBottom="70dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profile_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="Profile Image"
                 android:src="@drawable/ic_user_placeholder"
-                android:tooltipText="Press to update" />
+                android:tooltipText="Press to update"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/RoundedCornerImage" />
 
             <ImageView
                 android:id="@+id/edit_icon"
@@ -41,7 +44,8 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="8dp"
                 android:contentDescription="Edit Icon"
-                android:src="@drawable/ic_edit" />
+                android:src="@drawable/ic_edit"
+                android:alpha="0.6" />
         </FrameLayout>
 
         <TextView
@@ -52,7 +56,7 @@
             android:enabled="false"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:textSize="26sp"
+            android:textSize="36sp"
             android:textStyle="bold" />
 
         <EditText
@@ -60,13 +64,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="35dp"
-            android:hint="New Username" />
+            android:hint="New Username"
+            android:textSize="24sp" />
 
         <EditText
             android:id="@+id/phone_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="150dp"
+            android:layout_marginBottom="130dp"
+            android:textSize="24sp"
             android:hint="New Phone Number" />
 
         <Button

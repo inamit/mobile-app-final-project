@@ -6,30 +6,30 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.lifecycle.coroutineScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.firebase.Firebase
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.signup.SignUpActivity
 import com.group147.appartmentblog.screens.home.HomeActivity
-import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val viewModel: LoginViewModel by viewModels()
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
         auth = Firebase.auth
@@ -57,6 +57,29 @@ class LoginActivity : AppCompatActivity() {
             loginWithEmailAndPassword()
         }
 
+        googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    if (account != null) {
+                        val email = account.email
+                        val imageUrl = account.photoUrl.toString()
+
+                        viewModel.onLoginWithGoogle(account, {
+                            saveUserDataToFirestore(email, imageUrl)
+                            val homeIntent = Intent(this, HomeActivity::class.java)
+                            startActivity(homeIntent)
+                            finish()
+                        }, {
+                            Toast.makeText(this, "Failed to login with Google", Toast.LENGTH_SHORT).show()
+                        })
+                    }
+                } catch (e: ApiException) {
+                    Toast.makeText(this, "Failed to login with Google", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun loginWithEmailAndPassword() {
@@ -72,32 +95,47 @@ class LoginActivity : AppCompatActivity() {
             })
     }
 
-    private fun  loginWithGoogle() {
-        val context = this
-        val coroutineScope = lifecycle.coroutineScope
-        val credentialManager = CredentialManager.create(context)
+    private fun loginWithGoogle() {
+        val googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestIdToken(getString(R.string.web_client_id))
+            .build())
 
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setAutoSelectEnabled(true)
-            .setServerClientId(getString(R.string.web_client_id))
-            .build()
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
 
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+    private fun saveUserDataToFirestore(email: String?, imageUrl: String?) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid ?: return
 
-        coroutineScope.launch {
-            val result = credentialManager.getCredential(request = request, context = context)
-            viewModel.onLoginWithGoogle(result.credential, {
-                val homeIntent = Intent(context, HomeActivity::class.java)
-                startActivity(homeIntent)
-                finish()
-            },
-                {
-                    Toast.makeText(context, "Failed to login with Google", Toast.LENGTH_SHORT)
-                        .show()
-                })
+        val firestore = FirebaseFirestore.getInstance()
+        val userRef = firestore.collection("users").document(uid)
+
+        userRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+                val userUpdates = hashMapOf<String, Any?>(
+                    "email" to email,
+                    "imageUrl" to imageUrl
+                )
+
+                if (document.contains("username")) {
+                    userUpdates["username"] = document.getString("username")
+                }
+                if (document.contains("phone")) {
+                    userUpdates["phone"] = document.getString("phone")
+                }
+
+                userRef.set(userUpdates)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "User logged in successfully", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to login user", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to login user", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -114,7 +152,7 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     content.viewTreeObserver.removeOnPreDrawListener(this)
-                    return true;
+                    return true
                 }
             }
         )

@@ -88,8 +88,10 @@ class ProfileFragment : Fragment() {
             firestore.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        usernameInput.hint = document.getString("username").orEmpty()
-                        phoneInput.hint = document.getString("phone").orEmpty()
+                        if (!document.getString("username").isNullOrEmpty())
+                            usernameInput.hint = document.getString("username")
+                        if (!document.getString("phone").isNullOrEmpty())
+                            phoneInput.hint = document.getString("phone")
                         emailText.text = document.getString("email").orEmpty()
                         val imageUrl = document.getString("imageUrl")
                         if (!imageUrl.isNullOrEmpty()) {
