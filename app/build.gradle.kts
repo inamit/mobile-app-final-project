@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation ("androidx.room:room-runtime:2.5.0")
     kapt ("androidx.room:room-compiler:2.5.0")
+    implementation (libs.picasso)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
