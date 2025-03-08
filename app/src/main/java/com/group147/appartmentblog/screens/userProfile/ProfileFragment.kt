@@ -1,6 +1,5 @@
 package com.group147.appartmentblog.screens.userProfile
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -80,7 +79,6 @@ class ProfileFragment : Fragment() {
         return view
     }
 
-    @SuppressLint("SetTextI18n")
     private fun loadUserProfile() {
         val user = auth.currentUser
         user?.let {

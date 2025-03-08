@@ -1,10 +1,8 @@
-import org.jetbrains.kotlin.daemon.common.isDaemonEnabled
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services")
-    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
@@ -62,7 +60,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.glide)
-    kapt("com.github.bumptech.glide:compiler:4.12.0")
+    implementation(libs.glide.ksp)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.play.services.maps)
