@@ -15,12 +15,14 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.screens.login.LoginActivity
+import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.login.LoginFragment
 
 class ProfileFragment : Fragment() {
 
@@ -155,7 +157,8 @@ class ProfileFragment : Fragment() {
     private fun onLogoutClicked() {
         btnLogout.setOnClickListener {
             auth.signOut()
-            val intent = Intent(activity, LoginActivity::class.java)
+            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+            val intent = Intent(activity, HomeActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             activity?.finish()
