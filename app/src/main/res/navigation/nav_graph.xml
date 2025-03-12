@@ -20,10 +20,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/accountFragment"
-        android:name="AccountFragment"
-        android:label="Account"
-        tools:layout="@layout/fragment_account">
+        android:id="@+id/profileFragment"
+        android:name="com.group147.appartmentblog.screens.userProfile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
     </fragment>
     <activity
         android:id="@+id/addApartmentActivity"
