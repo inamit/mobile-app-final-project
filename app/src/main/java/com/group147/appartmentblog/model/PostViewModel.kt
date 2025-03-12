@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.group147.appartmentblog.model.service.dao.PostDatabase
+import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.repositories.PostRepository
 import kotlinx.coroutines.launch
 

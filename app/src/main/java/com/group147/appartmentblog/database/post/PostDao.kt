@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.model.service.dao
+package com.group147.appartmentblog.database.post
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
