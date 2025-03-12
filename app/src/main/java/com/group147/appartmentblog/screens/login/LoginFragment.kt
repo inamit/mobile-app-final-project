@@ -137,20 +137,14 @@ class LoginFragment : Fragment() {
 
                 userRef.set(userUpdates)
                     .addOnSuccessListener {
-                        if (isAdded) {
                             Toast.makeText(requireContext(), "User logged in successfully", Toast.LENGTH_SHORT).show()
-                        }
                     }
                     .addOnFailureListener {
-                        if (isAdded) {
                             Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
-                        }
                     }
             }
         }.addOnFailureListener {
-            if (isAdded) {
-                Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
         }
     }
 

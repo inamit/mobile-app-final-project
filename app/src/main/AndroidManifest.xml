@@ -28,10 +28,6 @@ xmlns:tools="http://schemas.android.com/tools">
     <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="YOUR_API_KEY" />
-
-    <activity
-        android:name=".screens.addApartment.AddApartmentActivity"
-        android:exported="false" />
     <activity
         android:name=".screens.home.HomeActivity"
         android:exported="true">

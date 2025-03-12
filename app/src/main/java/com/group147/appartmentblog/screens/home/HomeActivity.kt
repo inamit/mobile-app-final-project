@@ -52,7 +52,7 @@ class HomeActivity : AppCompatActivity() {
             navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
 
             addApartmentButton.setOnClickListener {
-                navController?.navigate(R.id.addApartmentActivity)
+                navController?.navigate(R.id.addApartmentFragment)
             }
         }
     }
