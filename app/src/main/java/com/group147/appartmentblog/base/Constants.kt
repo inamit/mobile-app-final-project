@@ -1,12 +1,8 @@
 package com.group147.appartmentblog.base
 
-import com.group147.appartmentblog.model.Post
-
-typealias PostsCallback = (List<Post>) -> Unit
+typealias TaskCallback<T> = (T?, Exception?) -> Unit
 typealias EmptyCallback = () -> Unit
 
-object Constants {
-    object Collections {
-        const val POSTS = "posts"
-    }
+enum class Collections(val collectionName: String) {
+    POSTS("posts")
 }

@@ -17,11 +17,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.screens.signup.SignUpActivity
+import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.signup.SignUpActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -109,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid ?: return
 
-        val firestore = FirebaseFirestore.getInstance()
+        val firestore = FirebaseModel().database
         val userRef = firestore.collection("users").document(uid)
 
         userRef.get().addOnSuccessListener { document ->

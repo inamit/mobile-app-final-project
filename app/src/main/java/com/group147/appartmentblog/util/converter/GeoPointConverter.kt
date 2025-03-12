@@ -1,11 +1,10 @@
-package com.group147.appartmentblog.util
+package com.group147.appartmentblog.util.converter
 
 import androidx.room.TypeConverter
 import com.google.firebase.firestore.GeoPoint
 
 class GeoPointConverter {
 
-    // Convert GeoPoint to a String (you can also store it as latitude and longitude as separate fields if needed)
     @TypeConverter
     fun fromGeoPoint(geoPoint: GeoPoint?): String? {
         return geoPoint?.let {
@@ -13,7 +12,6 @@ class GeoPointConverter {
         }
     }
 
-    // Convert String back to GeoPoint
     @TypeConverter
     fun toGeoPoint(data: String?): GeoPoint? {
         return data?.let {

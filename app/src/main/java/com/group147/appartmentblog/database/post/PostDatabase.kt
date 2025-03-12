@@ -6,10 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.util.GeoPointConverter
+import com.group147.appartmentblog.util.converter.GeoPointConverter
 
 
-@Database(entities = [Post::class], version = 3, exportSchema = false)
+@Database(entities = [Post::class], version = 1, exportSchema = false)
 @TypeConverters(GeoPointConverter::class)
 abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao

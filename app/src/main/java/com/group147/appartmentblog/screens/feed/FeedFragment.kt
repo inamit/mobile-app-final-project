@@ -1,3 +1,5 @@
+package com.group147.appartmentblog.screens.feed
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -5,37 +7,55 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.group147.appartmentblog.R
-import com.group147.appartmentblog.adapters.PostAdapter
-import com.group147.appartmentblog.model.PostViewModel
+import com.group147.appartmentblog.database.post.PostDatabase
+import com.group147.appartmentblog.databinding.FragmentFeedBinding
+import com.group147.appartmentblog.model.FirebaseModel
+import com.group147.appartmentblog.repositories.PostRepository
+import com.group147.appartmentblog.screens.adapters.PostAdapter
 
 class FeedFragment : Fragment() {
-    private lateinit var postViewModel: PostViewModel
-    private lateinit var adapter: PostAdapter
+    private lateinit var binding: FragmentFeedBinding
+    private lateinit var feedViewModel: FeedViewModel
+    private lateinit var postAdapter: PostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_post_list, container, false)
+        binding = FragmentFeedBinding.inflate(layoutInflater)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        return binding.root
+    }
 
-        adapter = PostAdapter() // Initialize with empty list
-        recyclerView.adapter = adapter
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Get ViewModel instance directly
-        postViewModel = ViewModelProvider(this).get(PostViewModel::class.java)
+        val firebaseModel = FirebaseModel()
+        val database = PostDatabase.getDatabase(requireContext())
+        val postDao = database.postDao()
+        val postRepository = PostRepository(firebaseModel, postDao)
+        feedViewModel = ViewModelProvider(
+            requireActivity(),
+            FeedViewModelFactory(postRepository)
+        )[FeedViewModel::class.java]
 
-        // Observe LiveData for automatic UI updates
-        postViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
+        setupRecyclerView()
+        observePosts()
+    }
+
+    private fun setupRecyclerView() {
+        postAdapter = PostAdapter()
+        binding.postsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = postAdapter
+        }
+    }
+
+    private fun observePosts() {
+        feedViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
             posts?.let {
-                adapter.submitList(it)  // Update the adapter's data
+                postAdapter.submitList(it)
             }
         }
-
-        return view
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -24,7 +23,7 @@
 
             <!-- Title -->
             <TextView
-                android:id="@+id/tvTitle"
+                android:id="@+id/title_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Title"
@@ -34,7 +33,7 @@
 
             <!-- Price -->
             <TextView
-                android:id="@+id/tvPrice"
+                android:id="@+id/price_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Price"
@@ -44,7 +43,7 @@
 
             <!-- Rooms (Optional) -->
             <TextView
-                android:id="@+id/tvRooms"
+                android:id="@+id/rooms_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Rooms"
@@ -55,7 +54,7 @@
 
         <!-- Image section (Right part) -->
         <ImageView
-            android:id="@+id/tv_image"
+            android:id="@+id/image_view"
             android:layout_width="126dp"
             android:layout_height="86dp"
             android:layout_gravity="center_vertical"
