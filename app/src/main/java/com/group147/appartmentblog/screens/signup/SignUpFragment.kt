@@ -11,16 +11,38 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginFragment
+import android.view.MenuItem
 
-class SignUpFragment : Fragment() {
+class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private var selectedImageUri: Uri? = null
     private val viewModel: SignUpViewModel by viewModels()
+
+    private val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                selectedImageUri = it
+                view?.findViewById<ImageView>(R.id.user_image)?.setImageURI(it)
+            }
+        }
+
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                val userImage: ImageView = view?.findViewById(R.id.user_image) ?: return@registerForActivityResult
+                userImage.setImageBitmap(it)
+                selectedImageUri = Uri.parse("android.resource://${requireContext().packageName}/drawable/ic_user_placeholder")
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,9 +73,12 @@ class SignUpFragment : Fragment() {
         }
 
         uploadImageButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent, 1)
+            PopupMenu(requireContext(), it).apply {
+                setOnMenuItemClickListener(this@SignUpFragment)
+                menuInflater.inflate(R.menu.image_picker_menu, menu)
+                setForceShowIcon(true)
+                show()
+            }
         }
 
         signupButton.setOnClickListener {
@@ -81,12 +106,17 @@ class SignUpFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data!!
-            val userImage: ImageView = view?.findViewById(R.id.user_image) ?: return
-            userImage.setImageURI(selectedImageUri)
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.camera -> {
+                cameraLauncher.launch(null)
+                true
+            }
+            R.id.gallery -> {
+                galleryLauncher.launch("image/*")
+                true
+            }
+            else -> false
         }
     }
 

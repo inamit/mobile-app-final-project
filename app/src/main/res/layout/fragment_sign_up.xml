@@ -7,18 +7,16 @@
 
     <Button
         android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:text="Back"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/back_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/user_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:layout_marginTop="24dp"
         android:contentDescription="User Image"
         app:layout_constraintEnd_toEndOf="parent"
