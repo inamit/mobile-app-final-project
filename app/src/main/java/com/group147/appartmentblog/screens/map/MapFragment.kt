@@ -1,9 +1,11 @@
 package com.group147.appartmentblog.screens.map
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -48,9 +51,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map = googleMap
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        // Request user location
         getUserLocation()
-
         showPosts()
     }
 
@@ -79,13 +80,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12f))
+                    val icon = BitmapDescriptorFactory.fromBitmap(getBitmapFromDrawable(requireContext(), R.drawable.user_location_icon))
 
                     // Add marker for user location
                     map.addMarker(
                         MarkerOptions()
                             .position(userLatLng)
                             .title("You are here")
-                            .icon(resizeMapIcon(R.drawable.user_location_icon, 150, 150))
+                            .icon(icon)
                     )
                 } else {
                     Toast.makeText(requireContext(), "Unable to get location", Toast.LENGTH_SHORT)
@@ -158,7 +160,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // TODO: Implement navigation to post details screen
     }
 
+   private fun getBitmapFromDrawable(context: Context, drawableId: Int): Bitmap {
+        val drawable = ContextCompat.getDrawable(context, drawableId) ?: return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
 
+        val bitmap = Bitmap.createBitmap(
+            drawable.intrinsicWidth,
+            drawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        return bitmap
+    }
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
