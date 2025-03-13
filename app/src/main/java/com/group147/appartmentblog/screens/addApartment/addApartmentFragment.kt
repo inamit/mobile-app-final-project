@@ -35,9 +35,7 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentAddApartmentBinding
     private lateinit var storage: FirebaseStorage
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
     private var location: GeoPoint? = null
-
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
             galleryUri?.let {
@@ -50,7 +48,6 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 binding.imagePreview.setImageBitmap(it)
             }
         }
-
     private val requestPermissionLauncher =
         registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {

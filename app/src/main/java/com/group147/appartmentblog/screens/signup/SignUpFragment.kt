@@ -1,18 +1,17 @@
 package com.group147.appartmentblog.screens.signup
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
@@ -20,29 +19,13 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.login.LoginFragment
-import android.view.MenuItem
 
 class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
-    private var selectedImageUri: Uri? = null
     private val viewModel: SignUpViewModel by viewModels()
-
-    private val galleryLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
-            galleryUri?.let {
-                selectedImageUri = it
-                view?.findViewById<ImageView>(R.id.user_image)?.setImageURI(it)
-            }
-        }
-
-    private val cameraLauncher =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            bitmap?.let {
-                val userImage: ImageView = view?.findViewById(R.id.user_image) ?: return@registerForActivityResult
-                userImage.setImageBitmap(it)
-                selectedImageUri = Uri.parse("android.resource://${requireContext().packageName}/drawable/ic_user_placeholder")
-            }
-        }
+    private lateinit var galleryLauncher: ActivityResultLauncher<String>
+    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
+    private lateinit var userImage: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +45,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         val usernameInput: EditText = view.findViewById(R.id.username_input)
         val phoneInput: EditText = view.findViewById(R.id.phone_input)
         val confirmPasswordInput: EditText = view.findViewById(R.id.confirm_password_input)
-        val userImage: ImageView = view.findViewById(R.id.user_image)
+        userImage = view.findViewById(R.id.user_image)
 
         backButton.setOnClickListener {
             parentFragmentManager.commit {
@@ -87,8 +70,10 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 val password = passwordInput.text.toString()
                 val username = usernameInput.text.toString()
                 val phone = phoneInput.text.toString()
-                val imageUri = selectedImageUri ?: Uri.parse("android.resource://${requireContext().packageName}/drawable/ic_user_placeholder")
-                viewModel.registerUser(email, password, username, phone, imageUri)
+
+                val imageDrawable = userImage.drawable
+                val imageBitmap = imageDrawable?.toBitmap()
+                viewModel.registerUser(email, password, username, phone, imageBitmap)
             }
         }
 
@@ -102,6 +87,18 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
             } else {
                 Toast.makeText(requireContext(), "Failed to register user", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                userImage.setImageURI(it)
+            }
+        }
+
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                userImage.setImageBitmap(it)
             }
         }
     }

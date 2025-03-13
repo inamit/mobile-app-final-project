@@ -125,7 +125,6 @@ class LoginFragment : Fragment() {
             if (document != null) {
                 val userUpdates = hashMapOf<String, Any?>(
                     "email" to email,
-                    "imageUrl" to imageUrl
                 )
 
                 if (document.contains("username")) {
@@ -133,6 +132,11 @@ class LoginFragment : Fragment() {
                 }
                 if (document.contains("phone")) {
                     userUpdates["phone"] = document.getString("phone")
+                }
+                if (document.contains("imageUrl")) {
+                    userUpdates["imageUrl"] = document.getString("imageUrl")
+                } else {
+                    userUpdates["imageUrl"] = imageUrl
                 }
 
                 userRef.set(userUpdates)
