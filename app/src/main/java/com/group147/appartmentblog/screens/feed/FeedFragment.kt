@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
+import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.R
 
 class FeedFragment : Fragment() {
     private lateinit var binding: FragmentFeedBinding
@@ -38,11 +41,28 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        postAdapter = PostAdapter()
+        postAdapter = PostAdapter { post ->
+            openPostFragment(post)
+        }
+
         binding.postsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = postAdapter
         }
+    }
+    private fun openPostFragment(post: Post) {
+        val bundle = Bundle().apply {
+            putString("id", post.id)
+            putString("userId", post.userId)
+            putString("title", post.title)
+            putString("content", post.content)
+            putDouble("price", post.price)
+            putInt("rooms", post.rooms)
+            putInt("floor", post.floor)
+            putString("image", post.image)
+        }
+
+        findNavController().navigate(R.id.postFragment, bundle)
     }
 
     private fun observePosts() {
