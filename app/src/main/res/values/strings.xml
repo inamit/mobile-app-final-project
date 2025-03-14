@@ -25,5 +25,15 @@
     <string name="price">Price</string>
     <string name="number_of_rooms">Rooms</string>
     <string name="floor">Floor</string>
-    <string name="back_button_text">Back</string>
+    <string name="update_time">Update Time</string>
+    <string name="update_post">Update Post</string>
+    <string name="edit_floor">Edit Floor</string>
+    <string name="edit_rooms">Edit Rooms</string>
+    <string name="rooms">Rooms</string>
+    <string name="edit_price">Edit Price</string>
+    <string name="edit_content">Edit Content</string>
+    <string name="content">Content</string>
+    <string name="edit_title">Edit Title</string>
+    <string name="title">Title</string>
+    <string name="aparttment_image">apparttment</string>
 </resources>
