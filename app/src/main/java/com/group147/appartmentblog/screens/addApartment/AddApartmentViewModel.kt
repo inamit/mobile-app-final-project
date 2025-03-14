@@ -6,21 +6,19 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.GeoPoint
-import com.group147.appartmentblog.databinding.ActivityAddApartmentBinding
+import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
 
 class AddApartmentViewModel(
-    private val binding: ActivityAddApartmentBinding,
+    private val binding: FragmentAddApartmentBinding,
     private val postRepository: PostRepository
 ) : ViewModel() {
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: MutableLiveData<String>
         get() = _toastMessage
 
-    var location: GeoPoint? = null
-
-    fun savePost(callback: (String?) -> Unit) {
+    fun savePost(location: GeoPoint?, callback: (String?) -> Unit) {
         if (location == null) {
             _toastMessage.postValue("Location is required to upload a post")
             return
@@ -37,7 +35,7 @@ class AddApartmentViewModel(
             floor = binding.floorEditText.text.toString().toInt(),
             rooms = binding.roomsEditText.text.toString().toInt(),
             price = binding.priceEditText.text.toString().toDouble(),
-            location = location!!,
+            location = location,
             image = null
         )
         val image = binding.imagePreview.drawable.toBitmap()
@@ -79,5 +77,4 @@ class AddApartmentViewModel(
 
         return valid
     }
-
 }
