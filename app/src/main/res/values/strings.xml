@@ -25,4 +25,5 @@
     <string name="price">Price</string>
     <string name="number_of_rooms">Rooms</string>
     <string name="floor">Floor</string>
+    <string name="back_button_text">Back</string>
 </resources>
