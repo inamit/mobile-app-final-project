@@ -25,9 +25,10 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
     </fragment>
-    <activity
-        android:id="@+id/addApartmentActivity"
-        android:name="com.group147.appartmentblog.screens.addApartment.AddApartmentActivity"
-        android:label="activity_add_apartment"
-        tools:layout="@layout/activity_add_apartment" />
+
+    <fragment
+        android:id="@+id/addApartmentFragment"
+        android:name="com.group147.appartmentblog.screens.addApartment.AddApartmentFragment"
+        android:label="Add Apartment"
+        tools:layout="@layout/fragment_add_apartment" />
 </navigation>
