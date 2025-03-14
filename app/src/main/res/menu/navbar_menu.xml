@@ -3,18 +3,18 @@
     <item
         android:id="@+id/feedFragment"
         android:icon="@drawable/lists_logo"
-        android:showAsAction="ifRoom"
-        android:title="Feed" />
+        android:title="Feed"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/mapFragment"
         android:icon="@drawable/map_logo"
-        android:showAsAction="ifRoom"
-        android:title="Map" />
+        android:title="Map"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/account_logo"
-        android:showAsAction="ifRoom"
-        android:title="Profile" />
+        android:title="Profile"
+        app:showAsAction="ifRoom" />
 </menu>

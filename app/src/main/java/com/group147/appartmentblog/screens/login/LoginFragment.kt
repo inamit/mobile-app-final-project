@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -21,13 +20,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.databinding.FragmentLoginBinding
+import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.screens.home.HomeActivity
 import com.group147.appartmentblog.screens.signup.SignUpFragment
 
 class LoginFragment : Fragment() {
+    private lateinit var binding: FragmentLoginBinding
     private lateinit var auth: FirebaseAuth
     private val viewModel: LoginViewModel by viewModels()
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
@@ -36,14 +37,19 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+        binding = FragmentLoginBinding.inflate(layoutInflater, container, false)
+
+        (activity as HomeActivity).hideBottomNavBar()
+        (activity as HomeActivity).hideAddApartmentButton()
+        (activity as HomeActivity).hideToolbar()
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         auth = Firebase.auth
-        checkCurrentUser()
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -66,49 +72,67 @@ class LoginFragment : Fragment() {
             loginWithEmailAndPassword()
         }
 
-        googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    if (account != null) {
-                        val email = account.email
-                        val imageUrl = account.photoUrl.toString()
+        googleSignInLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    try {
+                        val account = task.getResult(ApiException::class.java)
+                        if (account != null) {
+                            val email = account.email
+                            val imageUrl = account.photoUrl.toString()
 
-                        viewModel.onLoginWithGoogle(account, {
-                            saveUserDataToFirestore(email, imageUrl)
-                            val homeIntent = Intent(activity, HomeActivity::class.java)
-                            startActivity(homeIntent)
-                            activity?.finish()
-                        }, {
-                            Toast.makeText(requireContext(), "Failed to login with Google", Toast.LENGTH_SHORT).show()
-                        })
+                            viewModel.onLoginWithGoogle(account, {
+                                saveUserDataToFirestore(email, imageUrl)
+                                val homeIntent = Intent(activity, HomeActivity::class.java)
+                                startActivity(homeIntent)
+                                activity?.finish()
+                            }, {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to login with Google",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            })
+                        }
+                    } catch (e: ApiException) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to login with Google",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                } catch (e: ApiException) {
-                    Toast.makeText(requireContext(), "Failed to login with Google", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as HomeActivity).showToolbar()
     }
 
     private fun loginWithEmailAndPassword() {
         val email = view?.findViewById<EditText>(R.id.email_input)?.text.toString()
         val password = view?.findViewById<EditText>(R.id.password_input)?.text.toString()
-        viewModel.onLogin(email, password, {
-            val homeIntent = Intent(activity, HomeActivity::class.java)
-            startActivity(homeIntent)
-            activity?.finish()
-        },
+        viewModel.onLogin(
+            email, password, {
+                val homeIntent = Intent(activity, HomeActivity::class.java)
+                startActivity(homeIntent)
+                activity?.finish()
+            },
             { message ->
-                Toast.makeText(requireContext(), "Failed to login. $message", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to login. $message", Toast.LENGTH_SHORT)
+                    .show()
             })
     }
 
     private fun loginWithGoogle() {
-        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestIdToken(getString(R.string.web_client_id))
-            .build())
+        val googleSignInClient = GoogleSignIn.getClient(
+            requireActivity(), GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(getString(R.string.web_client_id))
+                .build()
+        )
 
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
@@ -118,7 +142,7 @@ class LoginFragment : Fragment() {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid ?: return
 
-        val firestore = FirebaseFirestore.getInstance()
+        val firestore = FirebaseModel().database
         val userRef = firestore.collection("users").document(uid)
 
         userRef.get().addOnSuccessListener { document ->
@@ -141,34 +165,20 @@ class LoginFragment : Fragment() {
 
                 userRef.set(userUpdates)
                     .addOnSuccessListener {
-                            Toast.makeText(requireContext(), "User logged in successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "User logged in successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     .addOnFailureListener {
-                            Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT)
+                            .show()
                     }
             }
         }.addOnFailureListener {
             Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun checkCurrentUser() {
-        val homeIntent = Intent(activity, HomeActivity::class.java)
-
-        val content: View = view?.findViewById(android.R.id.content) ?: return
-        content.viewTreeObserver.addOnPreDrawListener(
-            object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    if (viewModel.isLoggedIn()) {
-                        startActivity(homeIntent)
-                        activity?.finish()
-                    }
-
-                    content.viewTreeObserver.removeOnPreDrawListener(this)
-                    return true
-                }
-            }
-        )
     }
 
     private fun showSignUpFragment() {

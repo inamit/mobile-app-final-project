@@ -6,81 +6,81 @@
     android:id="@+id/profileFragment"
     tools:context=".screens.userProfile.ProfileFragment">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp"
-        android:layout_gravity="top">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Logout" />
+            android:layout_gravity="top"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <FrameLayout
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="70dp">
+            <FrameLayout
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="70dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/profile_image"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Profile Image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user_placeholder"
+                    android:tooltipText="Press to update"
+                    app:shapeAppearanceOverlay="@style/RoundedCornerImage" />
+
+                <ImageView
+                    android:id="@+id/edit_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="8dp"
+                    android:alpha="0.6"
+                    android:contentDescription="Edit Icon"
+                    android:src="@drawable/ic_edit" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/email_text"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="Profile Image"
-                android:src="@drawable/ic_user_placeholder"
-                android:tooltipText="Press to update"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/RoundedCornerImage" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="35dp"
+                android:enabled="false"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textSize="36sp"
+                android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/edit_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="8dp"
-                android:contentDescription="Edit Icon"
-                android:src="@drawable/ic_edit"
-                android:alpha="0.6" />
-        </FrameLayout>
+            <EditText
+                android:id="@+id/username_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="35dp"
+                android:hint="New Username"
+                android:textSize="24sp" />
 
-        <TextView
-            android:id="@+id/email_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="35dp"
-            android:enabled="false"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:textSize="36sp"
-            android:textStyle="bold" />
+            <EditText
+                android:id="@+id/phone_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="130dp"
+                android:hint="New Phone Number"
+                android:inputType="phone"
+                android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/username_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="35dp"
-            android:hint="New Username"
-            android:textSize="24sp" />
+            <Button
+                android:id="@+id/update_profile_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="32dp"
+                android:text="Update Profile" />
+        </LinearLayout>
+    </ScrollView>
 
-        <EditText
-            android:id="@+id/phone_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="130dp"
-            android:textSize="24sp"
-            android:hint="New Phone Number" />
-
-        <Button
-            android:id="@+id/update_profile_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="32dp"
-            android:text="Update Profile" />
-    </LinearLayout>
 </FrameLayout>

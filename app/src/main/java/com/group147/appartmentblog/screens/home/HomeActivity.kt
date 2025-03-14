@@ -5,26 +5,37 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.base.Collections
+import com.group147.appartmentblog.database.post.PostDatabase
+import com.group147.appartmentblog.databinding.ActivityHomeBinding
+import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.model.service.SubscriptionService
+import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.screens.login.LoginFragment
 
 class HomeActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityHomeBinding
+    private val viewModel by viewModels<HomeViewModel>()
     var navController: NavController? = null
 
+    private var postSubscriptionService: SubscriptionService<Post>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
+        super.onCreate(savedInstanceState)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -32,29 +43,99 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
-        val addApartmentButton: FloatingActionButton = findViewById(R.id.add_apartment_button)
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
+        val navHostFragment: NavHostFragment? =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        navController = navHostFragment?.navController
 
-        if (FirebaseAuth.getInstance().currentUser == null) {
-            addApartmentButton.hide()
-            bottomNavigationView.visibility = View.GONE
-            supportFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace(R.id.nav_host_fragment, LoginFragment())
-            }
-        } else {
-            addApartmentButton.show()
-            bottomNavigationView.visibility = View.VISIBLE
-            val navHostFragment: NavHostFragment? =
-                supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-            navController = navHostFragment?.navController
+        navController?.let { NavigationUI.setupWithNavController(binding.bottomNavigationView, it) }
 
-            navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
-
-            addApartmentButton.setOnClickListener {
-                navController?.navigate(R.id.addApartmentFragment)
+        viewModel.currentUser.observe(this) {
+            if (it == null) {
+                postSubscriptionService?.stopListeningForCollection()
+            } else {
+                if (postSubscriptionService == null) {
+                    postSubscriptionService = SubscriptionService(
+                        getPostRepository()
+                    )
+                }
+                postSubscriptionService?.listenForCollection(Collections.POSTS)
             }
         }
+
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            goToApp()
+        } else {
+            goToLogin()
+        }
+    }
+
+    fun getPostRepository(): PostRepository {
+        val database = PostDatabase.getDatabase(this)
+        val postDao = database.postDao()
+        return PostRepository.getRepository(postDao)
+    }
+
+    private fun goToApp() {
+        showAddApartmentButton()
+        showBottomNavBar()
+
+        binding.addApartmentButton.setOnClickListener {
+            navController?.navigate(R.id.addApartmentFragment)
+        }
+    }
+
+    private fun goToLogin() {
+        hideAddApartmentButton()
+        hideBottomNavBar()
+
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.nav_host_fragment, LoginFragment())
+        }
+    }
+
+    fun showAddApartmentButton() {
+        binding.addApartmentButton.show()
+    }
+
+    fun hideAddApartmentButton() {
+        binding.addApartmentButton.hide()
+    }
+
+    fun showBottomNavBar() {
+        binding.bottomNavigationView.visibility = View.VISIBLE
+    }
+
+    fun hideBottomNavBar() {
+        binding.bottomNavigationView.visibility = View.GONE
+    }
+
+    fun showToolbar() {
+        binding.toolbar.visibility = View.VISIBLE
+    }
+
+    fun hideToolbar() {
+        binding.toolbar.visibility = View.GONE
+    }
+
+    fun showToolbarNavigationIcon() {
+        binding.toolbar.setNavigationIcon(R.drawable.back_icon)
+        binding.toolbar.setNavigationOnClickListener {
+            navController?.popBackStack()
+        }
+    }
+
+    fun hideToolbarNavigationIcon() {
+        binding.toolbar.navigationIcon = null
+    }
+
+    fun showProfileToolbarMenu(onMenuItemClickListener: Toolbar.OnMenuItemClickListener) {
+        binding.toolbar.inflateMenu(R.menu.profile_toolbar_menu)
+        binding.toolbar.setOnMenuItemClickListener(onMenuItemClickListener)
+    }
+
+    fun hideToolbarMenu() {
+        binding.toolbar.menu.clear()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
