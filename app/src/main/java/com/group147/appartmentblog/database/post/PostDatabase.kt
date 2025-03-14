@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.util.converter.GeoPointConverter
 
@@ -18,12 +19,16 @@ abstract class PostDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: PostDatabase? = null
 
+        fun getDatabase(): PostDatabase? {
+            return INSTANCE
+        }
+
         fun getDatabase(context: Context): PostDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     PostDatabase::class.java,
-                    "posts"
+                    Collections.POSTS.collectionName
                 ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance

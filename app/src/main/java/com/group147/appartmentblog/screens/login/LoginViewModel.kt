@@ -13,10 +13,6 @@ import kotlinx.coroutines.launch
 class LoginViewModel : ViewModel() {
     private val authService: AuthService = AuthService()
 
-    fun isLoggedIn(): Boolean {
-        return authService.hasUser()
-    }
-
     fun onLogin(
         email: String,
         password: String,

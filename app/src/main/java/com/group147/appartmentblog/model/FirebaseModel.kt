@@ -17,6 +17,10 @@ class FirebaseModel {
     val database = Firebase.firestore
     val storage = Firebase.storage
 
+    companion object {
+        val instance = FirebaseModel()
+    }
+
     init {
         val settings = firestoreSettings {
             setLocalCacheSettings(memoryCacheSettings { })

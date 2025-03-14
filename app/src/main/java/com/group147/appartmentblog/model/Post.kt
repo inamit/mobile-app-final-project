@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.group147.appartmentblog.base.UPDATE_TIME_KEY
 import java.util.Date
 
 @Entity(tableName = "posts")
@@ -29,7 +30,6 @@ data class Post(
         const val ROOMS_KEY = "rooms"
         const val FLOOR_KEY = "floor"
         const val LOCATION_KEY = "location"
-        const val UPDATE_TIME_KEY = "updateTime"
         const val IMAGE_URL_KEY = "imageUrl"
 
 

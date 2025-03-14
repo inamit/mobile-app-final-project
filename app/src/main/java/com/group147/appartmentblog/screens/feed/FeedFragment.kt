@@ -7,11 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
-import com.group147.appartmentblog.model.FirebaseModel
-import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.screens.adapters.PostAdapter
+import com.group147.appartmentblog.screens.home.HomeActivity
 
 class FeedFragment : Fragment() {
     private lateinit var binding: FragmentFeedBinding
@@ -30,13 +28,9 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val firebaseModel = FirebaseModel()
-        val database = PostDatabase.getDatabase(requireContext())
-        val postDao = database.postDao()
-        val postRepository = PostRepository(firebaseModel, postDao)
         feedViewModel = ViewModelProvider(
             requireActivity(),
-            FeedViewModelFactory(postRepository)
+            FeedViewModelFactory((activity as HomeActivity).getPostRepository())
         )[FeedViewModel::class.java]
 
         setupRecyclerView()

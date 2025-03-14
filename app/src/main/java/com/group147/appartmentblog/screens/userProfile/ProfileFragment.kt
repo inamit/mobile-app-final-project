@@ -1,7 +1,6 @@
 package com.group147.appartmentblog.screens.userProfile
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -17,14 +16,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
-import java.io.ByteArrayOutputStream
-import android.content.Intent
 import com.group147.appartmentblog.screens.home.HomeActivity
+import java.io.ByteArrayOutputStream
 
 class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
@@ -34,7 +33,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var phoneInput: EditText
     private lateinit var emailText: TextView
     private lateinit var updateProfileButton: Button
-    private lateinit var btnLogout: Button
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
@@ -47,6 +45,17 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
+        (activity as HomeActivity).showProfileToolbarMenu {
+            when (it.itemId) {
+                R.id.logout -> {
+                    onLogoutClicked()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
@@ -57,21 +66,20 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         phoneInput = view.findViewById(R.id.phone_input)
         emailText = view.findViewById(R.id.email_text)
         updateProfileButton = view.findViewById(R.id.update_profile_button)
-        btnLogout = view.findViewById(R.id.btnLogout)
 
-        onLogoutClicked()
-
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
-            galleryUri?.let {
-                profileImageView.setImageURI(it)
+        galleryLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+                galleryUri?.let {
+                    profileImageView.setImageURI(it)
+                }
             }
-        }
 
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            bitmap?.let {
-                profileImageView.setImageBitmap(it)
+        cameraLauncher =
+            registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+                bitmap?.let {
+                    profileImageView.setImageBitmap(it)
+                }
             }
-        }
 
         editImageView.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
@@ -89,6 +97,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         loadUserProfile()
 
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as HomeActivity).hideToolbarMenu()
     }
 
     private fun loadUserProfile() {
@@ -116,7 +129,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
                 .addOnFailureListener { e ->
                     context?.let {
-                        Toast.makeText(it, "Failed to load user data: $e", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(it, "Failed to load user data: $e", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
         }
@@ -184,16 +198,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun onLogoutClicked() {
-        btnLogout.setOnClickListener {
-            auth.signOut()
-            context?.let {
-                Toast.makeText(it, "Logged out successfully", Toast.LENGTH_SHORT).show()
-            }
-            val intent = Intent(activity, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            activity?.finish()
-        }
+        auth.signOut()
+        findNavController().navigate(R.id.loginFragment)
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
@@ -202,10 +208,12 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 cameraLauncher.launch(null)
                 true
             }
+
             R.id.gallery -> {
                 galleryLauncher.launch("image/*")
                 true
             }
+
             else -> false
         }
     }
