@@ -10,7 +10,8 @@ import com.group147.appartmentblog.databinding.PostCardBinding
 import com.group147.appartmentblog.model.Post
 import com.squareup.picasso.Picasso
 
-class PostAdapter : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallback()) {
+class PostAdapter(private val onPostClick: (Post) -> Unit) :
+    ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = PostCardBinding.inflate(
@@ -23,32 +24,31 @@ class PostAdapter : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallba
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = getItem(position)
-        holder.bind(post)
+        holder.bind(post, onPostClick)
     }
-
-    override fun getItemCount(): Int = currentList.size
 
     class PostViewHolder(private val binding: PostCardBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(post: Post) {
+
+        fun bind(post: Post, onPostClick: (Post) -> Unit) {
             binding.titleTextView.text = post.title
             binding.priceTextView.text = "Price: \$${post.price}"
             binding.roomsTextView.text = "Rooms: ${post.rooms}"
-            Log.d("PostAdapter", "Binding post: ${post.image.toString()}")
+            Log.d("PostAdapter", "Binding post: ${post.image}")
 
             if (post.image != null) {
-                Picasso.get().load(post.image.toString()).into(binding.imageView)
+                Picasso.get().load(post.image).into(binding.imageView)
+            }
+
+            // Handle click event
+            binding.root.setOnClickListener {
+                onPostClick(post)
             }
         }
     }
 
     class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: Post, newItem: Post) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Post, newItem: Post) = oldItem == newItem
     }
 }
