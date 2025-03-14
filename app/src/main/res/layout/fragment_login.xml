@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.login.LoginActivity">
+    tools:context=".screens.login.LoginFragment">
 
     <ImageView
         android:id="@+id/image_preview"
@@ -117,4 +117,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/no_account_text" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
