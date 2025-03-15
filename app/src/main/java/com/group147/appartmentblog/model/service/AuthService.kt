@@ -1,13 +1,16 @@
 package com.group147.appartmentblog.model.service
 
 import android.graphics.Bitmap
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.base.TaskCallback
+import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
 import kotlinx.coroutines.channels.awaitClose
@@ -31,9 +34,32 @@ class AuthService {
         return auth.currentUser != null
     }
 
-    suspend fun loginWithGoogle(idToken: String) {
-        val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(firebaseCredential).await()
+    suspend fun loginWithGoogle(account: GoogleSignInAccount, userRepository: UserRepository) {
+        val firebaseCredential = GoogleAuthProvider.getCredential(account.idToken, null)
+        val user = auth.signInWithCredential(firebaseCredential).await().user
+
+        if (user != null) {
+            FirebaseModel.instance.getById(Collections.USERS, user.uid) { document, error ->
+                if (error != null || document == null) {
+                    return@getById
+                }
+
+                if (!document.exists()) {
+                    val appUser = User(
+                        id = user.uid,
+                        email = user.email ?: "",
+                        phoneNumber = "",
+                        displayName = "",
+                        imageUrl = account.photoUrl?.toString()
+                    )
+                    userRepository.insertUser(appUser, null) { _, error ->
+                        if (error != null) {
+                            throw error
+                        }
+                    }
+                }
+            }
+        }
     }
 
     suspend fun loginWithEmail(email: String, password: String): AuthResult? {

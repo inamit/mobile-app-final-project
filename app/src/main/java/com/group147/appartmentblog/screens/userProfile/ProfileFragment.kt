@@ -56,17 +56,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             ProfileViewModelFactory(userRepository)
         )[ProfileViewModel::class.java]
 
-        (activity as HomeActivity).showProfileToolbarMenu {
-            when (it.itemId) {
-                R.id.logout -> {
-                    onLogoutClicked()
-                    true
-                }
-
-                else -> false
-            }
-        }
-
         binding.editIcon.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
                 setOnMenuItemClickListener(this@ProfileFragment)
@@ -87,18 +76,32 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         loadUserProfile()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onResume() {
+        super.onResume()
+        (activity as HomeActivity).showProfileToolbarMenu {
+            when (it.itemId) {
+                R.id.logout -> {
+                    onLogoutClicked()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
         (activity as HomeActivity).hideToolbarMenu()
     }
 
     private fun loadUserProfile() {
         viewModel.user.observe(viewLifecycleOwner) { user ->
-            binding.usernameInput.setText(user.displayName)
-            binding.phoneInput.setText(user.phoneNumber)
-            binding.emailText.text = user.email
+            binding.usernameInput.setText(user?.displayName ?: "")
+            binding.phoneInput.setText(user?.phoneNumber ?: "")
+            binding.emailText.text = user?.email
 
-            if (user.imageUrl.isNullOrEmpty()) {
+            if (user?.imageUrl.isNullOrEmpty()) {
                 binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
             } else {
                 Picasso.get().load(user.imageUrl).into(binding.profileImage)

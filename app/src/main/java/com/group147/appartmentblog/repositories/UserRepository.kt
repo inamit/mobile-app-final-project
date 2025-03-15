@@ -115,13 +115,7 @@ class UserRepository private constructor(private val userDao: UserDao) :
                     return@uploadImage
                 }
 
-                val user = User(
-                    id = user.id,
-                    email = user.email,
-                    phoneNumber = user.phoneNumber,
-                    displayName = user.displayName,
-                    imageUrl = imageUrl
-                )
+                user.imageUrl = imageUrl
                 insertUserToFirebase(user) { userId, error ->
                     if (error != null) {
                         callback(null, error)
@@ -132,12 +126,6 @@ class UserRepository private constructor(private val userDao: UserDao) :
                 }
             }
         } else {
-            val user = User(
-                id = user.id,
-                email = user.email,
-                phoneNumber = user.phoneNumber,
-                displayName = user.displayName
-            )
             insertUserToFirebase(user) { userId, error ->
                 if (error != null) {
                     callback(null, error)

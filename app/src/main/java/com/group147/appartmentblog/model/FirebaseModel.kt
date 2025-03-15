@@ -3,6 +3,7 @@ package com.group147.appartmentblog.model
 import android.graphics.Bitmap
 import android.util.Log
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
@@ -26,6 +27,22 @@ class FirebaseModel {
             setLocalCacheSettings(memoryCacheSettings { })
         }
         database.firestoreSettings = settings
+    }
+
+    fun getById(
+        collection: Collections,
+        documentId: String,
+        callback: TaskCallback<DocumentSnapshot>
+    ) {
+        database.collection(collection.collectionName).document(documentId)
+            .get()
+            .addOnSuccessListener {
+                callback(it, null)
+            }
+            .addOnFailureListener {
+                Log.d("TAG", it.toString() + it.message)
+                callback(null, it)
+            }
     }
 
     fun add(

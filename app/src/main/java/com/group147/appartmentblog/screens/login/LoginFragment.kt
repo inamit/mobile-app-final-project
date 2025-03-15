@@ -1,7 +1,6 @@
 package com.group147.appartmentblog.screens.login
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,20 +10,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentLoginBinding
-import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.screens.home.HomeActivity
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel: LoginViewModel by viewModels()
+    private lateinit var viewModel: LoginViewModel
 
     private val googleSignInLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -33,14 +30,8 @@ class LoginFragment : Fragment() {
                 try {
                     val account = task.getResult(ApiException::class.java)
                     if (account != null) {
-                        val email = account.email
-                        val imageUrl = account.photoUrl.toString()
-
                         viewModel.onLoginWithGoogle(account, {
-                            saveUserDataToFirestore(email, imageUrl)
-                            val homeIntent = Intent(activity, HomeActivity::class.java)
-                            startActivity(homeIntent)
-                            activity?.finish()
+                            findNavController().navigate(R.id.feedFragment)
                         }, {
                             Toast.makeText(
                                 requireContext(),
@@ -65,7 +56,6 @@ class LoginFragment : Fragment() {
     ): View? {
         binding = FragmentLoginBinding.inflate(layoutInflater)
 
-
         return binding.root
     }
 
@@ -78,6 +68,11 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            LoginViewModelFactory((activity as HomeActivity).getUserRepository())
+        )[LoginViewModel::class.java]
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -98,8 +93,8 @@ class LoginFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         (activity as HomeActivity).showBottomNavBar()
         (activity as HomeActivity).showAddApartmentButton()
         (activity as HomeActivity).showToolbar()
@@ -110,9 +105,7 @@ class LoginFragment : Fragment() {
         val password = binding.passwordInput.text.toString()
         viewModel.onLogin(
             email, password, {
-                val homeIntent = Intent(activity, HomeActivity::class.java)
-                startActivity(homeIntent)
-                activity?.finish()
+                findNavController().navigate(R.id.feedFragment)
             },
             { message ->
                 Toast.makeText(requireContext(), "Failed to login. $message", Toast.LENGTH_SHORT)
@@ -130,41 +123,5 @@ class LoginFragment : Fragment() {
 
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
-    }
-
-    private fun saveUserDataToFirestore(email: String?, imageUrl: String?) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid ?: return
-
-        val firestore = FirebaseModel().database
-        val userRef = firestore.collection("users").document(uid)
-
-        userRef.get().addOnSuccessListener { document ->
-            if (document != null) {
-                val userUpdates = hashMapOf<String, Any?>(
-                    "email" to email,
-                )
-
-                if (document.contains("username")) {
-                    userUpdates["username"] = document.getString("username")
-                }
-                if (document.contains("phone")) {
-                    userUpdates["phone"] = document.getString("phone")
-                }
-                if (document.contains("imageUrl")) {
-                    userUpdates["imageUrl"] = document.getString("imageUrl")
-                } else {
-                    userUpdates["imageUrl"] = imageUrl
-                }
-
-                userRef.set(userUpdates)
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-            }
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
-        }
     }
 }
