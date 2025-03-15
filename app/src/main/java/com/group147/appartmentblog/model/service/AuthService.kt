@@ -54,7 +54,7 @@ class AuthService {
         return if (this == null) null else User(
             id = this.uid,
             email = this.email ?: "",
-            provider = this.providerId,
+            phoneNumber = this.phoneNumber ?: "",
             displayName = this.displayName ?: ""
         )
     }
