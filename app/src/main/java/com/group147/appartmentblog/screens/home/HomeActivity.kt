@@ -14,7 +14,6 @@ import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.google.firebase.auth.FirebaseAuth
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDatabase
@@ -62,7 +61,7 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        if (FirebaseAuth.getInstance().currentUser != null) {
+        if (viewModel.authService.hasUser()) {
             goToApp()
         } else {
             goToLogin()
