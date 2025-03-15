@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.base.EmptyCallback
+import com.group147.appartmentblog.base.ID_KEY
 import com.group147.appartmentblog.base.TaskCallback
 import java.io.ByteArrayOutputStream
 
@@ -53,9 +54,9 @@ class FirebaseModel {
             }
     }
 
-    fun update(post: Post, callback: TaskCallback<Void>) {
-        database.collection(Collections.POSTS.collectionName).document(post.id.toString())
-            .update(post.json)
+    fun update(collection: Collections, data: Map<String, Any?>, callback: TaskCallback<Void?>) {
+        database.collection(collection.collectionName).document(data.get(ID_KEY).toString())
+            .update(data)
             .addOnSuccessListener {
                 callback(it, null)
             }

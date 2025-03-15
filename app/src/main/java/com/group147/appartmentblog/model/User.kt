@@ -2,23 +2,23 @@ package com.group147.appartmentblog.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.DocumentSnapshot
 
-@Entity(tableName = "posts")
+@Entity(tableName = "users")
 data class User(
     @PrimaryKey val id: String = "",
     val email: String = "",
     val phoneNumber: String = "",
     val displayName: String = "",
-    val imageUrl: String? = ""
+    var imageUrl: String? = ""
 ) {
     companion object {
         const val EMAIL_KEY = "email"
-        const val PHONE_NUMBER_KEY = "phoneNumber"
-        const val DISPLAY_NAME_KEY = "displayName"
+        const val PHONE_NUMBER_KEY = "phone"
+        const val DISPLAY_NAME_KEY = "username"
         const val IMAGE_URL_KEY = "imageUrl"
 
-        fun fromFirestore(documentSnapshot: QueryDocumentSnapshot): User {
+        fun fromFirestore(documentSnapshot: DocumentSnapshot): User {
             return User(
                 id = documentSnapshot.id,
                 email = documentSnapshot.getString(EMAIL_KEY) ?: "",

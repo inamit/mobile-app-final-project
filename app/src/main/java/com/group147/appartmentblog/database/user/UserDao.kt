@@ -8,7 +8,7 @@ import com.group147.appartmentblog.model.User
 @Dao
 interface UserDao : IDao<User> {
     @Query("SELECT * FROM users limit 1")
-    fun getUser(): User
+    fun getUser(): User?
 
     @Query("DELETE FROM users")
     fun deleteExistingUser()

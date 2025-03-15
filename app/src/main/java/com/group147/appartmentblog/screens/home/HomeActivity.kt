@@ -20,6 +20,7 @@ import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.repositories.UserRepository
@@ -34,6 +35,7 @@ class HomeActivity : AppCompatActivity() {
     var navController: NavController? = null
 
     private var postSubscriptionService: SubscriptionService<Post>? = null
+    private var userSubscriptionService: SubscriptionService<User>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -56,7 +58,8 @@ class HomeActivity : AppCompatActivity() {
         viewModel.currentUser.observe(this) {
             CoroutineScope(Dispatchers.IO).launch {
                 if (it == null) {
-                    postSubscriptionService?.stopListeningForCollection()
+                    postSubscriptionService?.stopListening()
+                    userSubscriptionService?.stopListening()
                 } else {
                     val postRepository = getPostRepository()
                     if (postSubscriptionService == null) {
@@ -66,6 +69,12 @@ class HomeActivity : AppCompatActivity() {
                         Collections.POSTS,
                         postRepository.getLatestUpdatedTime()
                     )
+
+                    val userRepository = getUserRepository()
+                    if (userSubscriptionService == null) {
+                        userSubscriptionService = SubscriptionService(userRepository)
+                    }
+                    userSubscriptionService?.listenForEntity(Collections.USERS, it.id)
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.group147.appartmentblog.screens.userProfile
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -13,14 +12,11 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentProfileBinding
+import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.screens.home.HomeActivity
 import com.squareup.picasso.Picasso
-import java.io.ByteArrayOutputStream
 
 class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var viewModel: ProfileViewModel
@@ -40,19 +36,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
         }
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentProfileBinding.inflate(layoutInflater)
-
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
 
         return binding.root
     }
@@ -60,9 +48,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val userRepository = (activity as HomeActivity).getUserRepository()
+
         viewModel = ViewModelProvider(
             requireActivity(),
-            ProfileViewModelFactory((activity as HomeActivity).getUserRepository())
+            ProfileViewModelFactory(userRepository)
         )[ProfileViewModel::class.java]
 
         (activity as HomeActivity).showProfileToolbarMenu {
@@ -89,6 +79,10 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             updateProfile()
         }
 
+        viewModel.toastMessage.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
+
         loadUserProfile()
     }
 
@@ -112,64 +106,24 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun updateProfile() {
-        val user = auth.currentUser
-        user?.let {
-            val uid = user.uid
-            val username = binding.usernameInput.text.toString()
-            val phone = binding.phoneInput.text.toString()
+        val existingUser = viewModel.user.value
 
-            val userUpdates = hashMapOf<String, Any>()
-
-            if (username.isNotEmpty()) {
-                userUpdates["username"] = username
-            }
-            if (phone.isNotEmpty()) {
-                userUpdates["phone"] = phone
+        if (existingUser == null) {
+            context?.let {
+                Toast.makeText(it, "User not found", Toast.LENGTH_SHORT).show()
             }
 
-            val imageBitmap = binding.profileImage.drawable.toBitmap()
-            uploadImage(imageBitmap, uid) { imageUrl ->
-                if (imageUrl != null) {
-                    userUpdates["imageUrl"] = imageUrl
-                }
-                saveUserUpdates(uid, userUpdates)
-            }
+            return
         }
-    }
 
-    private fun uploadImage(image: Bitmap, uid: String, callback: (String?) -> Unit) {
-        val storageRef = storage.reference
-        val imageRef = storageRef.child("user_images/$uid.jpg")
+        val updatedUser = User(
+            id = existingUser.id,
+            email = existingUser.email,
+            phoneNumber = binding.phoneInput.text.toString(),
+            displayName = binding.usernameInput.text.toString()
+        )
 
-        val baos = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        val uploadTask = imageRef.putBytes(data)
-        uploadTask
-            .addOnFailureListener {
-                callback(null)
-            }
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener {
-                    callback(it.toString())
-                }
-            }
-    }
-
-    private fun saveUserUpdates(uid: String, userUpdates: Map<String, Any>) {
-        firestore.collection("users").document(uid).update(userUpdates)
-            .addOnSuccessListener {
-                context?.let {
-                    Toast.makeText(it, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                }
-                loadUserProfile()
-            }
-            .addOnFailureListener { e ->
-                context?.let {
-                    Toast.makeText(it, "Failed to update profile: $e", Toast.LENGTH_SHORT).show()
-                }
-            }
+        viewModel.updateUser(updatedUser, binding.profileImage.drawable.toBitmap())
     }
 
     private fun onLogoutClicked() {
