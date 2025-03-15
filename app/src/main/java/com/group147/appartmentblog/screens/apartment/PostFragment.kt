@@ -10,24 +10,25 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.home.HomeActivity
+import kotlinx.coroutines.launch
 import java.util.Date
 
 class PostFragment : Fragment() {
 
     private lateinit var binding: FragmentPostBinding
     private val viewModel: PostViewModel by viewModels()
+    private val args: PostFragmentArgs by navArgs()
 
-    // Declare a variable to track edit mode
     private var isEditMode = false
 
-    // Views
     private lateinit var titleTextView: TextView
     private lateinit var titleEditText: EditText
     private lateinit var contentTextView: TextView
@@ -38,6 +39,7 @@ class PostFragment : Fragment() {
     private lateinit var roomsEditText: EditText
     private lateinit var floorTextView: TextView
     private lateinit var floorEditText: EditText
+    private lateinit var addressTextView: TextView
     private lateinit var editButton: Button
     private lateinit var saveButton: Button
 
@@ -55,8 +57,8 @@ class PostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val post = arguments?.let { bundleToPost(it) }
-        post?.let { viewModel.setPost(it) }
+        val post = args.toPost()
+        viewModel.setPost(post)
 
         observePost()
         setupEditButton()
@@ -82,6 +84,7 @@ class PostFragment : Fragment() {
         roomsEditText = view.findViewById(R.id.roomsEditText)
         floorTextView = view.findViewById(R.id.floorTextView)
         floorEditText = view.findViewById(R.id.floorEditText)
+        addressTextView = view.findViewById(R.id.addressTextView)
         editButton = view.findViewById(R.id.editButton)
         saveButton = view.findViewById(R.id.saveButton)
     }
@@ -93,12 +96,18 @@ class PostFragment : Fragment() {
     }
 
     private fun bindPostData(post: Post) {
+         viewLifecycleOwner.lifecycleScope.launch {
+            var address =viewModel.getAddressFromGeo(post)
+            binding.addressTextView.text = "Address: ${address}"
+        }
+
         binding.apply {
             titleTextView.text = post.title
             contentTextView.text = post.content
             priceTextView.text = "Price: ${post.price}$"
             roomsTextView.text = "Number of Rooms: ${post.rooms}"
             floorTextView.text = "Floor: ${post.floor}"
+
 
             post.image?.let {
                 Glide.with(this@PostFragment)
@@ -107,7 +116,6 @@ class PostFragment : Fragment() {
                     .into(postImageView)
             }
 
-            // Pre-populate EditText fields in edit mode
             titleEditText.setText(post.title)
             contentEditText.setText(post.content)
             priceEditText.setText(post.price.toString())
@@ -119,17 +127,12 @@ class PostFragment : Fragment() {
     private fun setupEditButton() {
         binding.editButton.setOnClickListener {
             toggleEditMode(true)
-            Log.d("dddddddddddddddddddddddddddddddddddd","dddddd")
         }
 
-        binding.editButton.setOnClickListener {
+        binding.saveButton.setOnClickListener {
             if (validateInput()) {
                 updatePost()
                 toggleEditMode(false)
-                Log.d("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaa")
-            } else {
-                // Display error message
-                //binding.errorTextView.visibility = View.VISIBLE
             }
         }
     }
@@ -137,43 +140,20 @@ class PostFragment : Fragment() {
     private fun toggleEditMode(editMode: Boolean) {
         isEditMode = editMode
 
-        // Toggle visibility based on edit mode
-        if (editMode) {
-            // Switch to edit mode: show EditTexts, hide TextViews, and show the Save button
-            titleTextView.visibility = View.GONE
-            contentTextView.visibility = View.GONE
-            priceTextView.visibility = View.GONE
-            roomsTextView.visibility = View.GONE
-            floorTextView.visibility = View.GONE
+        titleTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        contentTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        priceTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        roomsTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        floorTextView.visibility = if (editMode) View.GONE else View.VISIBLE
 
-            titleEditText.visibility = View.VISIBLE
-            contentEditText.visibility = View.VISIBLE
-            priceEditText.visibility = View.VISIBLE
-            roomsEditText.visibility = View.VISIBLE
-            floorEditText.visibility = View.VISIBLE
+        titleEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        contentEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        priceEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        roomsEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
 
-            editButton.visibility = View.GONE
-            saveButton.visibility = View.VISIBLE
-
-        } else {
-            // Switch to view mode: show TextViews, hide EditTexts, and show the Edit button
-            titleTextView.visibility = View.VISIBLE
-            contentTextView.visibility = View.VISIBLE
-            priceTextView.visibility = View.VISIBLE
-            roomsTextView.visibility = View.VISIBLE
-            floorTextView.visibility = View.VISIBLE
-
-            titleEditText.visibility = View.GONE
-            contentEditText.visibility = View.GONE
-            priceEditText.visibility = View.GONE
-            roomsEditText.visibility = View.GONE
-            floorEditText.visibility = View.GONE
-
-            //todo: the edit and save button should be visible to the user only
-            editButton.visibility = View.VISIBLE
-            saveButton.visibility = View.GONE
-
-        }
+        editButton.visibility = if (editMode) View.GONE else View.VISIBLE
+        saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
     }
 
     private fun updatePost() {
@@ -192,49 +172,25 @@ class PostFragment : Fragment() {
     }
 
     private fun validateInput(): Boolean {
-        // Validate fields before updating the post
-        val title = binding.titleEditText.text.toString()
-        val content = binding.contentEditText.text.toString()
-        val price = binding.priceEditText.text.toString()
-        val rooms = binding.roomsEditText.text.toString()
-        val floor = binding.floorEditText.text.toString()
-
-        return title.isNotEmpty() && content.isNotEmpty() && price.isNotEmpty() && rooms.isNotEmpty() && floor.isNotEmpty()
+        return binding.titleEditText.text.isNotEmpty() &&
+                binding.contentEditText.text.isNotEmpty() &&
+                binding.priceEditText.text.isNotEmpty() &&
+                binding.roomsEditText.text.isNotEmpty() &&
+                binding.floorEditText.text.isNotEmpty()
     }
 
-    private fun bundleToPost(bundle: Bundle): Post {
+    private fun PostFragmentArgs.toPost(): Post {
         return Post(
-            id = bundle.getString("id", ""),
-            userId = bundle.getString("userId"),
-            title = bundle.getString("title", ""),
-            content = bundle.getString("content", ""),
-            price = bundle.getDouble("price", 0.0),
-            rooms = bundle.getInt("rooms", 0),
-            floor = bundle.getInt("floor", 0),
-            location = GeoPoint(
-                bundle.getDouble("latitude"),
-                bundle.getDouble("longitude")
-            ),
-            image = bundle.getString("image"),
-            updateTime = bundle.getLong("updateTime", Date().time)
+            id = this.id,
+            title = this.title,
+            content = this.content,
+            price = this.price.toDouble(),
+            rooms = this.rooms.toInt(),
+            floor = this.floor,
+            location = GeoPoint(location[0].toDouble(), location[1].toDouble()),
+            image = this.image,
+            updateTime = Date().time,
+            userId = this.id
         )
-    }
-
-    companion object {
-        fun newInstance(post: Post) = PostFragment().apply {
-            arguments = Bundle().apply {
-                putString("id", post.id)
-                putString("userId", post.userId)
-                putString("title", post.title)
-                putString("content", post.content)
-                putDouble("price", post.price)
-                putInt("rooms", post.rooms)
-                putInt("floor", post.floor)
-                putDouble("latitude", post.location.latitude)
-                putDouble("longitude", post.location.longitude)
-                putString("image", post.image)
-                putLong("updateTime", post.updateTime)
-            }
-        }
     }
 }
