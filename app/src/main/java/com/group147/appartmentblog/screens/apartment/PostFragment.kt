@@ -121,6 +121,7 @@ class PostFragment : Fragment() {
         binding.floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
 
         binding.editButton.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
         binding.saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
     }
 

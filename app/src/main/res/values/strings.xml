@@ -36,4 +36,6 @@
     <string name="edit_title">Edit Title</string>
     <string name="title">Title</string>
     <string name="aparttment_image">apparttment</string>
+    <string name="save">Save</string>
+    <string name="address">Address</string>
 </resources>
