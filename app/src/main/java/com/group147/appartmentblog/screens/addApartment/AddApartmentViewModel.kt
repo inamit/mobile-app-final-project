@@ -35,8 +35,7 @@ class AddApartmentViewModel(
             floor = binding.floorEditText.text.toString().toInt(),
             rooms = binding.roomsEditText.text.toString().toInt(),
             price = binding.priceEditText.text.toString().toDouble(),
-            location = location,
-            image = null
+            location = location
         )
         val image = binding.imagePreview.drawable.toBitmap()
 

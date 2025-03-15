@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin) apply false
     alias(libs.plugins.google.devtools.ksp) apply false
+    alias(libs.plugins.androidx.navigation.safe.args) apply false
 }

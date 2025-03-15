@@ -36,6 +36,16 @@ class PostRepository private constructor(
     private val _postsLiveData = MutableLiveData<List<Post>>()
     val postsLiveData: LiveData<List<Post>> get() = _postsLiveData
 
+    fun getLatestUpdatedTime(): Long {
+        return postDao.getLatestUpdateTime() ?: 0
+    }
+
+    override fun streamAllExistingEntities() {
+        CoroutineScope(Dispatchers.IO).launch {
+            _postsLiveData.postValue(postDao.getAllPosts())
+        }
+    }
+
     override fun handleDocumentChanges(snapshot: QuerySnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
             val updatedPosts = mutableListOf<Post>()
@@ -66,7 +76,7 @@ class PostRepository private constructor(
                 }
             }
 
-            val sortedPosts = postDao.getAllPosts().sortedBy { it.updateTime }
+            val sortedPosts = postDao.getAllPosts().sortedByDescending { it.updateTime }
             if (sortedPosts.isNotEmpty()) {
                 _postsLiveData.postValue(sortedPosts)
             } else {

@@ -97,8 +97,8 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 )
             )[AddApartmentViewModel::class.java]
 
-        viewModel.toastMessage.observe(requireActivity()) {
-            Toast.makeText(requireActivity(), it, Toast.LENGTH_SHORT).show()
+        viewModel.toastMessage.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
 
         binding.pickImage.setOnClickListener {

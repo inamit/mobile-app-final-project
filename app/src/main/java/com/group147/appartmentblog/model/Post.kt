@@ -18,7 +18,7 @@ data class Post(
     val rooms: Int,
     val floor: Int,
     val location: GeoPoint,
-    var image: String?,
+    var image: String? = null,
     val updateTime: Long = Date().time
 ) {
 
@@ -43,7 +43,8 @@ data class Post(
                 floor = documentSnapshot.getLong(FLOOR_KEY)?.toInt() ?: 0,
                 price = documentSnapshot.getDouble(PRICE_KEY) ?: 0.0,
                 location = documentSnapshot.getGeoPoint(LOCATION_KEY) ?: GeoPoint(0.0, 0.0),
-                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.seconds ?: Date().time,
+                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time
+                    ?: Date().time,
                 image = documentSnapshot.getString(IMAGE_URL_KEY) ?: ""
             )
         }
