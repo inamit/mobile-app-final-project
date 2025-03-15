@@ -16,6 +16,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.screens.home.HomeActivity
 import java.util.Date
 
 class PostFragment : Fragment() {
@@ -44,6 +45,10 @@ class PostFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
+        (activity as HomeActivity).hideBottomNavBar()
+        (activity as HomeActivity).hideAddApartmentButton()
+        (activity as HomeActivity).showToolbarNavigationIcon()
+
         return binding.root
     }
 
@@ -56,7 +61,14 @@ class PostFragment : Fragment() {
         observePost()
         setupEditButton()
         initViews(view)
-        setupBackButton()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        (activity as HomeActivity).showBottomNavBar()
+        (activity as HomeActivity).showAddApartmentButton()
+        (activity as HomeActivity).hideToolbarNavigationIcon()
     }
 
     private fun initViews(view: View) {
@@ -176,13 +188,6 @@ class PostFragment : Fragment() {
 
         updatedPost?.let {
             viewModel.updatePost(it)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.backButton.setOnClickListener {
-            // Use Navigation Component's navigateUp for consistency
-            findNavController().navigateUp()
         }
     }
 
