@@ -16,5 +16,7 @@ abstract class AbsAppartmentBlogRepository<T>(private val dao: IDao<T>) {
         dao.delete(entity)
     }
 
+    abstract fun streamAllExistingEntities()
+
     abstract fun handleDocumentChanges(snapshot: QuerySnapshot)
 }
