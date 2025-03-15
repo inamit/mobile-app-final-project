@@ -1,11 +1,11 @@
 package com.group147.appartmentblog.model.service
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 import com.group147.appartmentblog.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -26,10 +26,6 @@ class AuthService {
 
     fun hasUser(): Boolean {
         return auth.currentUser != null
-    }
-
-    fun getUserProfile(): User {
-        return auth.currentUser.toAppUser()
     }
 
     suspend fun loginWithGoogle(idToken: String) {
@@ -54,8 +50,8 @@ class AuthService {
         auth.currentUser!!.delete().await()
     }
 
-    private fun FirebaseUser?.toAppUser(): User {
-        return if (this == null) User() else User(
+    private fun FirebaseUser?.toAppUser(): User? {
+        return if (this == null) null else User(
             id = this.uid,
             email = this.email ?: "",
             provider = this.providerId,

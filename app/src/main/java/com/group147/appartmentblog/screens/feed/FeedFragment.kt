@@ -1,15 +1,55 @@
+package com.group147.appartmentblog.screens.feed
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.group147.appartmentblog.R
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.group147.appartmentblog.databinding.FragmentFeedBinding
+import com.group147.appartmentblog.screens.adapters.PostAdapter
+import com.group147.appartmentblog.screens.home.HomeActivity
 
-class FeedFragment : Fragment(){
+class FeedFragment : Fragment() {
+    private lateinit var binding: FragmentFeedBinding
+    private lateinit var feedViewModel: FeedViewModel
+    private lateinit var postAdapter: PostAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_feed, container, false)
+        binding = FragmentFeedBinding.inflate(layoutInflater)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        feedViewModel = ViewModelProvider(
+            requireActivity(),
+            FeedViewModelFactory((activity as HomeActivity).getPostRepository())
+        )[FeedViewModel::class.java]
+
+        setupRecyclerView()
+        observePosts()
+    }
+
+    private fun setupRecyclerView() {
+        postAdapter = PostAdapter()
+        binding.postsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = postAdapter
+        }
+    }
+
+    private fun observePosts() {
+        feedViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
+            posts?.let {
+                postAdapter.submitList(it)
+            }
+        }
     }
 }

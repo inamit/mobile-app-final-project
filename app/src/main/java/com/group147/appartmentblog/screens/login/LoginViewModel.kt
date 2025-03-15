@@ -1,17 +1,17 @@
 package com.group147.appartmentblog.screens.login
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.group147.appartmentblog.ERROR_TAG
 import com.group147.appartmentblog.model.service.AuthService
-import com.group147.appartmentblog.screens.AppartmentBlogViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class LoginViewModel : AppartmentBlogViewModel() {
+class LoginViewModel : ViewModel() {
     private val authService: AuthService = AuthService()
-
-    fun isLoggedIn(): Boolean {
-        return authService.hasUser()
-    }
 
     fun onLogin(
         email: String,
@@ -43,4 +43,13 @@ class LoginViewModel : AppartmentBlogViewModel() {
             }
         }
     }
+
+    fun launchCatching(onError: (String) -> Unit = {}, block: suspend CoroutineScope.() -> Unit) =
+        viewModelScope.launch(
+            CoroutineExceptionHandler { _, throwable ->
+                Log.d(ERROR_TAG, throwable.message.orEmpty())
+                onError(throwable.message.orEmpty())
+            },
+            block = block
+        )
 }
