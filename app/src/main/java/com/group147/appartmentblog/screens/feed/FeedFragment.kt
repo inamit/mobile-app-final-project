@@ -12,7 +12,6 @@ import com.group147.appartmentblog.databinding.FragmentFeedBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 import com.group147.appartmentblog.screens.home.HomeActivity
-import com.group147.appartmentblog.R
 
 class FeedFragment : Fragment() {
     private lateinit var binding: FragmentFeedBinding
@@ -51,18 +50,19 @@ class FeedFragment : Fragment() {
         }
     }
     private fun openPostFragment(post: Post) {
-        val bundle = Bundle().apply {
-            putString("id", post.id)
-            putString("userId", post.userId)
-            putString("title", post.title)
-            putString("content", post.content)
-            putDouble("price", post.price)
-            putInt("rooms", post.rooms)
-            putInt("floor", post.floor)
-            putString("image", post.image)
-        }
+        val action = FeedFragmentDirections
+            .actionFragmentFeedFragmentToFragmentPostFragment(
+                post.id,
+                post.title,
+                post.content,
+                post.price.toFloat(),
+                post.rooms.toFloat(),
+                post.floor,
+                post.image.toString(),
+                floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat())
+            )
 
-        findNavController().navigate(R.id.postFragment, bundle)
+        findNavController().navigate(action)
     }
 
     private fun observePosts() {
