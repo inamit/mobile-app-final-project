@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.androidx.navigation.safe.args)
 }
 
 android {
@@ -67,9 +68,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation (libs.picasso)
-    implementation(libs.androidx.navigation.fragment.ktx.v277)
-    implementation(libs.androidx.navigation.ui.ktx.v277)
-    implementation (libs.androidx.constraintlayout.v214)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
