@@ -15,7 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -30,9 +29,6 @@ import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.permissions.LocationPermission
 import com.group147.appartmentblog.screens.home.HomeActivity
 import com.group147.appartmentblog.util.showSnackbar
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import java.util.concurrent.CompletableFuture
 
 class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentAddApartmentBinding
@@ -55,17 +51,13 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private val requestPermissionLauncher =
         registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                lifecycleScope.launch {
-                    getCurrentLocation()
-                }
+                getCurrentLocation()
             } else {
                 binding.root.showSnackbar(
                     "Location permission is required to upload a post",
                     Snackbar.LENGTH_INDEFINITE, "I agree"
                 ) {
-                    lifecycleScope.launch {
-                        getCurrentLocation()
-                    }
+                    getCurrentLocation()
                 }
             }
         }
@@ -94,6 +86,7 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        getCurrentLocation()
 
         viewModel =
             ViewModelProvider(
@@ -118,16 +111,8 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
 
         binding.saveButton.setOnClickListener {
-            lifecycleScope.launch {
-                try {
-                    val location = getCurrentLocation()
-                    viewModel.savePost(location) {
-                        findNavController().popBackStack()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(requireActivity(), "Failed to get location", Toast.LENGTH_SHORT)
-                        .show()
-                }
+            viewModel.savePost(location) {
+                findNavController().popBackStack()
             }
         }
 
@@ -141,17 +126,16 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         (activity as HomeActivity).hideToolbarNavigationIcon()
     }
 
-    private suspend fun getCurrentLocation(): GeoPoint? {
+    private fun getCurrentLocation() {
         Log.i("AddApartmentFragment", "getCurrentLocation")
 
-        val completableFuture = CompletableFuture<GeoPoint>()
         if (!LocationPermission.checkLocationPermission(
                 requireActivity() as AppCompatActivity,
                 binding.root,
                 requestPermissionLauncher
             )
         ) {
-            return null
+            return
         }
 
         fusedLocationClient.getCurrentLocation(
@@ -163,15 +147,11 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 override fun isCancellationRequested() = false
             }).addOnSuccessListener { location ->
             if (location == null) {
-                completableFuture.completeExceptionally(Exception("Failed to get location"))
                 return@addOnSuccessListener
             }
 
-            completableFuture.complete(GeoPoint(location.latitude, location.longitude))
+            this.location = GeoPoint(location.latitude, location.longitude)
         }
-
-        completableFuture.await()
-        return completableFuture.get()
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
