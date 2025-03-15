@@ -18,7 +18,10 @@ import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.home.HomeActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.util.Date
 
 class PostFragment : Fragment() {
@@ -62,7 +65,6 @@ class PostFragment : Fragment() {
 
         observePost()
         setupEditButton()
-        initViews(view)
     }
 
     override fun onDestroyView() {
@@ -73,21 +75,6 @@ class PostFragment : Fragment() {
         (activity as HomeActivity).hideToolbarNavigationIcon()
     }
 
-    private fun initViews(view: View) {
-        titleTextView = view.findViewById(R.id.titleTextView)
-        titleEditText = view.findViewById(R.id.titleEditText)
-        contentTextView = view.findViewById(R.id.contentTextView)
-        contentEditText = view.findViewById(R.id.contentEditText)
-        priceTextView = view.findViewById(R.id.priceTextView)
-        priceEditText = view.findViewById(R.id.priceEditText)
-        roomsTextView = view.findViewById(R.id.roomsTextView)
-        roomsEditText = view.findViewById(R.id.roomsEditText)
-        floorTextView = view.findViewById(R.id.floorTextView)
-        floorEditText = view.findViewById(R.id.floorEditText)
-        addressTextView = view.findViewById(R.id.addressTextView)
-        editButton = view.findViewById(R.id.editButton)
-        saveButton = view.findViewById(R.id.saveButton)
-    }
 
     private fun observePost() {
         viewModel.post.observe(viewLifecycleOwner) { post ->
@@ -96,11 +83,12 @@ class PostFragment : Fragment() {
     }
 
     private fun bindPostData(post: Post) {
-         viewLifecycleOwner.lifecycleScope.launch {
-            var address =viewModel.getAddressFromGeo(post)
-            binding.addressTextView.text = "Address: ${address}"
+        viewLifecycleOwner.lifecycleScope.launch {
+            val address: String? = viewModel.getAddressFromGeo(post)
+            address?.let {
+                Log.d("Address", it)
+            } ?: Log.e("Address", "Address not found")
         }
-
         binding.apply {
             titleTextView.text = post.title
             contentTextView.text = post.content
