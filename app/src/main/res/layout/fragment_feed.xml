@@ -5,14 +5,111 @@
     android:layout_height="match_parent"
     android:id="@+id/feedFragment">
 
+    <!-- Filters Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/filterSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Price Range Filter -->
+        <TextView
+            android:id="@+id/priceRangeLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/price"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/roomsRangeLabel"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/priceRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="1000000"
+            android:stepSize="500"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/priceRangeLabel"
+            app:layout_constraintEnd_toStartOf="@id/roomsRangeSlider"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <!-- Rooms Range Filter -->
+        <TextView
+            android:id="@+id/roomsRangeLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/rooms"
+            app:layout_constraintStart_toEndOf="@id/priceRangeLabel"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/floorRangeLabel"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/roomsRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:valueFrom="1"
+            android:valueTo="20"
+            android:stepSize="1"
+            app:layout_constraintStart_toEndOf="@id/priceRangeSlider"
+            app:layout_constraintTop_toBottomOf="@id/roomsRangeLabel"
+            app:layout_constraintEnd_toStartOf="@id/floorRangeSlider"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <!-- Floor Range Filter -->
+        <TextView
+            android:id="@+id/floorRangeLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/floor"
+            app:layout_constraintStart_toEndOf="@id/roomsRangeLabel"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/floorRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:stepSize="1"
+            android:valueFrom="0"
+            android:valueTo="50"
+            app:layout_constraintStart_toEndOf="@id/roomsRangeSlider"
+            app:layout_constraintTop_toBottomOf="@id/floorRangeLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.30" />
+
+        <ImageButton
+            android:id="@+id/resetFiltersButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/feed"
+            android:src="@drawable/cancel_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.20" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Posts RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/posts_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/filterSection"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
