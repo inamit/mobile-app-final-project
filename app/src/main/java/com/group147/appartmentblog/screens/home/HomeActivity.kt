@@ -22,6 +22,9 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.screens.login.LoginFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
@@ -49,15 +52,19 @@ class HomeActivity : AppCompatActivity() {
         navController?.let { NavigationUI.setupWithNavController(binding.bottomNavigationView, it) }
 
         viewModel.currentUser.observe(this) {
-            if (it == null) {
-                postSubscriptionService?.stopListeningForCollection()
-            } else {
-                if (postSubscriptionService == null) {
-                    postSubscriptionService = SubscriptionService(
-                        getPostRepository()
+            CoroutineScope(Dispatchers.IO).launch {
+                if (it == null) {
+                    postSubscriptionService?.stopListeningForCollection()
+                } else {
+                    val postRepository = getPostRepository()
+                    if (postSubscriptionService == null) {
+                        postSubscriptionService = SubscriptionService(postRepository)
+                    }
+                    postSubscriptionService?.listenForCollection(
+                        Collections.POSTS,
+                        postRepository.getLatestUpdatedTime()
                     )
                 }
-                postSubscriptionService?.listenForCollection(Collections.POSTS)
             }
         }
 
