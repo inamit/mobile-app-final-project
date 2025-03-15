@@ -18,7 +18,7 @@ class SubscriptionService<T>(private val repository: AbsAppartmentBlogRepository
         Log.d(TAG, "Listening for collection ${collection.collectionName}")
         listenerRegistration =
             FirebaseModel.instance.database.collection(collection.collectionName)
-                .orderBy(UPDATE_TIME_KEY, Query.Direction.ASCENDING)
+                .orderBy(UPDATE_TIME_KEY, Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.e(

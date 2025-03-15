@@ -66,7 +66,7 @@ class PostRepository private constructor(
                 }
             }
 
-            val sortedPosts = postDao.getAllPosts().sortedBy { it.updateTime }
+            val sortedPosts = postDao.getAllPosts().sortedByDescending { it.updateTime }
             if (sortedPosts.isNotEmpty()) {
                 _postsLiveData.postValue(sortedPosts)
             } else {
