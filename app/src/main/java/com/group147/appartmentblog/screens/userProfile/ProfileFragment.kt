@@ -6,44 +6,64 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.databinding.FragmentProfileBinding
 import com.group147.appartmentblog.screens.home.HomeActivity
+import com.squareup.picasso.Picasso
 import java.io.ByteArrayOutputStream
 
 class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
+    private lateinit var viewModel: ProfileViewModel
+    private lateinit var binding: FragmentProfileBinding
 
-    private lateinit var profileImageView: ImageView
-    private lateinit var editImageView: ImageView
-    private lateinit var usernameInput: EditText
-    private lateinit var phoneInput: EditText
-    private lateinit var emailText: TextView
-    private lateinit var updateProfileButton: Button
+    private var galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                binding.profileImage.setImageURI(it)
+            }
+        }
+
+    private var cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                binding.profileImage.setImageBitmap(it)
+            }
+        }
+
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-    private lateinit var galleryLauncher: ActivityResultLauncher<String>
-    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+        binding = FragmentProfileBinding.inflate(layoutInflater)
+
+        auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ProfileViewModelFactory((activity as HomeActivity).getUserRepository())
+        )[ProfileViewModel::class.java]
 
         (activity as HomeActivity).showProfileToolbarMenu {
             when (it.itemId) {
@@ -56,32 +76,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
         }
 
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
-
-        profileImageView = view.findViewById(R.id.profile_image)
-        editImageView = view.findViewById(R.id.edit_icon)
-        usernameInput = view.findViewById(R.id.username_input)
-        phoneInput = view.findViewById(R.id.phone_input)
-        emailText = view.findViewById(R.id.email_text)
-        updateProfileButton = view.findViewById(R.id.update_profile_button)
-
-        galleryLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
-                galleryUri?.let {
-                    profileImageView.setImageURI(it)
-                }
-            }
-
-        cameraLauncher =
-            registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-                bitmap?.let {
-                    profileImageView.setImageBitmap(it)
-                }
-            }
-
-        editImageView.setOnClickListener {
+        binding.editIcon.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
                 setOnMenuItemClickListener(this@ProfileFragment)
                 menuInflater.inflate(R.menu.image_picker_menu, menu)
@@ -90,13 +85,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
         }
 
-        updateProfileButton.setOnClickListener {
+        binding.updateProfileButton.setOnClickListener {
             updateProfile()
         }
 
         loadUserProfile()
-
-        return view
     }
 
     override fun onDestroyView() {
@@ -105,34 +98,16 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun loadUserProfile() {
-        val user = auth.currentUser
-        user?.let {
-            val uid = user.uid
-            firestore.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        if (!document.getString("username").isNullOrEmpty())
-                            usernameInput.hint = document.getString("username")
-                        if (!document.getString("phone").isNullOrEmpty())
-                            phoneInput.hint = document.getString("phone")
-                        emailText.text = document.getString("email").orEmpty()
-                        val imageUrl = document.getString("imageUrl")
-                        if (!imageUrl.isNullOrEmpty()) {
-                            Glide.with(this)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.ic_user_placeholder)
-                                .into(profileImageView)
-                        } else {
-                            profileImageView.setImageResource(R.drawable.ic_user_placeholder)
-                        }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    context?.let {
-                        Toast.makeText(it, "Failed to load user data: $e", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            binding.usernameInput.hint = user.displayName
+            binding.phoneInput.hint = user.phoneNumber
+            binding.emailText.text = user.email
+
+            if (user.imageUrl.isNullOrEmpty()) {
+                binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
+            } else {
+                Picasso.get().load(user.imageUrl).into(binding.profileImage)
+            }
         }
     }
 
@@ -140,8 +115,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         val user = auth.currentUser
         user?.let {
             val uid = user.uid
-            val username = usernameInput.text.toString()
-            val phone = phoneInput.text.toString()
+            val username = binding.usernameInput.text.toString()
+            val phone = binding.phoneInput.text.toString()
 
             val userUpdates = hashMapOf<String, Any>()
 
@@ -152,7 +127,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 userUpdates["phone"] = phone
             }
 
-            val imageBitmap = profileImageView.drawable.toBitmap()
+            val imageBitmap = binding.profileImage.drawable.toBitmap()
             uploadImage(imageBitmap, uid) { imageUrl ->
                 if (imageUrl != null) {
                     userUpdates["imageUrl"] = imageUrl
@@ -198,8 +173,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun onLogoutClicked() {
-        auth.signOut()
-        findNavController().navigate(R.id.loginFragment)
+        viewModel.signOut(findNavController())
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

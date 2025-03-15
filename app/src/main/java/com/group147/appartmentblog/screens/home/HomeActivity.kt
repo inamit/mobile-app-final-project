@@ -17,10 +17,12 @@ import androidx.navigation.ui.NavigationUI
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDatabase
+import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
+import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.screens.login.LoginFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +81,12 @@ class HomeActivity : AppCompatActivity() {
         val database = PostDatabase.getDatabase(this)
         val postDao = database.postDao()
         return PostRepository.getRepository(postDao)
+    }
+
+    fun getUserRepository(): UserRepository {
+        val database = UserDatabase.getDatabase(this)
+        val userDao = database.userDao()
+        return UserRepository.getRepository(userDao)
     }
 
     private fun goToApp() {
