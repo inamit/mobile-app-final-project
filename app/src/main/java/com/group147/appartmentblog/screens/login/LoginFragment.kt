@@ -6,38 +6,64 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentLoginBinding
 import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.screens.home.HomeActivity
-import com.group147.appartmentblog.screens.signup.SignUpFragment
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
-    private lateinit var auth: FirebaseAuth
     private val viewModel: LoginViewModel by viewModels()
-    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+
+    private val googleSignInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    if (account != null) {
+                        val email = account.email
+                        val imageUrl = account.photoUrl.toString()
+
+                        viewModel.onLoginWithGoogle(account, {
+                            saveUserDataToFirestore(email, imageUrl)
+                            val homeIntent = Intent(activity, HomeActivity::class.java)
+                            startActivity(homeIntent)
+                            activity?.finish()
+                        }, {
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to login with Google",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        })
+                    }
+                } catch (e: ApiException) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to login with Google",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentLoginBinding.inflate(layoutInflater, container, false)
+        binding = FragmentLoginBinding.inflate(layoutInflater)
 
         (activity as HomeActivity).hideBottomNavBar()
         (activity as HomeActivity).hideAddApartmentButton()
@@ -49,71 +75,35 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = Firebase.auth
-
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        val signUpButton = view.findViewById<View>(R.id.sign_up_button)
-        signUpButton.setOnClickListener {
-            showSignUpFragment()
+        binding.signUpButton.setOnClickListener {
+            findNavController().navigate(R.id.signUpFragment)
         }
 
-        val googleLoginButton = view.findViewById<View>(R.id.google_login_button)
-        googleLoginButton.setOnClickListener {
+        binding.googleLoginButton.setOnClickListener {
             loginWithGoogle()
         }
 
-        val loginButton = view.findViewById<View>(R.id.login_button)
-        loginButton.setOnClickListener {
+        binding.loginButton.setOnClickListener {
             loginWithEmailAndPassword()
         }
-
-        googleSignInLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                    try {
-                        val account = task.getResult(ApiException::class.java)
-                        if (account != null) {
-                            val email = account.email
-                            val imageUrl = account.photoUrl.toString()
-
-                            viewModel.onLoginWithGoogle(account, {
-                                saveUserDataToFirestore(email, imageUrl)
-                                val homeIntent = Intent(activity, HomeActivity::class.java)
-                                startActivity(homeIntent)
-                                activity?.finish()
-                            }, {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Failed to login with Google",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            })
-                        }
-                    } catch (e: ApiException) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to login with Google",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as HomeActivity).showBottomNavBar()
+        (activity as HomeActivity).showAddApartmentButton()
         (activity as HomeActivity).showToolbar()
     }
 
     private fun loginWithEmailAndPassword() {
-        val email = view?.findViewById<EditText>(R.id.email_input)?.text.toString()
-        val password = view?.findViewById<EditText>(R.id.password_input)?.text.toString()
+        val email = binding.emailInput.text.toString()
+        val password = binding.passwordInput.text.toString()
         viewModel.onLogin(
             email, password, {
                 val homeIntent = Intent(activity, HomeActivity::class.java)
@@ -171,14 +161,6 @@ class LoginFragment : Fragment() {
             }
         }.addOnFailureListener {
             Toast.makeText(requireContext(), "Failed to login user", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun showSignUpFragment() {
-        parentFragmentManager.commit {
-            setReorderingAllowed(true)
-            replace(R.id.nav_host_fragment, SignUpFragment())
-            addToBackStack(null)
         }
     }
 }

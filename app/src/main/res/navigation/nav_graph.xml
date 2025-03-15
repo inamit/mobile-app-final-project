@@ -9,22 +9,19 @@
         android:id="@+id/feedFragment"
         android:name="com.group147.appartmentblog.screens.feed.FeedFragment"
         android:label="Feed"
-        tools:layout="@layout/fragment_feed">
-    </fragment>
+        tools:layout="@layout/fragment_feed" />
 
     <fragment
         android:id="@+id/mapFragment"
         android:name="MapFragment"
         android:label="Map"
-        tools:layout="@layout/fragment_map">
-    </fragment>
+        tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.group147.appartmentblog.screens.userProfile.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile">
-    </fragment>
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/addApartmentFragment"
@@ -36,4 +33,9 @@
         android:name="com.group147.appartmentblog.screens.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.group147.appartmentblog.screens.signup.SignUpFragment"
+        android:label="SignUpFragment"
+        tools:layout="@layout/fragment_sign_up" />
 </navigation>

@@ -1,7 +1,7 @@
 package com.group147.appartmentblog.screens.signup
 
 import android.graphics.Bitmap
-import android.net.Uri
+import android.widget.EditText
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +17,9 @@ class SignUpViewModel : ViewModel() {
 
     private val _registrationResult = MutableLiveData<Boolean>()
     val registrationResult: LiveData<Boolean> get() = _registrationResult
+
+    private val _toastMessage = MutableLiveData<String>()
+    val toastMessage: LiveData<String> get() = _toastMessage
 
     fun registerUser(email: String, password: String, username: String, phone: String, imageBitmap: Bitmap?) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -79,5 +82,56 @@ class SignUpViewModel : ViewModel() {
                     callback(uri.toString())
                 }
             }
+    }
+
+    fun signUp(
+        emailInput: EditText,
+        passwordInput: EditText,
+        usernameInput: EditText,
+        phoneInput: EditText,
+        confirmPasswordInput: EditText,
+        imageBitmap: Bitmap?
+    ) {
+        if (validateInputs(
+                emailInput,
+                passwordInput,
+                usernameInput,
+                phoneInput,
+                confirmPasswordInput
+            )
+        ) {
+            val email = emailInput.text.toString()
+            val password = passwordInput.text.toString()
+            val username = usernameInput.text.toString()
+            val phone = phoneInput.text.toString()
+
+            registerUser(email, password, username, phone, imageBitmap)
+        }
+    }
+
+    private fun validateInputs(
+        emailInput: EditText,
+        passwordInput: EditText,
+        usernameInput: EditText,
+        phoneInput: EditText,
+        confirmPasswordInput: EditText
+    ): Boolean {
+        val username = usernameInput.text.toString().trim()
+        val phone = phoneInput.text.toString().trim()
+        val email = emailInput.text.toString().trim()
+        val password = passwordInput.text.toString().trim()
+        val confirmPassword = confirmPasswordInput.text.toString().trim()
+
+        if (username.isEmpty() || phone.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            _toastMessage.postValue("Please fill out all the fields")
+            return false
+        }
+
+        if (password != confirmPassword) {
+            _toastMessage.postValue("Passwords do not match")
+            return false
+        }
+
+        return true
     }
 }

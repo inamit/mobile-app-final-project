@@ -86,8 +86,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         loadUserProfile()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         (activity as HomeActivity).hideToolbarMenu()
     }
 

@@ -118,8 +118,8 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
 
         (activity as HomeActivity).showBottomNavBar()
         (activity as HomeActivity).showAddApartmentButton()

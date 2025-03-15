@@ -1,6 +1,7 @@
 package com.group147.appartmentblog.screens.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -24,7 +24,6 @@ import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.repositories.UserRepository
-import com.group147.appartmentblog.screens.login.LoginFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -111,10 +110,7 @@ class HomeActivity : AppCompatActivity() {
         hideAddApartmentButton()
         hideBottomNavBar()
 
-        supportFragmentManager.commit {
-            setReorderingAllowed(true)
-            replace(R.id.nav_host_fragment, LoginFragment())
-        }
+        navController?.navigate(R.id.loginFragment)
     }
 
     fun showAddApartmentButton() {
@@ -126,10 +122,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showBottomNavBar() {
+        Log.d("HomeActivity", "showBottomNavBar")
         binding.bottomNavigationView.visibility = View.VISIBLE
     }
 
     fun hideBottomNavBar() {
+        Log.d("HomeActivity", "hideBottomNavBar")
         binding.bottomNavigationView.visibility = View.GONE
     }
 
