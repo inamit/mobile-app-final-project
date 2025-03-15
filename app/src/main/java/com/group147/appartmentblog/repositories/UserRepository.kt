@@ -97,8 +97,82 @@ class UserRepository private constructor(private val userDao: UserDao) :
         }
     }
 
-    fun updateUser(user: User, image: Bitmap, callback: TaskCallback<Void?>) {
+    fun deleteUser() {
         CoroutineScope(Dispatchers.IO).launch {
+            userDao.deleteExistingUser()
+        }
+    }
+
+    fun insertUser(user: User, image: Bitmap?, callback: TaskCallback<Void>) {
+        if (image != null) {
+            FirebaseModel.instance.uploadImage(
+                image,
+                Collections.USERS,
+                user.id
+            ) { imageUrl, error ->
+                if (error != null) {
+                    callback(null, error)
+                    return@uploadImage
+                }
+
+                val user = User(
+                    id = user.id,
+                    email = user.email,
+                    phoneNumber = user.phoneNumber,
+                    displayName = user.displayName,
+                    imageUrl = imageUrl
+                )
+                insertUserToFirebase(user) { userId, error ->
+                    if (error != null) {
+                        callback(null, error)
+                        return@insertUserToFirebase
+                    }
+
+                    callback(null, null)
+                }
+            }
+        } else {
+            val user = User(
+                id = user.id,
+                email = user.email,
+                phoneNumber = user.phoneNumber,
+                displayName = user.displayName
+            )
+            insertUserToFirebase(user) { userId, error ->
+                if (error != null) {
+                    callback(null, error)
+                    return@insertUserToFirebase
+                }
+
+                callback(null, null)
+            }
+        }
+    }
+
+    private fun insertUserToFirebase(user: User, callback: TaskCallback<String>) {
+        FirebaseModel.instance.add(
+            Collections.USERS,
+            user.id,
+            user.json
+        ) { documentReference, error ->
+            if (error != null) {
+                callback(null, error)
+                return@add
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                if (userDao.getUser() == null) {
+                    insert(user)
+                } else {
+                    update(user)
+                }
+            }
+            callback(user.id, null)
+        }
+    }
+
+    fun updateUser(user: User, image: Bitmap?, callback: TaskCallback<Void?>) {
+        if (image != null) {
             FirebaseModel.instance.uploadImage(
                 image,
                 Collections.USERS,
@@ -111,16 +185,28 @@ class UserRepository private constructor(private val userDao: UserDao) :
 
                 user.imageUrl = imageUrl
 
-                FirebaseModel.instance.update(Collections.USERS, user.json) { _, error ->
-                    if (error != null) {
-                        callback(null, error)
-                        return@update
-                    }
+                updateUserInFirestore(user, callback)
+            }
+        } else {
+            updateUserInFirestore(user, callback)
+        }
+    }
 
-                    update(user)
-                    callback(null, null)
+    private fun updateUserInFirestore(
+        user: User,
+        callback: TaskCallback<Void?>
+    ) {
+        FirebaseModel.instance.update(
+            Collections.USERS, user.id, user.json
+        ) { _, error ->
+            if (error != null) {
+                callback(null, error)
+                return@update
+            }
 
-                }
+            CoroutineScope(Dispatchers.IO).launch {
+                update(user)
+                callback(null, null)
             }
         }
     }

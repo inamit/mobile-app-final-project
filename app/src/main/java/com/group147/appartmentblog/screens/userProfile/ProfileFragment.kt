@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -93,8 +94,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private fun loadUserProfile() {
         viewModel.user.observe(viewLifecycleOwner) { user ->
-            binding.usernameInput.hint = user.displayName
-            binding.phoneInput.hint = user.phoneNumber
+            binding.usernameInput.setText(user.displayName)
+            binding.phoneInput.setText(user.phoneNumber)
             binding.emailText.text = user.email
 
             if (user.imageUrl.isNullOrEmpty()) {
@@ -123,7 +124,14 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             displayName = binding.usernameInput.text.toString()
         )
 
-        viewModel.updateUser(updatedUser, binding.profileImage.drawable.toBitmap())
+        var image = if (binding.profileImage.drawable.constantState != ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.ic_user_placeholder,
+                null
+            )?.constantState
+        ) (binding.profileImage.drawable.toBitmap()) else null
+
+        viewModel.updateUser(updatedUser, image)
     }
 
     private fun onLogoutClicked() {

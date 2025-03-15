@@ -65,11 +65,15 @@ class LoginFragment : Fragment() {
     ): View? {
         binding = FragmentLoginBinding.inflate(layoutInflater)
 
+
+        return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
         (activity as HomeActivity).hideBottomNavBar()
         (activity as HomeActivity).hideAddApartmentButton()
         (activity as HomeActivity).hideToolbar()
-
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

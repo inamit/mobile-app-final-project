@@ -10,7 +10,7 @@ data class User(
     val email: String = "",
     val phoneNumber: String = "",
     val displayName: String = "",
-    var imageUrl: String? = ""
+    var imageUrl: String? = null
 ) {
     companion object {
         const val EMAIL_KEY = "email"

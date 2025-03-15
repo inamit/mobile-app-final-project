@@ -8,9 +8,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentSignUpBinding
@@ -18,7 +19,7 @@ import com.group147.appartmentblog.screens.home.HomeActivity
 
 class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentSignUpBinding
-    private val viewModel: SignUpViewModel by viewModels()
+    private lateinit var viewModel: SignUpViewModel
 
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
@@ -50,6 +51,11 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            SignUpViewModelFactory((activity as HomeActivity).getUserRepository())
+        )[SignUpViewModel::class.java]
+
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
@@ -68,28 +74,36 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
 
         binding.signupButton.setOnClickListener {
+            var image = if (binding.userImage.drawable.constantState != ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_user_placeholder,
+                    null
+                )?.constantState
+            ) (binding.userImage.drawable.toBitmap()) else null
             viewModel.signUp(
                 binding.emailInput,
                 binding.passwordInput,
                 binding.usernameInput,
                 binding.phoneInput,
                 binding.confirmPasswordInput,
-                binding.userImage.drawable.toBitmap()
-            )
-        }
-
-        viewModel.registrationResult.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                findNavController().navigate(R.id.feedFragment)
-            } else {
-                Toast.makeText(requireContext(), "Failed to register user", Toast.LENGTH_SHORT)
-                    .show()
+                image
+            ) { userId, error ->
+                if (error != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to register user: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
+                    findNavController().navigate(R.id.feedFragment)
+                }
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         (activity as HomeActivity).showBottomNavBar()
         (activity as HomeActivity).showAddApartmentButton()
         (activity as HomeActivity).showToolbar()

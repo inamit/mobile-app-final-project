@@ -10,7 +10,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.base.EmptyCallback
-import com.group147.appartmentblog.base.ID_KEY
 import com.group147.appartmentblog.base.TaskCallback
 import java.io.ByteArrayOutputStream
 
@@ -27,6 +26,24 @@ class FirebaseModel {
             setLocalCacheSettings(memoryCacheSettings { })
         }
         database.firestoreSettings = settings
+    }
+
+    fun add(
+        collection: Collections,
+        documentId: String,
+        data: Map<String, Any?>,
+        callback: TaskCallback<Void>
+    ) {
+        database.collection(collection.collectionName)
+            .document(documentId)
+            .set(data)
+            .addOnSuccessListener {
+                callback(it, null)
+            }
+            .addOnFailureListener {
+                Log.d("TAG", it.toString() + it.message)
+                callback(null, it)
+            }
     }
 
     fun add(
@@ -54,8 +71,13 @@ class FirebaseModel {
             }
     }
 
-    fun update(collection: Collections, data: Map<String, Any?>, callback: TaskCallback<Void?>) {
-        database.collection(collection.collectionName).document(data.get(ID_KEY).toString())
+    fun update(
+        collection: Collections,
+        documentId: String,
+        data: Map<String, Any?>,
+        callback: TaskCallback<Void?>
+    ) {
+        database.collection(collection.collectionName).document(documentId)
             .update(data)
             .addOnSuccessListener {
                 callback(it, null)
