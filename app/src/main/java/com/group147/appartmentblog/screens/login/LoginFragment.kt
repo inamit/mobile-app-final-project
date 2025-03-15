@@ -17,7 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentLoginBinding
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
@@ -61,9 +61,9 @@ class LoginFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        (activity as HomeActivity).hideBottomNavBar()
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).hideToolbar()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).hideToolbar()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,7 +71,7 @@ class LoginFragment : Fragment() {
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            LoginViewModelFactory((activity as HomeActivity).getUserRepository())
+            LoginViewModelFactory((activity as MainActivity).getUserRepository())
         )[LoginViewModel::class.java]
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main)) { v, insets ->
@@ -95,9 +95,9 @@ class LoginFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        (activity as HomeActivity).showBottomNavBar()
-        (activity as HomeActivity).showAddApartmentButton()
-        (activity as HomeActivity).showToolbar()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).showToolbar()
     }
 
     private fun loginWithEmailAndPassword() {

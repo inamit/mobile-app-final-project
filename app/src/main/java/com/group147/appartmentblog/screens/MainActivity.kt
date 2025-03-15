@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.screens.home
+package com.group147.appartmentblog.screens
 
 import android.os.Bundle
 import android.util.Log
@@ -28,9 +28,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class HomeActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
-    private val viewModel by viewModels<HomeViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
     var navController: NavController? = null
 
     private var postSubscriptionService: SubscriptionService<Post>? = null

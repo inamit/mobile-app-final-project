@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
-import com.group147.appartmentblog.screens.home.HomeActivity
 
 class FeedFragment : Fragment() {
     private lateinit var binding: FragmentFeedBinding
@@ -30,7 +30,7 @@ class FeedFragment : Fragment() {
 
         feedViewModel = ViewModelProvider(
             requireActivity(),
-            FeedViewModelFactory((activity as HomeActivity).getPostRepository())
+            FeedViewModelFactory((activity as MainActivity).getPostRepository())
         )[FeedViewModel::class.java]
 
         setupRecyclerView()

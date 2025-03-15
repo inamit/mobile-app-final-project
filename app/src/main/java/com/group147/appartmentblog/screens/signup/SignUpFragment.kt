@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentSignUpBinding
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 
 class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentSignUpBinding
@@ -41,9 +41,9 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     ): View? {
         binding = FragmentSignUpBinding.inflate(layoutInflater)
 
-        (activity as HomeActivity).hideBottomNavBar()
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).hideToolbar()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).hideToolbar()
 
         return binding.root
     }
@@ -53,7 +53,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            SignUpViewModelFactory((activity as HomeActivity).getUserRepository())
+            SignUpViewModelFactory((activity as MainActivity).getUserRepository())
         )[SignUpViewModel::class.java]
 
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
@@ -104,9 +104,9 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onStop() {
         super.onStop()
-        (activity as HomeActivity).showBottomNavBar()
-        (activity as HomeActivity).showAddApartmentButton()
-        (activity as HomeActivity).showToolbar()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).showToolbar()
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

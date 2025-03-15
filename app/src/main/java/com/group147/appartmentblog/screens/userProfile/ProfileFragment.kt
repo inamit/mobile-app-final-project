@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentProfileBinding
 import com.group147.appartmentblog.model.User
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
@@ -49,7 +49,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userRepository = (activity as HomeActivity).getUserRepository()
+        val userRepository = (activity as MainActivity).getUserRepository()
 
         viewModel = ViewModelProvider(
             requireActivity(),
@@ -78,7 +78,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        (activity as HomeActivity).showProfileToolbarMenu {
+        (activity as MainActivity).showProfileToolbarMenu {
             when (it.itemId) {
                 R.id.logout -> {
                     onLogoutClicked()
@@ -92,7 +92,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onStop() {
         super.onStop()
-        (activity as HomeActivity).hideToolbarMenu()
+        (activity as MainActivity).hideToolbarMenu()
     }
 
     private fun loadUserProfile() {
