@@ -5,38 +5,23 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.addApartment.AddApartmentActivity">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/back_icon"
-        app:title="@string/app_name" />
+    tools:context=".screens.addApartment.AddApartmentFragment">
 
     <ImageView
         android:id="@+id/image_preview"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:contentDescription="@string/apartment_image_content_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/pickImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/image_preview"
-        android:layout_centerHorizontal="true"
         android:text="@string/pick_image_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,8 +33,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:ems="10"
         android:hint="@string/title_edit_text_hint"
         android:inputType="text"
         android:minHeight="48dp"
@@ -64,8 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:autofillHints=""
-        android:ems="5"
         android:hint="@string/floor"
         android:inputType="number"
         android:minHeight="48dp"
@@ -79,8 +60,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:autofillHints=""
-        android:ems="5"
         android:hint="@string/number_of_rooms"
         android:inputType="number"
         android:minHeight="48dp"
@@ -95,8 +74,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:ems="10"
         android:hint="@string/price"
         android:inputType="number"
         android:minHeight="48dp"
@@ -112,9 +89,6 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:ems="10"
-        android:gravity="start|top"
         android:hint="@string/content_edit_text_hint"
         android:inputType="textMultiLine"
         android:maxHeight="300dp"
@@ -127,10 +101,11 @@
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="128dp"
         android:text="@string/save_button_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
