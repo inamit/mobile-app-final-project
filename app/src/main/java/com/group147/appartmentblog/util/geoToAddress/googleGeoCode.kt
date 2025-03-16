@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.util.geoToAdress
+package com.group147.appartmentblog.util.geoToAddress
 
 import android.util.Log
 import kotlinx.coroutines.*

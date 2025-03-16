@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.util.geoToAdress.getGoogleAddressFromLatLng
+import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
 import java.util.Date
 
 class PostViewModel(private val binding: FragmentPostBinding) : ViewModel() {
