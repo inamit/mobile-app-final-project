@@ -33,6 +33,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        (activity as HomeActivity).hideAddApartmentButton()
+        (activity as HomeActivity).showToolbarNavigationIcon()
+
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
 
@@ -47,9 +51,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             requireActivity(),
             MapViewModelFactory((activity as HomeActivity).getPostRepository())
         )[ MapViewModel::class.java]
-
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).showToolbarNavigationIcon()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
     }
