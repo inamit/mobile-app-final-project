@@ -1,11 +1,7 @@
 package com.group147.appartmentblog.screens.map
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -23,12 +20,14 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.firebase.firestore.FirebaseFirestore
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.screens.home.HomeActivity
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var  viewModel: MapViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,6 +43,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.googleMapFragment) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
 
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            MapViewModelFactory((activity as HomeActivity).getPostRepository())
+        )[ MapViewModel::class.java]
+
+        (activity as HomeActivity).hideAddApartmentButton()
+        (activity as HomeActivity).showToolbarNavigationIcon()
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
     }
 
@@ -52,7 +59,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
         getUserLocation()
-        showPosts()
+        observePosts()
     }
 
     private fun getUserLocation() {
@@ -80,7 +87,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12f))
-                    val icon = BitmapDescriptorFactory.fromBitmap(getBitmapFromDrawable(requireContext(), R.drawable.user_location_icon))
+                    val icon = BitmapDescriptorFactory.fromBitmap(viewModel.getBitmapFromDrawable(requireContext(), R.drawable.user_location_icon))
 
                     // Add marker for user location
                     map.addMarker(
@@ -99,81 +106,47 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
     }
 
-    fun showPosts() {
-        map.clear()
-        val markerMap = mutableMapOf<Marker, LatLng>()
-        val db = FirebaseFirestore.getInstance()
-        db.collection("posts")
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val title = document.getString("title")
-                    val location =
-                        document.getGeoPoint("location")  // Get the GeoPoint from Firestore
+    private fun observePosts() {
+        val markerMap = mutableMapOf<Marker, Post>()
+        viewModel.allPosts.observe(viewLifecycleOwner) { posts ->
+            posts?.forEach { post ->
+                val position = LatLng(post.location.latitude, post.location.longitude)
 
-                    if (location != null) {
-                        val latitude = location.latitude
-                        val longitude = location.longitude
-
-                        Log.d(
-                            "MapFragment",
-                            "Title: $title, Latitude: $latitude, Longitude: $longitude"
-                        )
-
-                        val position = LatLng(latitude, longitude)
-
-                        // Add marker to the map
-                        val marker = map.addMarker(
-                            MarkerOptions()
-                                .position(position)
-                                .title(title)
-                                .icon(resizeMapIcon(R.drawable.location_icon, 200, 200))
-                        )
-                        marker?.let { markerMap[it] = position }
-
-                        map.setOnMarkerClickListener { marker ->
-                            val locationData = markerMap[marker]
-                            marker.showInfoWindow()
-                            locationData?.let {
-                                openDetailsScreen(it)
-                            }
-                            true
-                        }
-                    } else {
-                        Log.e("MapFragment", "Invalid location in document: ${document.id}")
-                    }
+                val marker = map.addMarker(
+                    MarkerOptions()
+                        .position(position)
+                        .title(post.title)
+                        .icon(viewModel.resizeMapIcon(context,R.drawable.location_icon, 200, 200))
+                )
+                marker?.let { markerMap[it] = post }
+            }
+            map.setOnMarkerClickListener { marker ->
+                val locationData = markerMap[marker]
+                marker.showInfoWindow()
+                locationData?.let {
+                    openPostFragment(it)
                 }
+                true
             }
-            .addOnFailureListener { exception ->
-                Log.e("MapFragment", "Error getting documents: ", exception)
-            }
+        }
     }
 
-    private fun resizeMapIcon(imageRes: Int, width: Int, height: Int): BitmapDescriptor {
-        val bitmap = BitmapFactory.decodeResource(context?.resources, imageRes)
-        val smallBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
-        return BitmapDescriptorFactory.fromBitmap(smallBitmap)
+    private fun openPostFragment(post: Post) {
+        val action = MapFragmentDirections
+            .actionFragmentMapFragmentToFragmentPostFragment(
+                post.id,
+                post.title,
+                post.content,
+                post.price.toFloat(),
+                post.rooms.toFloat(),
+                post.floor,
+                post.image.toString(),
+                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
+            )
+
+        findNavController().navigate(action)
     }
 
-    // Function to open details screen of post
-    private fun openDetailsScreen(locationData: LatLng) {
-        // TODO: Implement navigation to post details screen
-    }
-
-   private fun getBitmapFromDrawable(context: Context, drawableId: Int): Bitmap {
-        val drawable = ContextCompat.getDrawable(context, drawableId) ?: return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-
-        val bitmap = Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight,
-            Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-
-        return bitmap
-    }
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
