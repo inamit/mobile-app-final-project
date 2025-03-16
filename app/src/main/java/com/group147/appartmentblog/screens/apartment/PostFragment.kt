@@ -64,10 +64,10 @@ class PostFragment : Fragment() {
 
     private fun bindPostData(post: Post) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val address: String? = viewModel.getAddressFromGeo(post)
+            val apiKey = getString(R.string.google_api_key)
+            val address: String? = viewModel.getAddressFromGeo(post, apiKey)
             address?.let {
-               // addressTextView.text = "Adress: ${address}"
-                Log.d("Address", it)
+                binding.addressTextView.text = "Adress: ${address}"
             } ?: Log.e("Address", "Address not found")
         }
         binding.apply {

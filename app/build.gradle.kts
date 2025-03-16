@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     alias(libs.plugins.androidx.navigation.safe.args)
+    alias(libs.plugins.serialization)
 }
 
 android {
