@@ -1,21 +1,12 @@
 package com.group147.appartmentblog.screens.apartment
 
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.google.firebase.firestore.GeoPoint
-import com.group147.appartmentblog.R
-import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.repositories.PostRepository
-import com.group147.appartmentblog.screens.apartment.PostFragment
 import com.group147.appartmentblog.util.geoToAdress.getGoogleAddressFromLatLng
-import kotlinx.coroutines.launch
 import java.util.Date
 
 class PostViewModel(private val binding: FragmentPostBinding) : ViewModel() {
