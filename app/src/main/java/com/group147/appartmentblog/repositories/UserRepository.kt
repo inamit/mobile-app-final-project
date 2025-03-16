@@ -103,7 +103,7 @@ class UserRepository private constructor(private val userDao: UserDao) :
         }
     }
 
-    fun insertUser(user: User, image: Bitmap?, callback: TaskCallback<Void>) {
+    fun insertUser(user: User, image: Bitmap?, callback: TaskCallback<String>) {
         if (image != null) {
             FirebaseModel.instance.uploadImage(
                 image,
@@ -122,7 +122,7 @@ class UserRepository private constructor(private val userDao: UserDao) :
                         return@insertUserToFirebase
                     }
 
-                    callback(null, null)
+                    callback(userId, null)
                 }
             }
         } else {
@@ -132,7 +132,7 @@ class UserRepository private constructor(private val userDao: UserDao) :
                     return@insertUserToFirebase
                 }
 
-                callback(null, null)
+                callback(userId, null)
             }
         }
     }
