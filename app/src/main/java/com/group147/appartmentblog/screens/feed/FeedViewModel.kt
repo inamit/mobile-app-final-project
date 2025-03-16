@@ -26,9 +26,7 @@ class FeedViewModel(
 
     fun setupFilters() {
         // Set default values for the sliders (optional)
-        binding.priceRangeSlider.setValues(0f, 0f)
-        binding.roomsRangeSlider.setValues(1f, 1f)
-        binding.floorRangeSlider.setValues(0f, 0f)
+        initRanges()
 
         binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
             fieldTouchedMap["priceRangeSlider"] = true
@@ -95,18 +93,20 @@ class FeedViewModel(
     }
 
     fun resetFiltersToDefaults() {
-        // Reset the sliders to their default values
-        binding.priceRangeSlider.values = listOf(0f, 0f)
-        binding.roomsRangeSlider.values = listOf(1f, 1f)
-        binding.floorRangeSlider.values = listOf(0f, 0f)
+        initRanges()
 
-        // Reset the "touched" flags to false
-        fieldTouchedMap["priceRangeSlider"] = false
-        fieldTouchedMap["roomsRangeSlider"] = false
-        fieldTouchedMap["floorRangeSlider"] = false
+        fieldTouchedMap.keys.forEach { key ->
+            fieldTouchedMap[key] = false
+        }
 
         allPosts.value?.let { posts ->
             filterPosts(posts)
         }
+    }
+
+    private fun initRanges() {
+        binding.priceRangeSlider.setValues(0f, 0f)
+        binding.roomsRangeSlider.setValues(1f, 1f)
+        binding.floorRangeSlider.setValues(0f, 0f)
     }
 }
