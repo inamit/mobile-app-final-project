@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.util.geoToAdress
+package com.group147.appartmentblog.util.geoToAddress
 
 import android.util.Log
 import kotlinx.coroutines.*
@@ -31,7 +31,7 @@ suspend fun getGoogleAddressFromLatLng(latitude: Double, longitude: Double, apiK
         val url = URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        Log.d("getGoogleAddressFromLatLng",connection.responseCode.toString())
+
         if (connection.responseCode != HttpURLConnection.HTTP_OK) {
             Log.e("GeoAPI", "HTTP error: ${connection.responseCode}")
             return@withContext null

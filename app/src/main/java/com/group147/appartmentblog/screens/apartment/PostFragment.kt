@@ -6,14 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.GeoPoint
+import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.home.HomeActivity
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -21,10 +21,9 @@ import java.util.Date
 class PostFragment : Fragment() {
 
     private lateinit var binding: FragmentPostBinding
-    private val viewModel: PostViewModel by viewModels()
+    private lateinit var  viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
-    private var isEditMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -39,12 +38,17 @@ class PostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val post = args.toPost()
-        viewModel.setPost(post)
-
+        viewModel =
+            ViewModelProvider(
+                requireActivity(),
+                PostViewModelFactory(
+                    binding
+                )
+            )[PostViewModel::class.java]
         observePost()
-        setupEditButton()
+        viewModel.setPost(post)
+        viewModel.setupEditButton()
     }
 
     override fun onDestroyView() {
@@ -54,7 +58,6 @@ class PostFragment : Fragment() {
         (activity as HomeActivity).showAddApartmentButton()
         (activity as HomeActivity).hideToolbarNavigationIcon()
     }
-
 
     private fun observePost() {
         viewModel.post.observe(viewLifecycleOwner) { post ->
@@ -92,61 +95,6 @@ class PostFragment : Fragment() {
         }
     }
 
-    private fun setupEditButton() {
-        binding.editButton.setOnClickListener {
-            toggleEditMode(true)
-        }
-
-        binding.saveButton.setOnClickListener {
-            if (validateInput()) {
-                updatePost()
-                toggleEditMode(false)
-            }
-        }
-    }
-
-    private fun toggleEditMode(editMode: Boolean) {
-        isEditMode = editMode
-
-        binding.titleTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.contentTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.priceTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.roomsTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.floorTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-
-        binding.titleEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.contentEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.priceEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.roomsEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-
-        binding.editButton.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
-    }
-
-    private fun updatePost() {
-        val updatedPost = viewModel.post.value?.copy(
-            title = binding.titleEditText.text.toString(),
-            content = binding.contentEditText.text.toString(),
-            price = binding.priceEditText.text.toString().toDoubleOrNull() ?: 0.0,
-            rooms = binding.roomsEditText.text.toString().toIntOrNull() ?: 0,
-            floor = binding.floorEditText.text.toString().toIntOrNull() ?: 0,
-            updateTime = Date().time
-        )
-
-        updatedPost?.let {
-            viewModel.updatePost(it)
-        }
-    }
-
-    private fun validateInput(): Boolean {
-        return binding.titleEditText.text.isNotEmpty() &&
-                binding.contentEditText.text.isNotEmpty() &&
-                binding.priceEditText.text.isNotEmpty() &&
-                binding.roomsEditText.text.isNotEmpty() &&
-                binding.floorEditText.text.isNotEmpty()
-    }
 
     private fun PostFragmentArgs.toPost(): Post {
         return Post(
