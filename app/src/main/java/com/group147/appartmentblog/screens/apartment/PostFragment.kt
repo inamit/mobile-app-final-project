@@ -5,9 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,20 +26,6 @@ class PostFragment : Fragment() {
 
     private var isEditMode = false
 
-    private lateinit var titleTextView: TextView
-    private lateinit var titleEditText: EditText
-    private lateinit var contentTextView: TextView
-    private lateinit var contentEditText: EditText
-    private lateinit var priceTextView: TextView
-    private lateinit var priceEditText: EditText
-    private lateinit var roomsTextView: TextView
-    private lateinit var roomsEditText: EditText
-    private lateinit var floorTextView: TextView
-    private lateinit var floorEditText: EditText
-    private lateinit var addressTextView: TextView
-    private lateinit var editButton: Button
-    private lateinit var saveButton: Button
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -62,7 +45,6 @@ class PostFragment : Fragment() {
 
         observePost()
         setupEditButton()
-        initViews(view)
     }
 
     override fun onDestroyView() {
@@ -73,21 +55,6 @@ class PostFragment : Fragment() {
         (activity as HomeActivity).hideToolbarNavigationIcon()
     }
 
-    private fun initViews(view: View) {
-        titleTextView = view.findViewById(R.id.titleTextView)
-        titleEditText = view.findViewById(R.id.titleEditText)
-        contentTextView = view.findViewById(R.id.contentTextView)
-        contentEditText = view.findViewById(R.id.contentEditText)
-        priceTextView = view.findViewById(R.id.priceTextView)
-        priceEditText = view.findViewById(R.id.priceEditText)
-        roomsTextView = view.findViewById(R.id.roomsTextView)
-        roomsEditText = view.findViewById(R.id.roomsEditText)
-        floorTextView = view.findViewById(R.id.floorTextView)
-        floorEditText = view.findViewById(R.id.floorEditText)
-        addressTextView = view.findViewById(R.id.addressTextView)
-        editButton = view.findViewById(R.id.editButton)
-        saveButton = view.findViewById(R.id.saveButton)
-    }
 
     private fun observePost() {
         viewModel.post.observe(viewLifecycleOwner) { post ->
@@ -96,11 +63,13 @@ class PostFragment : Fragment() {
     }
 
     private fun bindPostData(post: Post) {
-         viewLifecycleOwner.lifecycleScope.launch {
-            var address =viewModel.getAddressFromGeo(post)
-            binding.addressTextView.text = "Address: ${address}"
+        viewLifecycleOwner.lifecycleScope.launch {
+            val apiKey = getString(R.string.google_api_key)
+            val address: String? = viewModel.getAddressFromGeo(post, apiKey)
+            address?.let {
+                binding.addressTextView.text = "Adress: ${address}"
+            } ?: Log.e("Address", "Address not found")
         }
-
         binding.apply {
             titleTextView.text = post.title
             contentTextView.text = post.content
@@ -108,11 +77,10 @@ class PostFragment : Fragment() {
             roomsTextView.text = "Number of Rooms: ${post.rooms}"
             floorTextView.text = "Floor: ${post.floor}"
 
-
             post.image?.let {
                 Glide.with(this@PostFragment)
                     .load(it)
-                    .placeholder(R.drawable.account_icon)
+                    .placeholder(R.drawable.camera_icon)
                     .into(postImageView)
             }
 
@@ -140,20 +108,21 @@ class PostFragment : Fragment() {
     private fun toggleEditMode(editMode: Boolean) {
         isEditMode = editMode
 
-        titleTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        contentTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        priceTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        roomsTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        floorTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.titleTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.contentTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.priceTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.roomsTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.floorTextView.visibility = if (editMode) View.GONE else View.VISIBLE
 
-        titleEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        contentEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        priceEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        roomsEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.titleEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.contentEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.priceEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.roomsEditText.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
 
-        editButton.visibility = if (editMode) View.GONE else View.VISIBLE
-        saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
+        binding.editButton.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
+        binding.saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
     }
 
     private fun updatePost() {
