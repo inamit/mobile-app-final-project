@@ -20,6 +20,9 @@
         android:name="com.group147.appartmentblog.screens.map.MapFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_fragment_MapFragment_to_fragment_postFragment"
+            app:destination="@id/postFragment" />
     </fragment>
 
     <fragment
