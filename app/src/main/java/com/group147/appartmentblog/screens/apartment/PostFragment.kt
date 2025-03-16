@@ -67,7 +67,7 @@ class PostFragment : Fragment() {
             val apiKey = getString(R.string.google_api_key)
             val address: String? = viewModel.getAddressFromGeo(post, apiKey)
             address?.let {
-                binding.addressTextView.text = "Adress: ${address}"
+                binding.addressTextView.text = "Address: ${address}"
             } ?: Log.e("Address", "Address not found")
         }
         binding.apply {
