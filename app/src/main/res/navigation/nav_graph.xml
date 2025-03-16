@@ -10,6 +10,9 @@
         android:name="com.group147.appartmentblog.screens.feed.FeedFragment"
         android:label="Feed"
         tools:layout="@layout/fragment_feed">
+        <action
+            android:id="@+id/action_fragment_FeedFragment_to_fragment_postFragment"
+            app:destination="@id/postFragment" />
     </fragment>
 
     <fragment
@@ -30,10 +33,48 @@
         android:id="@+id/addApartmentFragment"
         android:name="com.group147.appartmentblog.screens.addApartment.AddApartmentFragment"
         android:label="Add Apartment"
-        tools:layout="@layout/fragment_add_apartment" />
+        tools:layout="@layout/fragment_add_apartment">
+        <action
+            android:id="@+id/action_fragment_addApartmentFragment_to_fragment_postFragment"
+            app:destination="@id/postFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.group147.appartmentblog.screens.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
+
+
+    <fragment
+        android:id="@+id/postFragment"
+        android:name="com.group147.appartmentblog.screens.apartment.PostFragment"
+        android:label="Post Fragment"
+        tools:layout="@layout/fragment_post">
+        <argument
+            android:name="id"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="content"
+            app:argType="string" />
+        <argument
+            android:name="price"
+            app:argType="float" />
+        <argument
+            android:name="rooms"
+            app:argType="float" />
+        <argument
+            android:name="floor"
+            app:argType="integer" />
+        <argument
+            android:name="image"
+            app:argType="string" />
+        <argument
+            android:name="location"
+            app:argType="float[]" />
+    </fragment>
+
 </navigation>
