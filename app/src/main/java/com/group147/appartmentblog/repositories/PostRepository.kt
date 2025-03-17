@@ -10,7 +10,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDao
-import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.model.Post
 import kotlinx.coroutines.CoroutineScope
@@ -148,7 +147,10 @@ class PostRepository private constructor(
         }
     }
 
-    fun getPostsByCurrentUser(userId: String) {
-        postDao.getPostsByUserId(userId)
+    fun getPostsByCurrentUser(userId: String): LiveData<List<Post>> {
+        CoroutineScope(Dispatchers.IO).launch {
+            _userPostsLiveData.postValue(postDao.getPostsByUserId(userId))
+        }
+        return userPostsLiveData
     }
 }
