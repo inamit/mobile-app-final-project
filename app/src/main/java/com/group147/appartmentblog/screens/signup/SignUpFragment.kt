@@ -80,6 +80,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                     null
                 )?.constantState
             ) (binding.userImage.drawable.toBitmap()) else null
+            (activity as MainActivity).showLoadingOverlay()
             viewModel.signUp(
                 binding.emailInput,
                 binding.passwordInput,
@@ -88,6 +89,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 binding.confirmPasswordInput,
                 image
             ) { userId, error ->
+                (activity as MainActivity).hideLoadingOverlay()
                 if (error != null) {
                     Toast.makeText(
                         requireContext(),
