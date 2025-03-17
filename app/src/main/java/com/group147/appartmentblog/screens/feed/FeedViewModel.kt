@@ -1,6 +1,8 @@
 package com.group147.appartmentblog.screens.feed
 
 import android.util.Log
+import android.view.View
+import android.widget.ImageButton
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.material.slider.RangeSlider
@@ -14,8 +16,8 @@ class FeedViewModel(
     private val binding: FragmentFeedBinding,
     private val postAdapter: PostAdapter,
     postRepository: PostRepository
-) :
-    ViewModel() {
+) : ViewModel() {
+
     val allPosts: LiveData<List<Post>> = postRepository.postsLiveData
 
     private var fieldTouchedMap: MutableMap<String, Boolean> = mutableMapOf(
@@ -25,29 +27,55 @@ class FeedViewModel(
     )
 
     fun setupFilters() {
-        // Set default values for the sliders (optional)
         initRanges()
+        // Initialize sliders visibility and button click listeners
+        toggleSliderVisibility(binding.priceRangeSlider, binding.priceCubeCancel, View.GONE)
+        toggleSliderVisibility(binding.roomsRangeSlider, binding.roomsCubeCancel, View.GONE)
+        toggleSliderVisibility(binding.floorRangeSlider, binding.floorCubeCancel, View.GONE)
 
-        binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["priceRangeSlider"] = true
-            allPosts.value?.let { posts ->
-                filterPosts(posts) // Reapply filter when sliders change
-            }
+        // Toggle sliders visibility when clicking on the cubes
+        binding.priceCube.setOnClickListener {
+            toggleSliderVisibility(binding.priceRangeSlider, binding.priceCubeCancel, View.VISIBLE)
         }
 
-        binding.roomsRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["roomsRangeSlider"] = true
-            allPosts.value?.let { posts ->
-                filterPosts(posts) // Reapply filter when sliders change
-            }
+        binding.roomsCube.setOnClickListener {
+            toggleSliderVisibility(binding.roomsRangeSlider, binding.roomsCubeCancel, View.VISIBLE)
         }
 
-        binding.floorRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["floorRangeSlider"] = true
-            allPosts.value?.let { posts ->
-                filterPosts(posts) // Reapply filter when sliders change
-            }
+        binding.floorCube.setOnClickListener {
+            toggleSliderVisibility(binding.floorRangeSlider, binding.floorCubeCancel, View.VISIBLE)
         }
+
+        sliderEvents()
+        cancelButtonsEvents()
+    }
+
+    // Helper function to show/hide sliders and cancel buttons
+    private fun toggleSliderVisibility(slider: RangeSlider, cancelButton: ImageButton, visibility: Int) {
+        slider.visibility = visibility
+        cancelButton.visibility = visibility
+
+        if (visibility == View.VISIBLE) {
+            slider.animate()
+                .translationY(100f)  // Slide it down or up
+                .alpha(1f)  // Fade in
+                .setDuration(300)  // Duration of the animation
+                .start()
+        } else {
+            slider.animate()
+                .translationY(0f)
+                .alpha(0f)
+                .setDuration(300)
+                .start()
+        }
+    }
+
+    private fun resetSlider(slider: RangeSlider, from: Float, to: Float, key: String, button: ImageButton) {
+        slider.setValues(from, to)
+        fieldTouchedMap[key] = false
+        button.visibility = View.GONE
+        slider.bringToFront()
+        allPosts.value?.let { filterPosts(it) }
     }
 
     fun filterPosts(posts: List<Post>) {
@@ -99,14 +127,51 @@ class FeedViewModel(
             fieldTouchedMap[key] = false
         }
 
-        allPosts.value?.let { posts ->
-            filterPosts(posts)
-        }
+        // Hide all cancel buttons
+        binding.priceCubeCancel.visibility = View.GONE
+        binding.roomsCubeCancel.visibility = View.GONE
+        binding.floorCubeCancel.visibility = View.GONE
+
+        allPosts.value?.let { filterPosts(it) }
     }
 
     private fun initRanges() {
-        binding.priceRangeSlider.setValues(0f, 0f)
-        binding.roomsRangeSlider.setValues(1f, 1f)
-        binding.floorRangeSlider.setValues(0f, 0f)
+        binding.priceRangeSlider.setValues(0f, 1000000f)
+        binding.roomsRangeSlider.setValues(1f, 20f)
+        binding.floorRangeSlider.setValues(0f, 50f)
+    }
+
+    private fun sliderEvents() {
+        binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
+            fieldTouchedMap["priceRangeSlider"] = true
+            allPosts.value?.let { filterPosts(it) }
+        }
+
+        binding.roomsRangeSlider.addOnChangeListener { _, _, _ ->
+            fieldTouchedMap["roomsRangeSlider"] = true
+            allPosts.value?.let { filterPosts(it) }
+        }
+
+        binding.floorRangeSlider.addOnChangeListener { _, _, _ ->
+            fieldTouchedMap["floorRangeSlider"] = true
+            allPosts.value?.let { filterPosts(it) }
+        }
+    }
+
+    private fun cancelButtonsEvents() {
+        binding.priceCubeCancel.setOnClickListener {
+            resetSlider(binding.priceRangeSlider, 0f, 1000000f, "priceRangeSlider", it as ImageButton)
+            binding.priceRangeSlider.bringToFront()
+        }
+
+        binding.roomsCubeCancel.setOnClickListener {
+            resetSlider(binding.roomsRangeSlider, 1f, 20f, "roomsRangeSlider", it as ImageButton)
+            binding.roomsRangeSlider.bringToFront()
+        }
+
+        binding.floorCubeCancel.setOnClickListener {
+            resetSlider(binding.floorRangeSlider, 0f, 50f, "floorRangeSlider", it as ImageButton)
+            binding.floorRangeSlider.bringToFront()
+        }
     }
 }

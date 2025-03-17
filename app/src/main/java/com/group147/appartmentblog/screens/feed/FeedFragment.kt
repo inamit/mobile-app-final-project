@@ -45,9 +45,7 @@ class FeedFragment : Fragment() {
         observePosts()
         feedViewModel.setupFilters()
 
-        binding.resetFiltersButton.setOnClickListener {
-            feedViewModel.resetFiltersToDefaults()
-        }
+
     }
 
     private fun setupRecyclerView() {
