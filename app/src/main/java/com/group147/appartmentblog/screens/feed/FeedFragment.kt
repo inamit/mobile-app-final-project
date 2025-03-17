@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 import com.group147.appartmentblog.screens.home.HomeActivity
@@ -18,7 +19,6 @@ class FeedFragment : Fragment() {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var feedViewModel: FeedViewModel
     private lateinit var postAdapter: PostAdapter
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +84,4 @@ class FeedFragment : Fragment() {
             }
         }
     }
-
-
 }

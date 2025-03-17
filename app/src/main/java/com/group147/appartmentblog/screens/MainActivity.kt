@@ -1,6 +1,7 @@
-package com.group147.appartmentblog.screens.home
+package com.group147.appartmentblog.screens
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,28 +11,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.commit
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDatabase
+import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
-import com.group147.appartmentblog.screens.login.LoginFragment
+import com.group147.appartmentblog.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class HomeActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
-    private val viewModel by viewModels<HomeViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
     var navController: NavController? = null
 
     private var postSubscriptionService: SubscriptionService<Post>? = null
+    private var userSubscriptionService: SubscriptionService<User>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -54,7 +57,8 @@ class HomeActivity : AppCompatActivity() {
         viewModel.currentUser.observe(this) {
             CoroutineScope(Dispatchers.IO).launch {
                 if (it == null) {
-                    postSubscriptionService?.stopListeningForCollection()
+                    postSubscriptionService?.stopListening()
+                    userSubscriptionService?.stopListening()
                 } else {
                     val postRepository = getPostRepository()
                     if (postSubscriptionService == null) {
@@ -64,6 +68,12 @@ class HomeActivity : AppCompatActivity() {
                         Collections.POSTS,
                         postRepository.getLatestUpdatedTime()
                     )
+
+                    val userRepository = getUserRepository()
+                    if (userSubscriptionService == null) {
+                        userSubscriptionService = SubscriptionService(userRepository)
+                    }
+                    userSubscriptionService?.listenForEntity(Collections.USERS, it.id)
                 }
             }
         }
@@ -81,6 +91,12 @@ class HomeActivity : AppCompatActivity() {
         return PostRepository.getRepository(postDao)
     }
 
+    fun getUserRepository(): UserRepository {
+        val database = UserDatabase.getDatabase(this)
+        val userDao = database.userDao()
+        return UserRepository.getRepository(userDao)
+    }
+
     private fun goToApp() {
         showAddApartmentButton()
         showBottomNavBar()
@@ -94,10 +110,7 @@ class HomeActivity : AppCompatActivity() {
         hideAddApartmentButton()
         hideBottomNavBar()
 
-        supportFragmentManager.commit {
-            setReorderingAllowed(true)
-            replace(R.id.nav_host_fragment, LoginFragment())
-        }
+        navController?.navigate(R.id.loginFragment)
     }
 
     fun showAddApartmentButton() {
@@ -109,10 +122,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showBottomNavBar() {
+        Log.d("HomeActivity", "showBottomNavBar")
         binding.bottomNavigationView.visibility = View.VISIBLE
     }
 
     fun hideBottomNavBar() {
+        Log.d("HomeActivity", "hideBottomNavBar")
         binding.bottomNavigationView.visibility = View.GONE
     }
 

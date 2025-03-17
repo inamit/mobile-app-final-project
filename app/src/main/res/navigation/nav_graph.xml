@@ -19,15 +19,13 @@
         android:id="@+id/mapFragment"
         android:name="MapFragment"
         android:label="Map"
-        tools:layout="@layout/fragment_map">
-    </fragment>
+        tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.group147.appartmentblog.screens.userProfile.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile">
-    </fragment>
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/addApartmentFragment"
@@ -45,6 +43,11 @@
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
 
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.group147.appartmentblog.screens.signup.SignUpFragment"
+        android:label="SignUpFragment"
+        tools:layout="@layout/fragment_sign_up" />
 
     <fragment
         android:id="@+id/postFragment"

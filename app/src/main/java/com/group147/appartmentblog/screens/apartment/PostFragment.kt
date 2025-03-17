@@ -14,7 +14,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -28,9 +28,9 @@ class PostFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
-        (activity as HomeActivity).hideBottomNavBar()
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
 
         return binding.root
     }
@@ -53,9 +53,9 @@ class PostFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        (activity as HomeActivity).showBottomNavBar()
-        (activity as HomeActivity).showAddApartmentButton()
-        (activity as HomeActivity).hideToolbarNavigationIcon()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
     private fun observePost() {
