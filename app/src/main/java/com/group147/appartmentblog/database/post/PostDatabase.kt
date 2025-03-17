@@ -19,10 +19,6 @@ abstract class PostDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: PostDatabase? = null
 
-        fun getDatabase(): PostDatabase? {
-            return INSTANCE
-        }
-
         fun getDatabase(context: Context): PostDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDao
@@ -51,7 +52,7 @@ class PostRepository private constructor(
         _loadingPostsLiveData.postValue(false)
     }
 
-    override fun handleDocumentChanges(snapshot: QuerySnapshot) {
+    override fun handleDocumentsChanges(snapshot: QuerySnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
             val updatedPosts = mutableListOf<Post>()
             val removedPosts = mutableListOf<Post>()
@@ -81,17 +82,30 @@ class PostRepository private constructor(
                 }
             }
 
-            val sortedPosts = postDao.getAllPosts().sortedByDescending { it.updateTime }
-            if (sortedPosts.isNotEmpty()) {
-                _postsLiveData.postValue(sortedPosts)
-            } else {
-                _postsLiveData.postValue(emptyList())
-            }
+            postSortedPosts()
 
             Log.d(
                 TAG,
                 "Processed Firestore changes: ${updatedPosts.size} added/modified, ${removedPosts.size} removed"
             )
+        }
+    }
+
+    private fun postSortedPosts() {
+        val sortedPosts = postDao.getAllPosts().sortedByDescending { it.updateTime }
+        if (sortedPosts.isNotEmpty()) {
+            _postsLiveData.postValue(sortedPosts)
+        } else {
+            _postsLiveData.postValue(emptyList())
+        }
+    }
+
+    override fun handleDocumentChange(snapshot: DocumentSnapshot) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val post = Post.fromFirestore(snapshot)
+
+            update(post)
+            postSortedPosts()
         }
     }
 
