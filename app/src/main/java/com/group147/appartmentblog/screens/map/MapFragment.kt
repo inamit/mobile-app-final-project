@@ -19,7 +19,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
@@ -27,13 +30,13 @@ import com.group147.appartmentblog.screens.MainActivity
 class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var  viewModel: MapViewModel
+    private lateinit var viewModel: MapViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        (activity as MainActivity).showLoadingOverlay()
         (activity as MainActivity).hideAddApartmentButton()
 
         return inflater.inflate(R.layout.fragment_map, container, false)
@@ -49,9 +52,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         viewModel = ViewModelProvider(
             requireActivity(),
             MapViewModelFactory((activity as MainActivity).getPostRepository())
-        )[ MapViewModel::class.java]
+        )[MapViewModel::class.java]
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as MainActivity).showAddApartmentButton()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -60,6 +68,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         getUserLocation()
         observePosts()
+        (activity as MainActivity).hideLoadingOverlay()
     }
 
     private fun getUserLocation() {
@@ -87,7 +96,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12f))
-                    val icon = BitmapDescriptorFactory.fromBitmap(viewModel.getBitmapFromDrawable(requireContext(), R.drawable.user_location_icon))
+                    val icon = BitmapDescriptorFactory.fromBitmap(
+                        viewModel.getBitmapFromDrawable(
+                            requireContext(),
+                            R.drawable.user_location_icon
+                        )
+                    )
 
                     // Add marker for user location
                     map.addMarker(
@@ -116,7 +130,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     MarkerOptions()
                         .position(position)
                         .title(post.title)
-                        .icon(viewModel.resizeMapIcon(context,R.drawable.location_icon, 200, 200))
+                        .icon(viewModel.resizeMapIcon(context, R.drawable.location_icon, 200, 200))
                 )
                 marker?.let { markerMap[it] = post }
             }
