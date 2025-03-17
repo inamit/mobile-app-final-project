@@ -22,7 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
@@ -34,8 +34,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View? {
 
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
 
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
@@ -49,7 +49,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            MapViewModelFactory((activity as HomeActivity).getPostRepository())
+            MapViewModelFactory((activity as MainActivity).getPostRepository())
         )[ MapViewModel::class.java]
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
