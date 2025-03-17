@@ -75,6 +75,9 @@
         <argument
             android:name="location"
             app:argType="float[]" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
     </fragment>
 
 </navigation>

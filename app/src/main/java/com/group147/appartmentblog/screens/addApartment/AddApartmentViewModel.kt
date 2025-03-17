@@ -19,10 +19,10 @@ class AddApartmentViewModel(
         get() = _toastMessage
 
     fun savePost(location: GeoPoint?, callback: (String?) -> Unit) {
-        if (location == null) {
-            _toastMessage.postValue("Location is required to upload a post")
-            return
-        }
+//        if (location == null) {
+//            _toastMessage.postValue("Location is required to upload a post")
+//            return
+//        }
 
         if (!validateForm()) {
             return
@@ -35,7 +35,7 @@ class AddApartmentViewModel(
             floor = binding.floorEditText.text.toString().toInt(),
             rooms = binding.roomsEditText.text.toString().toInt(),
             price = binding.priceEditText.text.toString().toDouble(),
-            location = location
+            location = GeoPoint(0.0, 0.0)
         )
         val image = binding.imagePreview.drawable.toBitmap()
 

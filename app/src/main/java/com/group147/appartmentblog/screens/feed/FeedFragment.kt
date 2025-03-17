@@ -59,7 +59,8 @@ class FeedFragment : Fragment() {
                 post.rooms.toFloat(),
                 post.floor,
                 post.image.toString(),
-                floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat())
+                floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat()),
+                post.userId ?: ""
             )
 
         findNavController().navigate(action)
