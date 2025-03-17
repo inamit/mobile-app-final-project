@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
@@ -27,22 +26,21 @@ import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
+import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDao
 import com.group147.appartmentblog.database.post.PostDatabase
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
-import java.util.Date
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.group147.appartmentblog.model.User
+import com.google.firebase.firestore.GeoPoint
 
 class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private lateinit var binding: FragmentPostBinding
-    private lateinit var  viewModel: PostViewModel
+    private lateinit var viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
-    private var isEditMode = false
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
 
@@ -51,6 +49,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var subscriptionService: SubscriptionService<Post>
     private lateinit var postDao: PostDao
     private lateinit var authService: AuthService
+    private lateinit var userRepository: UserRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,9 +61,10 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
-        subscriptionService = SubscriptionService((activity as HomeActivity).getPostRepository())
+        subscriptionService = SubscriptionService((activity as MainActivity).getPostRepository())
         postDao = PostDatabase.getDatabase(requireContext()).postDao()
         authService = AuthService()
+        userRepository = (activity as MainActivity).getUserRepository()
 
         galleryLauncher =
             registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
@@ -84,7 +84,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             PopupMenu(requireContext(), it).apply {
                 setOnMenuItemClickListener(this@PostFragment)
                 menuInflater.inflate(R.menu.image_picker_menu, menu)
-                setForceShowIcon(true)
                 show()
             }
         }
@@ -96,16 +95,14 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         val post = args.toPost()
-        viewModel =
-            ViewModelProvider(
-                requireActivity(),
-                PostViewModelFactory(
-                    binding
-                )
-            )[PostViewModel::class.java]
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            PostViewModelFactory((activity as MainActivity).getPostRepository())
+        )[PostViewModel::class.java]
         observePost()
         viewModel.setPost(post)
-        viewModel.setupEditButton()
+        observeUser()
+        viewModel.setupEditButton(binding)
     }
 
     override fun onDestroyView() {
@@ -122,12 +119,18 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
+    private fun observeUser() {
+        userRepository.userLiveData.observe(viewLifecycleOwner) { user ->
+            setupEditButton(user)
+        }
+    }
+
     private fun bindPostData(post: Post) {
         viewLifecycleOwner.lifecycleScope.launch {
             val apiKey = getString(R.string.google_api_key)
             val address: String? = viewModel.getAddressFromGeo(post, apiKey)
             address?.let {
-                binding.addressTextView.text = "Address: ${address}"
+                binding.addressTextView.text = "Address: $address"
             } ?: Log.e("Address", "Address not found")
         }
         binding.apply {
@@ -140,7 +143,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             post.image?.let {
                 Glide.with(this@PostFragment)
                     .load(it)
-                    .placeholder(R.drawable.camera_icon)
                     .into(postImageView)
             }
 
@@ -152,147 +154,48 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
-    private fun setupEditButton() {
+    private fun setupEditButton(user: User?) {
         val post = viewModel.post.value
 
-        lifecycleScope.launch {
-            val user = authService.currentUser.firstOrNull()
-            if (user != null && post != null && user.id == post.userId) {
-                binding.editButton.visibility = View.VISIBLE
-                binding.editButton.setOnClickListener {
-                    toggleEditMode(true)
-                }
-
-                binding.saveButton.setOnClickListener {
-                    if (validateInput()) {
-                        updatePost()
-                        toggleEditMode(false)
-                    }
-                }
-            } else {
-                binding.editButton.visibility = View.GONE
-                binding.saveButton.visibility = View.GONE
+        if (user != null && post != null && user.id == post.userId) {
+            binding.editButton.visibility = View.VISIBLE
+            binding.editButton.setOnClickListener {
+                viewModel.toggleEditMode(binding, true)
             }
+
+            binding.saveButton.setOnClickListener {
+                if (viewModel.validateInput(binding)) {
+                    val updatedPost = post.copy(
+                        title = binding.titleEditText.text.toString(),
+                        content = binding.contentEditText.text.toString(),
+                        price = binding.priceEditText.text.toString().toDouble(),
+                        rooms = binding.roomsEditText.text.toString().toInt(),
+                        floor = binding.floorEditText.text.toString().toInt(),
+                        updateTime = System.currentTimeMillis()
+                    )
+                    val imageBitmap = binding.postImageView.drawable.toBitmap()
+                    viewModel.updatePost(updatedPost, imageBitmap)
+                    viewModel.toggleEditMode(binding, false)
+                }
+            }
+        } else {
+            binding.editButton.visibility = View.GONE
+            binding.saveButton.visibility = View.GONE
         }
     }
 
-    private fun toggleEditMode(editMode: Boolean) {
-        isEditMode = editMode
-
-        binding.titleTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.contentTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.priceTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.roomsTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.floorTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-
-        binding.titleEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.contentEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.priceEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.roomsEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-        binding.floorEditText.visibility = if (editMode) View.VISIBLE else View.GONE
-
-        binding.editButton.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
-        binding.saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
-    }
-
-    private fun updatePost() {
-        lifecycleScope.launch {
-            val user = authService.currentUser.firstOrNull()
-            val post = viewModel.post.value
-
-            if (user != null && post != null && user.id == post.userId) {
-                val updatedPost = post.copy(
-                    title = binding.titleEditText.text.toString().takeIf { it.isNotEmpty() }
-                        ?: post.title,
-                    content = binding.contentEditText.text.toString().takeIf { it.isNotEmpty() }
-                        ?: post.content,
-                    price = binding.priceEditText.text.toString().toDoubleOrNull() ?: post.price,
-                    rooms = binding.roomsEditText.text.toString().toIntOrNull() ?: post.rooms,
-                    floor = binding.floorEditText.text.toString().toIntOrNull() ?: post.floor,
-                    updateTime = Date().time
-                )
-
-                val imageBitmap = binding.postImageView.drawable.toBitmap()
-                uploadImage(imageBitmap, post.id) { imageUrl ->
-                    if (imageUrl != null) {
-                        updatedPost.image = imageUrl
-                    }
-                    savePostUpdates(post.id, updatedPost.toMap())
-                }
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.camera -> {
+                cameraLauncher.launch(null)
+                true
             }
+            R.id.gallery -> {
+                galleryLauncher.launch("image/*")
+                true
+            }
+            else -> false
         }
-    }
-
-    private fun uploadImage(image: Bitmap, postId: String, callback: (String?) -> Unit) {
-        val storageRef = storage.reference
-        val imageRef = storageRef.child("post_images/$postId.jpg")
-
-        val baos = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        val uploadTask = imageRef.putBytes(data)
-        uploadTask
-            .addOnFailureListener {
-                callback(null)
-            }
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener {
-                    callback(it.toString())
-                }
-            }
-    }
-
-    private fun savePostUpdates(postId: String, postUpdates: Map<String, Any>) {
-        firestore.collection("posts").document(postId).update(postUpdates)
-            .addOnSuccessListener {
-                context?.let {
-                    Toast.makeText(it, "Post updated successfully", Toast.LENGTH_SHORT).show()
-                }
-                fetchUpdatedPost(postId)
-                subscriptionService.listenForCollection(
-                    Collections.POSTS,
-                    postUpdates["updateTime"] as Long
-                )
-
-                // Update the local database
-                val updatedPost = postUpdates.toPost()
-                lifecycleScope.launch(Dispatchers.IO) {
-                    postDao.update(updatedPost)
-                }
-            }
-            .addOnFailureListener { e ->
-                context?.let {
-                    Toast.makeText(it, "Failed to update post: $e", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun fetchUpdatedPost(postId: String) {
-        firestore.collection("posts").document(postId).get()
-            .addOnSuccessListener { document ->
-                document?.let {
-                    val updatedPost = it.toObject(Post::class.java)
-                    updatedPost?.let { post ->
-                        viewModel.updatePost(post)
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                context?.let {
-                    Toast.makeText(it, "Failed to fetch updated post: $e", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-    }
-
-    private fun validateInput(): Boolean {
-        return binding.titleEditText.text.isNotEmpty() &&
-                binding.contentEditText.text.isNotEmpty() &&
-                binding.priceEditText.text.isNotEmpty() &&
-                binding.roomsEditText.text.isNotEmpty() &&
-                binding.floorEditText.text.isNotEmpty()
     }
 
     private fun PostFragmentArgs.toPost(): Post {
@@ -303,53 +206,9 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             price = this.price.toDouble(),
             rooms = this.rooms.toInt(),
             floor = this.floor,
-            location = GeoPoint(location[0].toDouble(), location[1].toDouble()),
+            location = GeoPoint(this.location[0].toDouble(), this.location[1].toDouble()),
             image = this.image,
-            updateTime = Date().time,
             userId = this.userId ?: ""
         )
-    }
-
-    private fun Post.toMap(): Map<String, Any> {
-        val postMap = mutableMapOf<String, Any>()
-        postMap["title"] = this.title
-        postMap["content"] = this.content
-        postMap["price"] = this.price
-        postMap["rooms"] = this.rooms
-        postMap["floor"] = this.floor
-        postMap["updateTime"] = this.updateTime
-        this.image?.let { postMap["image"] = it }
-        return postMap
-    }
-
-    private fun Map<String, Any>.toPost(): Post {
-        return Post(
-            id = this["id"] as? String ?: "",
-            title = this["title"] as? String ?: "",
-            content = this["content"] as? String ?: "",
-            price = this["price"] as? Double ?: 0.0,
-            rooms = this["rooms"] as? Int ?: 0,
-            floor = this["floor"] as? Int ?: 0,
-            location = GeoPoint(0.0, 0.0), // Adjust as needed
-            image = this["image"] as? String,
-            updateTime = this["updateTime"] as? Long ?: 0L,
-            userId = this["userId"] as? String ?: ""
-        )
-    }
-
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.camera -> {
-                cameraLauncher.launch(null)
-                true
-            }
-
-            R.id.gallery -> {
-                galleryLauncher.launch("image/*")
-                true
-            }
-
-            else -> false
-        }
     }
 }

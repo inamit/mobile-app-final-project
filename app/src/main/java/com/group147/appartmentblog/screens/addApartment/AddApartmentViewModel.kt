@@ -19,17 +19,17 @@ class AddApartmentViewModel(
         get() = _toastMessage
 
     fun savePost(location: GeoPoint?, callback: (String?) -> Unit) {
-//        if (location == null) {
-//            _toastMessage.postValue("Location is required to upload a post")
-//            return
-//        }
+        if (location == null) {
+            _toastMessage.postValue("Location is required to upload a post")
+            return
+        }
 
         if (!validateForm()) {
             return
         }
 
         val post = Post(
-            userId = Firebase.auth.currentUser?.uid,
+            userId = Firebase.auth.currentUser?.uid ?: "",
             title = binding.titleEditText.text.toString(),
             content = binding.contentEditText.text.toString(),
             floor = binding.floorEditText.text.toString().toInt(),
