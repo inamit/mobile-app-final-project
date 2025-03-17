@@ -1,10 +1,11 @@
+package com.group147.appartmentblog.database.post
+
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.database.post.PostDao
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.util.converter.GeoPointConverter
 
