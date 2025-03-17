@@ -30,7 +30,7 @@
             android:name=".screens.addApartment.AddApartmentActivity"
             android:exported="false" />
         <activity
-            android:name=".screens.home.HomeActivity"
+            android:name=".screens.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
