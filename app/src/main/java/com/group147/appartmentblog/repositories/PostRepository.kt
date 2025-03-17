@@ -55,13 +55,20 @@ class PostRepository private constructor(
             snapshot.documentChanges.forEach { change ->
                 try {
                     val post = Post.fromFirestore(change.document)
+
+                    Log.d(TAG, "Processing document change: $post")
                     when (change.type) {
-                        DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                            postDao.insert(post)
+                        DocumentChange.Type.ADDED -> {
+                            insert(post)
+                            updatedPosts.add(post)
+                        }
+
+                        DocumentChange.Type.MODIFIED -> {
+                            update(post)
                             updatedPosts.add(post)
                         }
                         DocumentChange.Type.REMOVED -> {
-                            postDao.delete(post)
+                            delete(post)
                             removedPosts.add(post)
                         }
                     }
@@ -81,13 +88,8 @@ class PostRepository private constructor(
             Log.d(TAG, "Processing document change: $snapshot")
             val post = Post.fromFirestore(snapshot)
 
-            if (postDao.getPostById(post.id) == null) {
-                postDao.insert(post)
-            } else {
-                postDao.update(post)
-            }
-
-            _postsLiveData.postValue(postDao.getAllPosts())
+            update(post)
+            postSortedPosts()
         }
     }
 
@@ -124,7 +126,7 @@ class PostRepository private constructor(
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                postDao.update(post)
+                update(post)
                 callback(null, null)
             }
         }
@@ -154,7 +156,7 @@ class PostRepository private constructor(
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                postDao.insert(post)
+                insert(post)
                 callback(post.id, null)
             }
         }

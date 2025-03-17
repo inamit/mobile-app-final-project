@@ -1,14 +1,19 @@
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.group147.appartmentblog.model.Post
+import androidx.room.TypeConverters
+import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDao
+import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.util.converter.GeoPointConverter
 
-@Database(entities = [Post::class], version = 2) // Increment the version number
+@Database(entities = [Post::class], version = 2, exportSchema = false)
+@TypeConverters(GeoPointConverter::class)
 abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
 
     companion object {
-        // Singleton instance of the database
         @Volatile
         private var INSTANCE: PostDatabase? = null
 
@@ -17,8 +22,8 @@ abstract class PostDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     PostDatabase::class.java,
-                    "post_database"
-                ).build()
+                    Collections.POSTS.collectionName
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

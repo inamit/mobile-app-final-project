@@ -1,13 +1,11 @@
 package com.group147.appartmentblog.screens.apartment
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -17,23 +15,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.screens.MainActivity
-import com.group147.appartmentblog.model.service.AuthService
-import com.group147.appartmentblog.model.service.SubscriptionService
-import com.group147.appartmentblog.repositories.PostRepository
-import com.group147.appartmentblog.repositories.UserRepository
-import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.database.post.PostDao
-import com.group147.appartmentblog.database.post.PostDatabase
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import com.group147.appartmentblog.model.User
-import com.google.firebase.firestore.GeoPoint
+import com.group147.appartmentblog.repositories.UserRepository
+import com.group147.appartmentblog.screens.MainActivity
+import kotlinx.coroutines.launch
 
 class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
@@ -44,11 +33,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
 
-    private lateinit var firestore: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
-    private lateinit var subscriptionService: SubscriptionService<Post>
-    private lateinit var postDao: PostDao
-    private lateinit var authService: AuthService
     private lateinit var userRepository: UserRepository
 
     override fun onCreateView(
@@ -59,11 +43,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
 
-        firestore = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
-        subscriptionService = SubscriptionService((activity as MainActivity).getPostRepository())
-        postDao = PostDatabase.getDatabase(requireContext()).postDao()
-        authService = AuthService()
         userRepository = (activity as MainActivity).getUserRepository()
 
         galleryLauncher =
@@ -190,10 +169,12 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 cameraLauncher.launch(null)
                 true
             }
+
             R.id.gallery -> {
                 galleryLauncher.launch("image/*")
                 true
             }
+
             else -> false
         }
     }

@@ -2,7 +2,6 @@ package com.group147.appartmentblog.database.post
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Update
 import com.group147.appartmentblog.database.IDao
 import com.group147.appartmentblog.model.Post
 

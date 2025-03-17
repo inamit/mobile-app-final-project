@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
-import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 
 class FeedFragment : Fragment() {
@@ -60,7 +60,7 @@ class FeedFragment : Fragment() {
                 post.floor,
                 post.image.toString(),
                 floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat()),
-                post.userId ?: ""
+                post.userId.toString()
             )
 
         findNavController().navigate(action)

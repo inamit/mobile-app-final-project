@@ -19,7 +19,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
@@ -141,7 +144,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 post.rooms.toFloat(),
                 post.floor,
                 post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
+                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat()),
+                post.userId.toString()
             )
 
         findNavController().navigate(action)

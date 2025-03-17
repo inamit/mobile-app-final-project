@@ -29,13 +29,13 @@ class AddApartmentViewModel(
         }
 
         val post = Post(
-            userId = Firebase.auth.currentUser?.uid ?: "",
+            userId = Firebase.auth.currentUser?.uid,
             title = binding.titleEditText.text.toString(),
             content = binding.contentEditText.text.toString(),
             floor = binding.floorEditText.text.toString().toInt(),
             rooms = binding.roomsEditText.text.toString().toInt(),
             price = binding.priceEditText.text.toString().toDouble(),
-            location = GeoPoint(0.0, 0.0)
+            location = location
         )
         val image = binding.imagePreview.drawable.toBitmap()
 

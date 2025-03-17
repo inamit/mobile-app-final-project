@@ -21,19 +21,6 @@ data class Post(
     var image: String? = null,
     val updateTime: Long = Date().time
 ) {
-    // No-argument constructor for Firebase
-    constructor() : this(
-        id = "",
-        userId = "",
-        title = "",
-        content = "",
-        price = 0.0,
-        rooms = 0,
-        floor = 0,
-        location = GeoPoint(0.0, 0.0),
-        image = null,
-        updateTime = 0L
-    )
 
     companion object {
         const val USER_ID_KEY = "userId"
@@ -55,7 +42,8 @@ data class Post(
                 floor = documentSnapshot.getLong(FLOOR_KEY)?.toInt() ?: 0,
                 price = documentSnapshot.getDouble(PRICE_KEY) ?: 0.0,
                 location = documentSnapshot.getGeoPoint(LOCATION_KEY) ?: GeoPoint(0.0, 0.0),
-                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time ?: Date().time,
+                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time
+                    ?: Date().time,
                 image = documentSnapshot.getString(IMAGE_URL_KEY) ?: ""
             )
         }
