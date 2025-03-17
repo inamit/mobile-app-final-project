@@ -35,7 +35,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ): View? {
 
         (activity as MainActivity).hideAddApartmentButton()
-        (activity as MainActivity).showToolbarNavigationIcon()
 
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
