@@ -113,6 +113,14 @@ class MainActivity : AppCompatActivity() {
         navController?.navigate(R.id.loginFragment)
     }
 
+    fun showLoadingOverlay() {
+        binding.progressOverlay.visibility = View.VISIBLE
+    }
+
+    fun hideLoadingOverlay() {
+        binding.progressOverlay.visibility = View.GONE
+    }
+
     fun showAddApartmentButton() {
         binding.addApartmentButton.show()
     }
