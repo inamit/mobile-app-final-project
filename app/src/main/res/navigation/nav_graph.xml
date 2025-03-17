@@ -27,6 +27,9 @@
         android:name="com.group147.appartmentblog.screens.userProfile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_userPostsFragment"
+            app:destination="@id/userPostsFragment" />
     </fragment>
 
     <fragment
@@ -75,6 +78,16 @@
         <argument
             android:name="location"
             app:argType="float[]" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userPostsFragment"
+        android:name="com.group147.appartmentblog.screens.userPosts.UserPostsFragment"
+        android:label="User Posts"
+        tools:layout="@layout/fragment_user_posts">
+        <action
+            android:id="@+id/action_fragment_userPostsFragment_to_fragment_postFragment"
+            app:destination="@id/postFragment" />
     </fragment>
 
 </navigation>

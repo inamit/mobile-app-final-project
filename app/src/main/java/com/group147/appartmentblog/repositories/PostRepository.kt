@@ -2,12 +2,14 @@ package com.group147.appartmentblog.repositories
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.annotation.Nullable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.database.post.PostDao
+import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.model.Post
 import kotlinx.coroutines.CoroutineScope
@@ -34,8 +36,9 @@ class PostRepository private constructor(
     }
 
     private val _postsLiveData = MutableLiveData<List<Post>>()
+    private val _userPostsLiveData = MutableLiveData<List<Post>>()
     val postsLiveData: LiveData<List<Post>> get() = _postsLiveData
-
+    val userPostsLiveData: LiveData<List<Post>> get() = _userPostsLiveData
     fun getLatestUpdatedTime(): Long {
         return postDao.getLatestUpdateTime() ?: 0
     }
@@ -129,5 +132,9 @@ class PostRepository private constructor(
                 Log.e(TAG, "Exception during post insertion", e)
             }
         }
+    }
+
+    fun getPostsByCurrentUser(userId: String) {
+        postDao.getPostsByUserId(userId)
     }
 }

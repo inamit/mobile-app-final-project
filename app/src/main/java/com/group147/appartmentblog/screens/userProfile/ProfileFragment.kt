@@ -45,6 +45,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
+        val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
+        userPostButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
+        }
+
         (activity as HomeActivity).showProfileToolbarMenu {
             when (it.itemId) {
                 R.id.logout -> {
