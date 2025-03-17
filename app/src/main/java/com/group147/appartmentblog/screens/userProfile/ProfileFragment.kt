@@ -1,51 +1,84 @@
 package com.group147.appartmentblog.screens.userProfile
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.screens.home.HomeActivity
-import java.io.ByteArrayOutputStream
+import com.group147.appartmentblog.databinding.FragmentProfileBinding
+import com.group147.appartmentblog.model.User
+import com.group147.appartmentblog.screens.MainActivity
+import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
+    private lateinit var viewModel: ProfileViewModel
+    private lateinit var binding: FragmentProfileBinding
 
-    private lateinit var profileImageView: ImageView
-    private lateinit var editImageView: ImageView
-    private lateinit var usernameInput: EditText
-    private lateinit var phoneInput: EditText
-    private lateinit var emailText: TextView
-    private lateinit var updateProfileButton: Button
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
-    private lateinit var galleryLauncher: ActivityResultLauncher<String>
-    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
+    private var galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                binding.profileImage.setImageURI(it)
+            }
+        }
+
+    private var cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                binding.profileImage.setImageBitmap(it)
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+        binding = FragmentProfileBinding.inflate(layoutInflater)
 
-        (activity as HomeActivity).showProfileToolbarMenu {
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val userRepository = (activity as MainActivity).getUserRepository()
+
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ProfileViewModelFactory(userRepository)
+        )[ProfileViewModel::class.java]
+
+        binding.editIcon.setOnClickListener {
+            PopupMenu(requireContext(), it).apply {
+                setOnMenuItemClickListener(this@ProfileFragment)
+                menuInflater.inflate(R.menu.image_picker_menu, menu)
+                setForceShowIcon(true)
+                show()
+            }
+        }
+
+        binding.updateProfileButton.setOnClickListener {
+            updateProfile()
+        }
+
+        viewModel.toastMessage.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
+
+        loadUserProfile()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showProfileToolbarMenu {
             when (it.itemId) {
                 R.id.logout -> {
                     onLogoutClicked()
@@ -55,151 +88,57 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 else -> false
             }
         }
-
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
-
-        profileImageView = view.findViewById(R.id.profile_image)
-        editImageView = view.findViewById(R.id.edit_icon)
-        usernameInput = view.findViewById(R.id.username_input)
-        phoneInput = view.findViewById(R.id.phone_input)
-        emailText = view.findViewById(R.id.email_text)
-        updateProfileButton = view.findViewById(R.id.update_profile_button)
-
-        galleryLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
-                galleryUri?.let {
-                    profileImageView.setImageURI(it)
-                }
-            }
-
-        cameraLauncher =
-            registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-                bitmap?.let {
-                    profileImageView.setImageBitmap(it)
-                }
-            }
-
-        editImageView.setOnClickListener {
-            PopupMenu(requireContext(), it).apply {
-                setOnMenuItemClickListener(this@ProfileFragment)
-                menuInflater.inflate(R.menu.image_picker_menu, menu)
-                setForceShowIcon(true)
-                show()
-            }
-        }
-
-        updateProfileButton.setOnClickListener {
-            updateProfile()
-        }
-
-        loadUserProfile()
-
-        return view
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        (activity as HomeActivity).hideToolbarMenu()
+    override fun onStop() {
+        super.onStop()
+        (activity as MainActivity).hideToolbarMenu()
     }
 
     private fun loadUserProfile() {
-        val user = auth.currentUser
-        user?.let {
-            val uid = user.uid
-            firestore.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        if (!document.getString("username").isNullOrEmpty())
-                            usernameInput.hint = document.getString("username")
-                        if (!document.getString("phone").isNullOrEmpty())
-                            phoneInput.hint = document.getString("phone")
-                        emailText.text = document.getString("email").orEmpty()
-                        val imageUrl = document.getString("imageUrl")
-                        if (!imageUrl.isNullOrEmpty()) {
-                            Glide.with(this)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.ic_user_placeholder)
-                                .into(profileImageView)
-                        } else {
-                            profileImageView.setImageResource(R.drawable.ic_user_placeholder)
-                        }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    context?.let {
-                        Toast.makeText(it, "Failed to load user data: $e", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            binding.usernameInput.setText(user?.displayName ?: "")
+            binding.phoneInput.setText(user?.phoneNumber ?: "")
+            binding.emailText.text = user?.email
+
+            if (user?.imageUrl.isNullOrEmpty()) {
+                binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
+            } else {
+                Picasso.get().load(user.imageUrl).into(binding.profileImage)
+            }
         }
     }
 
     private fun updateProfile() {
-        val user = auth.currentUser
-        user?.let {
-            val uid = user.uid
-            val username = usernameInput.text.toString()
-            val phone = phoneInput.text.toString()
+        val existingUser = viewModel.user.value
 
-            val userUpdates = hashMapOf<String, Any>()
-
-            if (username.isNotEmpty()) {
-                userUpdates["username"] = username
-            }
-            if (phone.isNotEmpty()) {
-                userUpdates["phone"] = phone
+        if (existingUser == null) {
+            context?.let {
+                Toast.makeText(it, "User not found", Toast.LENGTH_SHORT).show()
             }
 
-            val imageBitmap = profileImageView.drawable.toBitmap()
-            uploadImage(imageBitmap, uid) { imageUrl ->
-                if (imageUrl != null) {
-                    userUpdates["imageUrl"] = imageUrl
-                }
-                saveUserUpdates(uid, userUpdates)
-            }
+            return
         }
-    }
 
-    private fun uploadImage(image: Bitmap, uid: String, callback: (String?) -> Unit) {
-        val storageRef = storage.reference
-        val imageRef = storageRef.child("user_images/$uid.jpg")
+        val updatedUser = User(
+            id = existingUser.id,
+            email = existingUser.email,
+            phoneNumber = binding.phoneInput.text.toString(),
+            displayName = binding.usernameInput.text.toString()
+        )
 
-        val baos = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
+        var image = if (binding.profileImage.drawable.constantState != ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.ic_user_placeholder,
+                null
+            )?.constantState
+        ) (binding.profileImage.drawable.toBitmap()) else null
 
-        val uploadTask = imageRef.putBytes(data)
-        uploadTask
-            .addOnFailureListener {
-                callback(null)
-            }
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener {
-                    callback(it.toString())
-                }
-            }
-    }
-
-    private fun saveUserUpdates(uid: String, userUpdates: Map<String, Any>) {
-        firestore.collection("users").document(uid).update(userUpdates)
-            .addOnSuccessListener {
-                context?.let {
-                    Toast.makeText(it, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                }
-                loadUserProfile()
-            }
-            .addOnFailureListener { e ->
-                context?.let {
-                    Toast.makeText(it, "Failed to update profile: $e", Toast.LENGTH_SHORT).show()
-                }
-            }
+        viewModel.updateUser(updatedUser, image)
     }
 
     private fun onLogoutClicked() {
-        auth.signOut()
-        findNavController().navigate(R.id.loginFragment)
+        viewModel.signOut(findNavController())
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

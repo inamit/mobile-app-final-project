@@ -3,37 +3,24 @@ package com.group147.appartmentblog.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.group147.appartmentblog.base.UPDATE_TIME_KEY
 import java.util.Date
 
 @Entity(tableName = "posts")
 data class Post(
     @PrimaryKey var id: String = "",
-    val userId: String? = null,
-    val title: String = "",
-    val content: String = "",
-    val price: Double = 0.0,
-    val rooms: Int = 0,
-    val floor: Int = 0,
-    val location: GeoPoint = GeoPoint(0.0, 0.0),
+    val userId: String?,
+    val title: String,
+    val content: String,
+    val price: Double,
+    val rooms: Int,
+    val floor: Int,
+    val location: GeoPoint,
     var image: String? = null,
     val updateTime: Long = Date().time
 ) {
-    // No-argument constructor for Firebase
-    constructor() : this(
-        id = "",
-        userId = null,
-        title = "",
-        content = "",
-        price = 0.0,
-        rooms = 0,
-        floor = 0,
-        location = GeoPoint(0.0, 0.0),
-        image = null,
-        updateTime = Date().time
-    )
 
     companion object {
         const val USER_ID_KEY = "userId"
@@ -45,7 +32,8 @@ data class Post(
         const val LOCATION_KEY = "location"
         const val IMAGE_URL_KEY = "imageUrl"
 
-        fun fromFirestore(documentSnapshot: QueryDocumentSnapshot): Post {
+
+        fun fromFirestore(documentSnapshot: DocumentSnapshot): Post {
             return Post(
                 id = documentSnapshot.id,
                 userId = documentSnapshot.getString(USER_ID_KEY) ?: "",
@@ -55,7 +43,8 @@ data class Post(
                 floor = documentSnapshot.getLong(FLOOR_KEY)?.toInt() ?: 0,
                 price = documentSnapshot.getDouble(PRICE_KEY) ?: 0.0,
                 location = documentSnapshot.getGeoPoint(LOCATION_KEY) ?: GeoPoint(0.0, 0.0),
-                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time ?: Date().time,
+                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time
+                    ?: Date().time,
                 image = documentSnapshot.getString(IMAGE_URL_KEY) ?: ""
             )
         }

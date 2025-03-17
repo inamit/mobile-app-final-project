@@ -13,7 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -23,7 +23,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.PostRepository
@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
 class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private lateinit var binding: FragmentPostBinding
-    private val viewModel: PostViewModel by viewModels()
+    private lateinit var  viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
     private var isEditMode = false
@@ -56,9 +56,9 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
-        (activity as HomeActivity).hideBottomNavBar()
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
 
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
@@ -96,32 +96,38 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         val post = args.toPost()
-        viewModel.setPost(post)
-
+        viewModel =
+            ViewModelProvider(
+                requireActivity(),
+                PostViewModelFactory(
+                    binding
+                )
+            )[PostViewModel::class.java]
         observePost()
-        setupEditButton()
+        viewModel.setPost(post)
+        viewModel.setupEditButton()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
-        (activity as HomeActivity).showBottomNavBar()
-        (activity as HomeActivity).showAddApartmentButton()
-        (activity as HomeActivity).hideToolbarNavigationIcon()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
     private fun observePost() {
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
-            (activity as HomeActivity).getPostRepository().streamAllExistingEntities()
         }
     }
 
     private fun bindPostData(post: Post) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val address: String? = viewModel.getAddressFromGeo(post)
+            val apiKey = getString(R.string.google_api_key)
+            val address: String? = viewModel.getAddressFromGeo(post, apiKey)
             address?.let {
-                Log.d("Address", it)
+                binding.addressTextView.text = "Address: ${address}"
             } ?: Log.e("Address", "Address not found")
         }
         binding.apply {
