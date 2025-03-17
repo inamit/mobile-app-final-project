@@ -9,13 +9,13 @@
         android:id="@+id/filterSection"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Price Cube -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/priceCube"
             android:layout_width="0dp"
@@ -24,6 +24,7 @@
             android:focusable="true"
             app:layout_constraintEnd_toStartOf="@id/roomsCube"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.25">
 
             <View
@@ -51,17 +52,18 @@
 
             <ImageButton
                 android:id="@+id/priceCubeCancel"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginEnd="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/cancel_icon"
                 android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/priceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/priceLabel" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Rooms Cube -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/roomsCube"
             android:layout_width="0dp"
@@ -70,6 +72,7 @@
             android:focusable="true"
             app:layout_constraintEnd_toStartOf="@id/floorCube"
             app:layout_constraintStart_toEndOf="@id/priceCube"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.25">
 
             <View
@@ -99,15 +102,16 @@
                 android:id="@+id/roomsCubeCancel"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_marginEnd="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/cancel_icon"
                 android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/roomsLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/roomsLabel" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Floor Cube -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/floorCube"
             android:layout_width="0dp"
@@ -116,6 +120,7 @@
             android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/roomsCube"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.25">
 
             <View
@@ -145,56 +150,40 @@
                 android:id="@+id/floorCubeCancel"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_marginEnd="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/cancel_icon"
                 android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/floorLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/floorLabel" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Sliders Section -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/slidersSection"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:layout_marginTop="0dp"
-        app:layout_constraintTop_toBottomOf="@id/filterSection"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Price Slider -->
         <com.google.android.material.slider.RangeSlider
             android:id="@+id/priceRangeSlider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:stepSize="500"
             android:valueFrom="0"
             android:valueTo="1000000"
-            android:stepSize="500"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/roomsRangeSlider"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/priceCube"
+            app:layout_constraintStart_toStartOf="@+id/priceCube"
+            app:layout_constraintTop_toBottomOf="@+id/priceCube"
             app:layout_constraintWidth_percent="0.30" />
 
-        <!-- Rooms Slider -->
         <com.google.android.material.slider.RangeSlider
             android:id="@+id/roomsRangeSlider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:stepSize="1"
             android:valueFrom="1"
             android:valueTo="20"
-            android:stepSize="1"
-            app:layout_constraintStart_toEndOf="@id/priceRangeSlider"
-            app:layout_constraintEnd_toStartOf="@id/floorRangeSlider"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/roomsCube"
+            app:layout_constraintStart_toStartOf="@+id/roomsCube"
+            app:layout_constraintTop_toBottomOf="@+id/roomsCube"
             app:layout_constraintWidth_percent="0.30" />
 
-        <!-- Floor Slider -->
         <com.google.android.material.slider.RangeSlider
             android:id="@+id/floorRangeSlider"
             android:layout_width="0dp"
@@ -202,21 +191,21 @@
             android:stepSize="1"
             android:valueFrom="0"
             android:valueTo="50"
-            app:layout_constraintStart_toEndOf="@id/roomsRangeSlider"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/floorCube"
+            app:layout_constraintStart_toStartOf="@+id/floorCube"
+            app:layout_constraintTop_toBottomOf="@+id/floorCube"
             app:layout_constraintWidth_percent="0.30" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/posts_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/slidersSection"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/filterSection" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
