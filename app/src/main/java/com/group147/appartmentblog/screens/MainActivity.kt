@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private var postSubscriptionService: SubscriptionService<Post>? = null
     private var userSubscriptionService: SubscriptionService<User>? = null
-    private var commentSubscriptionService: SubscriptionService<Comment?>? = null
+    private var commentSubscriptionService: SubscriptionService<Comment>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
