@@ -1,61 +1,70 @@
 package com.group147.appartmentblog.screens.signup
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.screens.login.LoginFragment
+import com.group147.appartmentblog.databinding.FragmentSignUpBinding
+import com.group147.appartmentblog.screens.MainActivity
 
 class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
+    private lateinit var binding: FragmentSignUpBinding
+    private lateinit var viewModel: SignUpViewModel
 
-    private val viewModel: SignUpViewModel by viewModels()
-    private lateinit var galleryLauncher: ActivityResultLauncher<String>
-    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
-    private lateinit var userImage: ImageView
+    private val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
+            galleryUri?.let {
+                binding.userImage.setImageURI(it)
+            }
+        }
+
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                binding.userImage.setImageBitmap(it)
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_sign_up, container, false)
+        binding = FragmentSignUpBinding.inflate(layoutInflater)
+
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).hideToolbar()
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val backButton: Button = view.findViewById(R.id.back_button)
-        val uploadImageButton: Button = view.findViewById(R.id.upload_image_button)
-        val signupButton: Button = view.findViewById(R.id.signup_button)
-        val emailInput: EditText = view.findViewById(R.id.email_input)
-        val passwordInput: EditText = view.findViewById(R.id.password_input)
-        val usernameInput: EditText = view.findViewById(R.id.username_input)
-        val phoneInput: EditText = view.findViewById(R.id.phone_input)
-        val confirmPasswordInput: EditText = view.findViewById(R.id.confirm_password_input)
-        userImage = view.findViewById(R.id.user_image)
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            SignUpViewModelFactory((activity as MainActivity).getUserRepository())
+        )[SignUpViewModel::class.java]
 
-        backButton.setOnClickListener {
-            parentFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace(R.id.nav_host_fragment, LoginFragment())
-                addToBackStack(null)
-            }
+        viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
-        uploadImageButton.setOnClickListener {
+        binding.backButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.uploadImageButton.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
                 setOnMenuItemClickListener(this@SignUpFragment)
                 menuInflater.inflate(R.menu.image_picker_menu, menu)
@@ -64,43 +73,40 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
         }
 
-        signupButton.setOnClickListener {
-            if (validateInputs(emailInput, passwordInput, usernameInput, phoneInput, confirmPasswordInput)) {
-                val email = emailInput.text.toString()
-                val password = passwordInput.text.toString()
-                val username = usernameInput.text.toString()
-                val phone = phoneInput.text.toString()
-
-                val imageDrawable = userImage.drawable
-                val imageBitmap = imageDrawable?.toBitmap()
-                viewModel.registerUser(email, password, username, phone, imageBitmap)
-            }
-        }
-
-        viewModel.registrationResult.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                Toast.makeText(requireContext(), "User registered successfully", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.commit {
-                    setReorderingAllowed(true)
-                    replace(R.id.nav_host_fragment, LoginFragment())
-                    addToBackStack(null)
+        binding.signupButton.setOnClickListener {
+            var image = if (binding.userImage.drawable.constantState != ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_user_placeholder,
+                    null
+                )?.constantState
+            ) (binding.userImage.drawable.toBitmap()) else null
+            viewModel.signUp(
+                binding.emailInput,
+                binding.passwordInput,
+                binding.usernameInput,
+                binding.phoneInput,
+                binding.confirmPasswordInput,
+                image
+            ) { userId, error ->
+                if (error != null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to register user: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
+                    findNavController().navigate(R.id.feedFragment)
                 }
-            } else {
-                Toast.makeText(requireContext(), "Failed to register user", Toast.LENGTH_SHORT).show()
             }
         }
+    }
 
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
-            galleryUri?.let {
-                userImage.setImageURI(it)
-            }
-        }
-
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            bitmap?.let {
-                userImage.setImageBitmap(it)
-            }
-        }
+    override fun onStop() {
+        super.onStop()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).showToolbar()
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
@@ -109,37 +115,13 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 cameraLauncher.launch(null)
                 true
             }
+
             R.id.gallery -> {
                 galleryLauncher.launch("image/*")
                 true
             }
+
             else -> false
         }
-    }
-
-    private fun validateInputs(
-        emailInput: EditText,
-        passwordInput: EditText,
-        usernameInput: EditText,
-        phoneInput: EditText,
-        confirmPasswordInput: EditText
-    ): Boolean {
-        val username = usernameInput.text.toString().trim()
-        val phone = phoneInput.text.toString().trim()
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-        val confirmPassword = confirmPasswordInput.text.toString().trim()
-
-        if (username.isEmpty() || phone.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill out all the fields", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (password != confirmPassword) {
-            Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        return true
     }
 }
