@@ -66,6 +66,10 @@ class FeedFragment : Fragment() {
     }
 
     private fun observePosts() {
+        feedViewModel.loadingPosts.observe(viewLifecycleOwner) {
+            binding.listProgressBar.visibility = if (it) View.VISIBLE else View.GONE
+            binding.postsRecyclerView.visibility = if (it) View.GONE else View.VISIBLE
+        }
         feedViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 postAdapter.submitList(it)

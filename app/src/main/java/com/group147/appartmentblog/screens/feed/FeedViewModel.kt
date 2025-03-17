@@ -7,4 +7,5 @@ import com.group147.appartmentblog.repositories.PostRepository
 
 class FeedViewModel(postRepository: PostRepository) : ViewModel() {
     val allPosts: LiveData<List<Post>> = postRepository.postsLiveData
+    val loadingPosts: LiveData<Boolean> = postRepository.loadingPostsLiveData
 }
