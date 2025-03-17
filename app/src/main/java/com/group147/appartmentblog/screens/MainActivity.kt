@@ -16,12 +16,15 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
+import com.group147.appartmentblog.database.Comment.CommentDatabase
 import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.model.service.SubscriptionService
+import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private var postSubscriptionService: SubscriptionService<Post>? = null
     private var userSubscriptionService: SubscriptionService<User>? = null
+    private var commentSubscriptionService: SubscriptionService<Comment?>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 if (it == null) {
                     postSubscriptionService?.stopListening()
                     userSubscriptionService?.stopListening()
+                    commentSubscriptionService?.stopListening()
                 } else {
                     val postRepository = getPostRepository()
                     if (postSubscriptionService == null) {
@@ -74,6 +79,12 @@ class MainActivity : AppCompatActivity() {
                         userSubscriptionService = SubscriptionService(userRepository)
                     }
                     userSubscriptionService?.listenForEntity(Collections.USERS, it.id)
+
+                    val commentRepository = getCommentRepository()
+                    if (commentSubscriptionService == null) {
+                        commentSubscriptionService = SubscriptionService(commentRepository)
+                    }
+                    commentSubscriptionService?.listenForEntity(Collections.COMMENTS, it.id)
                 }
             }
         }
@@ -95,6 +106,12 @@ class MainActivity : AppCompatActivity() {
         val database = UserDatabase.getDatabase(this)
         val userDao = database.userDao()
         return UserRepository.getRepository(userDao)
+    }
+
+    fun getCommentRepository(): CommentRepository {
+        val database = CommentDatabase.getDatabase(this)
+        val commentDao = database.commentDao()
+        return CommentRepository.getRepository(commentDao)
     }
 
     private fun goToApp() {

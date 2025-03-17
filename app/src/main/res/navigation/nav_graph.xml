@@ -54,6 +54,16 @@
         tools:layout="@layout/fragment_sign_up" />
 
     <fragment
+        android:id="@+id/addReviewFragment"
+        android:name="com.group147.appartmentblog.screens.addReview.AdReviewFragment"
+        android:label="AddReviewFragment"
+        tools:layout="@layout/fragment_add_review">
+        <action
+            android:id="@+id/action_fragment_addReviewFragment_to_fragment_postFragment"
+            app:destination="@id/postFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/postFragment"
         android:name="com.group147.appartmentblog.screens.apartment.PostFragment"
         android:label="Post Fragment"
