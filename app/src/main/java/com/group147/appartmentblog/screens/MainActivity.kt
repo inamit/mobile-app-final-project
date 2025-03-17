@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         showBottomNavBar()
 
         binding.addApartmentButton.setOnClickListener {
-            navController?.navigate(R.id.addApartmentFragment)
+            navController?.navigate(R.id.action_feedFragment_to_addApartmentFragment)
         }
     }
 
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         hideAddApartmentButton()
         hideBottomNavBar()
 
-        navController?.navigate(R.id.loginFragment)
+        navController?.navigate(R.id.action_feedFragment_to_loginFragment)
     }
 
     fun showAddApartmentButton() {
