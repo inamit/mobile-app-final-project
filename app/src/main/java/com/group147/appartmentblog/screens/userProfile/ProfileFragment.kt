@@ -112,7 +112,10 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             if (user?.imageUrl.isNullOrEmpty()) {
                 binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
             } else {
-                Picasso.get().load(user.imageUrl).into(binding.profileImage)
+                Picasso.get()
+                    .load(user.imageUrl)
+                    .placeholder(R.drawable.ic_user_placeholder)
+                    .into(binding.profileImage)
             }
         }
     }
