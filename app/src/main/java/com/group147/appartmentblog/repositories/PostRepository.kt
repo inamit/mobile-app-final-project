@@ -56,15 +56,14 @@ class PostRepository private constructor(
                 try {
                     val post = Post.fromFirestore(change.document)
 
-                    Log.d(TAG, "Processing document change: $post")
+                    Log.d(TAG, "Processing document change (${change.type}): $post")
                     when (change.type) {
-                        DocumentChange.Type.ADDED -> {
-                            insert(post)
-                            updatedPosts.add(post)
-                        }
-
-                        DocumentChange.Type.MODIFIED -> {
-                            update(post)
+                        DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+                            try {
+                                insert(post)
+                            } catch (_: Exception) {
+                                update(post)
+                            }
                             updatedPosts.add(post)
                         }
                         DocumentChange.Type.REMOVED -> {

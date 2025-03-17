@@ -136,17 +136,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun openPostFragment(post: Post) {
         val action = MapFragmentDirections
-            .actionFragmentMapFragmentToFragmentPostFragment(
-                post.id,
-                post.title,
-                post.content,
-                post.price.toFloat(),
-                post.rooms.toFloat(),
-                post.floor,
-                post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat()),
-                post.userId.toString()
-            )
+            .actionFragmentMapFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
     }

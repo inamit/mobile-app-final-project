@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
-import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
@@ -73,13 +72,11 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val post = args.toPost()
         viewModel = ViewModelProvider(
             requireActivity(),
             PostViewModelFactory((activity as MainActivity).getPostRepository())
         )[PostViewModel::class.java]
         observePost()
-        viewModel.setPost(post)
         observeUser()
         viewModel.setupEditButton(binding)
     }
@@ -93,6 +90,9 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun observePost() {
+        viewModel.allPosts.observe(viewLifecycleOwner) { allPosts ->
+            viewModel.setPost(allPosts.find { it.id == args.id }!!)
+        }
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
         }
@@ -177,19 +177,5 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
             else -> false
         }
-    }
-
-    private fun PostFragmentArgs.toPost(): Post {
-        return Post(
-            id = this.id,
-            title = this.title,
-            content = this.content,
-            price = this.price.toDouble(),
-            rooms = this.rooms.toInt(),
-            floor = this.floor,
-            location = GeoPoint(this.location[0].toDouble(), this.location[1].toDouble()),
-            image = this.image,
-            userId = this.userId ?: ""
-        )
     }
 }

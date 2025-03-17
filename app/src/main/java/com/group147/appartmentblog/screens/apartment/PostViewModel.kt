@@ -1,6 +1,8 @@
 package com.group147.appartmentblog.screens.apartment
 
 import android.graphics.Bitmap
+import android.view.View
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,12 +10,12 @@ import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
-import androidx.core.graphics.drawable.toBitmap
-import android.view.View
 
 class PostViewModel(
     private val postRepository: PostRepository
 ) : ViewModel() {
+
+    val allPosts = postRepository.postsLiveData
 
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
