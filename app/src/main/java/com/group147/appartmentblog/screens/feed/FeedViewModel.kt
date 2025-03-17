@@ -10,7 +10,6 @@ import com.group147.appartmentblog.databinding.FragmentFeedBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.screens.adapters.PostAdapter
-import kotlin.collections.set
 
 class FeedViewModel(
     private val binding: FragmentFeedBinding,
@@ -86,7 +85,6 @@ class FeedViewModel(
     private fun toggleSliderVisibility(slider: RangeSlider, cancelButton: ImageButton, visibility: Int) {
         slider.visibility = visibility
         cancelButton.visibility = visibility
-        animateSliders(slider, visibility)
     }
 
     private fun resetSlider(slider: RangeSlider, from: Float, to: Float, key: String, button: ImageButton) {
@@ -141,22 +139,6 @@ class FeedViewModel(
         binding.floorCubeCancel.setOnClickListener {
             resetSlider(binding.floorRangeSlider, 0f, 50f, "floorRangeSlider", it as ImageButton)
             binding.floorRangeSlider.bringToFront()
-        }
-    }
-
-    private fun animateSliders(slider: RangeSlider, visibility: Int) {
-        if (visibility == View.VISIBLE) {
-            slider.animate()
-                .translationY(20f)  // Slide it down or up
-                .alpha(1f)  // Fade in
-                .setDuration(300)  // Duration of the animation
-                .start()
-        } else if (visibility == View.GONE) {
-            slider.animate()
-                .translationY(-20f)
-                .alpha(0f)
-                .setDuration(300)
-                .start()
         }
     }
 }
