@@ -17,16 +17,24 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: LiveData<String> get() = _toastMessage
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
     fun updateUser(user: User, image: Bitmap?) {
+        _loading.postValue(true)
         userRepository.updateUser(user, image) { _, error ->
             if (error != null) {
                 _toastMessage.postValue("Failed to update user")
             }
+
+            _loading.postValue(false)
         }
     }
 
     fun signOut(navController: NavController) {
+        _loading.postValue(true)
         authService.signOut(userRepository)
+        _loading.postValue(false)
         navController.navigate(R.id.loginFragment)
     }
 }

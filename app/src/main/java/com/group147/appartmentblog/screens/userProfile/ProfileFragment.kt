@@ -73,6 +73,14 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel.loading.observe(viewLifecycleOwner) {
+            if (it) {
+                (activity as MainActivity).showLoadingOverlay()
+            } else {
+                (activity as MainActivity).hideLoadingOverlay()
+            }
+        }
+
         loadUserProfile()
     }
 
