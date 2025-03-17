@@ -61,6 +61,9 @@
         <action
             android:id="@+id/action_fragment_addReviewFragment_to_fragment_postFragment"
             app:destination="@id/postFragment" />
+        <argument
+            android:name="postId"
+            app:argType="string" />
     </fragment>
 
     <fragment
@@ -92,6 +95,9 @@
         <argument
             android:name="location"
             app:argType="float[]" />
+        <action
+            android:id="@+id/action_postFragment_to_addReviewFragment"
+            app:destination="@id/addReviewFragment" />
     </fragment>
-
+    
 </navigation>

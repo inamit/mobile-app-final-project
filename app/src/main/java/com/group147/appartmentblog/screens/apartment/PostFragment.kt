@@ -32,6 +32,7 @@ class PostFragment : Fragment() {
         (activity as MainActivity).hideBottomNavBar()
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).showAddReviewButton()
 
         return binding.root
     }
@@ -57,6 +58,7 @@ class PostFragment : Fragment() {
         (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
+        (activity as MainActivity).hideAddReviewButton()
     }
 
     private fun observePost() {

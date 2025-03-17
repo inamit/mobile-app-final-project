@@ -121,6 +121,10 @@ class MainActivity : AppCompatActivity() {
         binding.addApartmentButton.setOnClickListener {
             navController?.navigate(R.id.addApartmentFragment)
         }
+
+        binding.addCommentButton.setOnClickListener {
+            navController?.navigate(R.id.addReviewFragment)
+        }
     }
 
     private fun goToLogin() {
@@ -136,6 +140,14 @@ class MainActivity : AppCompatActivity() {
 
     fun hideAddApartmentButton() {
         binding.addApartmentButton.hide()
+    }
+
+    fun showAddReviewButton() {
+        binding.addCommentButton.show()
+    }
+
+    fun hideAddReviewButton() {
+        binding.addCommentButton.hide()
     }
 
     fun showBottomNavBar() {
