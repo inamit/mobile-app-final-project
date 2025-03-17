@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.databinding.FragmentUserPostsBinding
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
-import com.group147.appartmentblog.screens.home.HomeActivity
 
 class UserPostsFragment : Fragment(){
     private lateinit var binding: FragmentUserPostsBinding
@@ -23,16 +23,17 @@ class UserPostsFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentUserPostsBinding.inflate(layoutInflater)
-        (activity as HomeActivity).showToolbarNavigationIcon()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        (activity as MainActivity).showToolbarNavigationIcon()
         userPostsViewModel = ViewModelProvider(
             requireActivity(),
-            UserPostsViewModelFactory((activity as HomeActivity).getPostRepository())
+            UserPostsViewModelFactory(
+                (activity as MainActivity).getPostRepository(),
+            )
         )[UserPostsViewModel::class.java]
 
         setupRecyclerView()
@@ -66,7 +67,7 @@ class UserPostsFragment : Fragment(){
     }
 
     private fun observePosts() {
-        userPostsViewModel.allUserPosts.observe(viewLifecycleOwner) { posts ->
+        userPostsViewModel.allUserPosts?.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 postAdapter.submitList(it)
             }

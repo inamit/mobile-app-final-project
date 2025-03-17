@@ -52,10 +52,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentProfileBinding.inflate(layoutInflater)
-        val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
-        userPostButton.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
-        }
         return binding.root
     }
 
@@ -63,6 +59,11 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         val userRepository = (activity as MainActivity).getUserRepository()
+
+        val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
+        userPostButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
+        }
 
         viewModel = ViewModelProvider(
             requireActivity(),
