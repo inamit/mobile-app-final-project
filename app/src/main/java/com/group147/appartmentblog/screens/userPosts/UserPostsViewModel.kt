@@ -13,6 +13,6 @@ class UserPostsViewModel (postRepository: PostRepository) : ViewModel() {
     val allUserPosts: LiveData<List<Post>> = authService.currentUser
         .asLiveData()
         .switchMap { user ->
-            postRepository.getPostsByCurrentUser(user!!.id)
+            postRepository.getPostsByCurrentUser(user?.id.toString())
         }
 }
