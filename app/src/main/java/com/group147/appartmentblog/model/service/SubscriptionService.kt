@@ -8,10 +8,13 @@ import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.base.UPDATE_TIME_KEY
 import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.repositories.AbsAppartmentBlogRepository
-import com.group147.appartmentblog.repositories.PostRepository.Companion.TAG
 import java.util.Date
 
 class SubscriptionService<T>(private val repository: AbsAppartmentBlogRepository<T>) {
+    companion object {
+        val TAG = "SubscriptionService"
+    }
+
     private var listenerRegistration: ListenerRegistration? = null
 
     fun listenForCollection(collection: Collections, fromDate: Long) {
@@ -38,11 +41,38 @@ class SubscriptionService<T>(private val repository: AbsAppartmentBlogRepository
                         return@addSnapshotListener
                     }
 
-                    repository.handleDocumentChanges(snapshot)
+                    repository.handleDocumentsChanges(snapshot)
                 }
     }
 
-    fun stopListeningForCollection() {
+    fun listenForEntity(collection: Collections, entityId: String) {
+        if (listenerRegistration != null) return
+
+        Log.d(TAG, "Listening for entity $entityId in collection ${collection.collectionName}")
+        listenerRegistration =
+            FirebaseModel.instance.database.collection(collection.collectionName)
+                .document(entityId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Log.e(
+                            TAG,
+                            "Error listening for ${collection.collectionName} updates",
+                            error
+                        )
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot == null || !snapshot.exists()) {
+                        Log.d(TAG, "No changes in ${collection.collectionName}")
+                        repository.streamAllExistingEntities()
+                        return@addSnapshotListener
+                    }
+
+                    repository.handleDocumentChange(snapshot)
+                }
+    }
+
+    fun stopListening() {
         listenerRegistration?.remove()
         listenerRegistration = null
     }

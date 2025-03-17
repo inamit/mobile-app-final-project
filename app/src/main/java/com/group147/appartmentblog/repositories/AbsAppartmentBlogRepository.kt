@@ -1,5 +1,6 @@
 package com.group147.appartmentblog.repositories
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.database.IDao
 
@@ -18,5 +19,7 @@ abstract class AbsAppartmentBlogRepository<T>(private val dao: IDao<T>) {
 
     abstract fun streamAllExistingEntities()
 
-    abstract fun handleDocumentChanges(snapshot: QuerySnapshot)
+    abstract fun handleDocumentsChanges(snapshot: QuerySnapshot)
+
+    abstract fun handleDocumentChange(snapshot: DocumentSnapshot)
 }

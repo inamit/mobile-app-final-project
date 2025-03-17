@@ -3,8 +3,8 @@ package com.group147.appartmentblog.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.group147.appartmentblog.base.UPDATE_TIME_KEY
 import java.util.Date
 
@@ -33,7 +33,7 @@ data class Post(
         const val IMAGE_URL_KEY = "imageUrl"
 
 
-        fun fromFirestore(documentSnapshot: QueryDocumentSnapshot): Post {
+        fun fromFirestore(documentSnapshot: DocumentSnapshot): Post {
             return Post(
                 id = documentSnapshot.id,
                 userId = documentSnapshot.getString(USER_ID_KEY) ?: "",

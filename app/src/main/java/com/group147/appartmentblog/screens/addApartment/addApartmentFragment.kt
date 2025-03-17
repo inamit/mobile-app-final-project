@@ -27,7 +27,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.permissions.LocationPermission
-import com.group147.appartmentblog.screens.home.HomeActivity
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.util.showSnackbar
 
 class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
@@ -70,9 +70,9 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     ): View {
         binding = FragmentAddApartmentBinding.inflate(inflater, container, false)
 
-        (activity as HomeActivity).hideBottomNavBar()
-        (activity as HomeActivity).hideAddApartmentButton()
-        (activity as HomeActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
 
         return binding.root
     }
@@ -93,7 +93,7 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 requireActivity(),
                 AddApartmentViewModelFactory(
                     binding,
-                    (activity as HomeActivity).getPostRepository()
+                    (activity as MainActivity).getPostRepository()
                 )
             )[AddApartmentViewModel::class.java]
 
@@ -118,12 +118,12 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
 
-        (activity as HomeActivity).showBottomNavBar()
-        (activity as HomeActivity).showAddApartmentButton()
-        (activity as HomeActivity).hideToolbarNavigationIcon()
+        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
     private fun getCurrentLocation() {
