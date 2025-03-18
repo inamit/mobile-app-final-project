@@ -65,12 +65,15 @@ class UserPostsFragment : Fragment(){
 
         findNavController().navigate(action)
     }
-
     private fun observePosts() {
         userPostsViewModel.allUserPosts?.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 postAdapter.submitList(it)
             }
         }
+    }
+    override fun onPause() {
+        super.onPause()
+        (activity as MainActivity).hideToolbarNavigationIcon()
     }
 }
