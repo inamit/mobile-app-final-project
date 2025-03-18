@@ -143,7 +143,8 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun onLogoutClicked() {
-        viewModel.signOut(findNavController())
+        viewModel.signOut()
+        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
