@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -47,7 +48,9 @@ class UserPostsFragment : Fragment() {
                 (activity as MainActivity).getUserRepository(),
             )
         )[UserPostsViewModel::class.java]
-
+        binding.editIcon.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
         setupRecyclerView()
         observePosts()
         loadUserProfile()
@@ -88,10 +91,11 @@ class UserPostsFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        (activity as MainActivity).hideToolbarNavigationIcon()
+    override fun onStop() {
+        super.onStop()
+        (activity as MainActivity).hideToolbarMenu()
     }
+
 
     private fun loadUserProfile() {
         userPostsViewModel.user.observe(viewLifecycleOwner) { user ->

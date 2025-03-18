@@ -58,7 +58,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val userRepository = (activity as MainActivity).getUserRepository()
-
+        (activity as MainActivity).showToolbarNavigationIcon()
         //val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
         //userPostButton.setOnClickListener {
         //    findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
@@ -87,20 +87,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
 
         loadUserProfile()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (activity as MainActivity).showProfileToolbarMenu {
-            when (it.itemId) {
-                R.id.logout -> {
-                    onLogoutClicked()
-                    true
-                }
-
-                else -> false
-            }
-        }
     }
 
     override fun onStop() {
