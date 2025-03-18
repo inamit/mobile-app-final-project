@@ -27,8 +27,9 @@ class PostFragment : Fragment() {
 
     private lateinit var binding: FragmentPostBinding
     private lateinit var  viewModel: PostViewModel
-    private val args: PostFragmentArgs by navArgs()
     private lateinit var commentAdapter: CommentAdapter
+
+    private val args: PostFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,13 +39,13 @@ class PostFragment : Fragment() {
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
 
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val post = args.toPost()
+
         viewModel =
             ViewModelProvider(
                 requireActivity(),
@@ -57,12 +58,10 @@ class PostFragment : Fragment() {
         viewModel.setPost(post)
         viewModel.setupEditButton()
         viewModel.showAddReviewButton()
+
         binding.addCommentButton.setOnClickListener {
             val action = PostFragmentDirections
-                .actionPostFragmentToAddReviewFragment(
-                    post.id,
-                )
-
+                .actionPostFragmentToAddReviewFragment(post.id,)
             findNavController().navigate(action)
         }
         setupRecyclerView()

@@ -12,7 +12,7 @@ import com.group147.appartmentblog.repositories.UserRepository
 class AddReviewViewModel(
     private val binding: FragmentAddReviewBinding,
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository
+    userRepository: UserRepository
 ) : ViewModel() {
     val user: LiveData<User> = userRepository.userLiveData
     private val _toastMessage = MutableLiveData<String>()
@@ -22,7 +22,6 @@ class AddReviewViewModel(
         if (!validateForm()) {
             return
         }
-
         commentRepository.insertComment(comment) { document, error ->
             if (error != null) {
                 _toastMessage.postValue("Failed adding review. Please try again.")

@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.database.post
+package com.group147.appartmentblog.database.comment
 
 import android.content.Context
 import androidx.room.Database

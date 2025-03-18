@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.group147.appartmentblog.databinding.CommentItemBinding
 import com.group147.appartmentblog.model.Comment
 
-
 class CommentAdapter(private val onCommentClick: (Comment) -> Unit) :
     ListAdapter<Comment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
 

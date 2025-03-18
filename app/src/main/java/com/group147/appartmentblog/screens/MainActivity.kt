@@ -16,7 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.database.post.CommentDatabase
+import com.group147.appartmentblog.database.comment.CommentDatabase
 import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding

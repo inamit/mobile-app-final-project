@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.database.post
+package com.group147.appartmentblog.database.comment
 
 import androidx.room.Dao
 import androidx.room.Query

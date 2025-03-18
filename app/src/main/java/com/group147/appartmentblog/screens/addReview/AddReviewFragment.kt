@@ -1,31 +1,27 @@
 package com.group147.appartmentblog.screens.addReview
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.group147.appartmentblog.databinding.FragmentAddReviewBinding
 import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.User
-import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.screens.MainActivity
-import kotlinx.coroutines.launch
 import kotlin.getValue
 
 class AddReviewFragment : Fragment() {
     private lateinit var binding: FragmentAddReviewBinding
     private lateinit var viewModel: AddReviewViewModel
+
     private val args: AddReviewFragmentArgs by navArgs()
     private var user: User? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

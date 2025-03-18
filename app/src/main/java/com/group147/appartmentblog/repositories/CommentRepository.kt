@@ -7,7 +7,8 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.database.post.CommentDao
+import com.group147.appartmentblog.database.comment.CommentDao
+
 import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.FirebaseModel
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +38,9 @@ class CommentRepository private constructor(
 
     override fun streamAllExistingEntities() {
         CoroutineScope(Dispatchers.IO).launch {
-            _commentsLiveData.postValue(commentDao.getAllComments())
+            val comments = commentDao.getAllComments()
+            Log.d(TAG, "Comments from local DB: $comments")
+            _commentsLiveData.postValue(comments)
         }
     }
 
@@ -95,4 +98,5 @@ class CommentRepository private constructor(
         }
 
     }
+
 }
