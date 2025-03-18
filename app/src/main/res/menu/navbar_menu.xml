@@ -13,7 +13,7 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/userPostsFragment"
+        android:id="@+id/userProfileFragment"
         android:icon="@drawable/account_logo"
         android:title="Profile"
         app:showAsAction="ifRoom" />
