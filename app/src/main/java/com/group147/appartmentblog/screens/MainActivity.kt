@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         showBottomNavBar()
 
         binding.addApartmentButton.setOnClickListener {
-            navController?.navigate(R.id.action_feedFragment_to_addApartmentFragment)
+            navController?.navigate(R.id.addApartmentFragment)
         }
     }
 

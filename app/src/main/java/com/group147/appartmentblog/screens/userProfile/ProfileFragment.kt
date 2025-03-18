@@ -50,7 +50,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         val userRepository = (activity as MainActivity).getUserRepository()
-        (activity as MainActivity).hideAddApartmentButton()
         viewModel = ViewModelProvider(
             requireActivity(),
             ProfileViewModelFactory(userRepository)

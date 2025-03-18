@@ -48,6 +48,9 @@
         <action
             android:id="@+id/action_profileFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
     <fragment
@@ -64,13 +67,24 @@
         android:id="@+id/loginFragment"
         android:name="com.group147.appartmentblog.screens.login.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.group147.appartmentblog.screens.signup.SignUpFragment"
         android:label="SignUpFragment"
-        tools:layout="@layout/fragment_sign_up" />
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/postFragment"
