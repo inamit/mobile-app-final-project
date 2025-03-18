@@ -15,4 +15,7 @@ interface PostDao : IDao<Post> {
 
     @Query("SELECT MAX(updateTime) FROM posts")
     fun getLatestUpdateTime(): Long?
+
+    @Query("SELECT * FROM posts WHERE userId = :userId")
+    fun getPostsByUserId(userId: String): List<Post>
 }
