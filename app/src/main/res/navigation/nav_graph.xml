@@ -55,7 +55,7 @@
 
     <fragment
         android:id="@+id/addReviewFragment"
-        android:name="com.group147.appartmentblog.screens.addReview.AdReviewFragment"
+        android:name="com.group147.appartmentblog.screens.addReview.AddReviewFragment"
         android:label="AddReviewFragment"
         tools:layout="@layout/fragment_add_review">
         <action
