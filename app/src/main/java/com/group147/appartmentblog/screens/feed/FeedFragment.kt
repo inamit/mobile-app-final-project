@@ -45,6 +45,13 @@ class FeedFragment : Fragment() {
         feedViewModel.setupFilters()
     }
 
+    override fun onPause() {
+        super.onPause()
+        // Reset filters or update ViewModel if needed
+        feedViewModel.resetFilters()
+        feedViewModel.setupFilters()
+    }
+
     private fun setupRecyclerView() {
         postAdapter = PostAdapter { post ->
             openPostFragment(post)
