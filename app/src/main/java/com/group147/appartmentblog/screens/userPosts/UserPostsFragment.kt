@@ -13,7 +13,7 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 
-class UserPostsFragment : Fragment(){
+class UserPostsFragment : Fragment() {
     private lateinit var binding: FragmentUserPostsBinding
     private lateinit var userPostsViewModel: UserPostsViewModel
     private lateinit var postAdapter: PostAdapter
@@ -50,6 +50,7 @@ class UserPostsFragment : Fragment(){
             adapter = postAdapter
         }
     }
+
     private fun openPostFragment(post: Post) {
         val action = UserPostsFragmentDirections
             .actionFragmentUserPostsFragmentToFragmentPostFragment(
@@ -60,11 +61,12 @@ class UserPostsFragment : Fragment(){
                 post.rooms.toFloat(),
                 post.floor,
                 post.image.toString(),
-                floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat())
+                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
             )
 
         findNavController().navigate(action)
     }
+
     private fun observePosts() {
         userPostsViewModel.allUserPosts?.observe(viewLifecycleOwner) { posts ->
             posts?.let {
@@ -72,8 +74,14 @@ class UserPostsFragment : Fragment(){
             }
         }
     }
+
     override fun onPause() {
         super.onPause()
         (activity as MainActivity).hideToolbarNavigationIcon()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showToolbarNavigationIcon()
     }
 }
