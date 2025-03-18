@@ -16,7 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.database.Comment.CommentDatabase
+import com.group147.appartmentblog.database.post.CommentDatabase
 import com.group147.appartmentblog.database.post.PostDatabase
 import com.group147.appartmentblog.database.user.UserDatabase
 import com.group147.appartmentblog.databinding.ActivityHomeBinding
@@ -121,10 +121,6 @@ class MainActivity : AppCompatActivity() {
         binding.addApartmentButton.setOnClickListener {
             navController?.navigate(R.id.addApartmentFragment)
         }
-
-        binding.addCommentButton.setOnClickListener {
-            navController?.navigate(R.id.addReviewFragment)
-        }
     }
 
     private fun goToLogin() {
@@ -140,14 +136,6 @@ class MainActivity : AppCompatActivity() {
 
     fun hideAddApartmentButton() {
         binding.addApartmentButton.hide()
-    }
-
-    fun showAddReviewButton() {
-        binding.addCommentButton.show()
-    }
-
-    fun hideAddReviewButton() {
-        binding.addCommentButton.hide()
     }
 
     fun showBottomNavBar() {

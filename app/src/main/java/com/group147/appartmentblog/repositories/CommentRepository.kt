@@ -7,17 +7,16 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
-import com.group147.appartmentblog.base.TaskCallback
-import com.group147.appartmentblog.database.Comment.CommentDao
+import com.group147.appartmentblog.database.post.CommentDao
 import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.FirebaseModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CommentRepository private constructor(private val commentDao: CommentDao) :
-    AbsAppartmentBlogRepository<Comment>(commentDao) {
-
+class CommentRepository private constructor(
+    private val commentDao: CommentDao
+) : AbsAppartmentBlogRepository<Comment>(commentDao) {
     companion object {
         const val TAG = "CommentRepository"
 
@@ -33,34 +32,34 @@ class CommentRepository private constructor(private val commentDao: CommentDao) 
         }
     }
 
-    private val _commentLiveData = MutableLiveData<Comment>()
-    val commentLiveData: LiveData<Comment> get() = _commentLiveData
+    private val _commentsLiveData = MutableLiveData<List<Comment>>()
+    val commentsLiveData: LiveData<List<Comment>> get() = _commentsLiveData
 
     override fun streamAllExistingEntities() {
         CoroutineScope(Dispatchers.IO).launch {
-            _commentLiveData.postValue(commentDao.getComment())
+            _commentsLiveData.postValue(commentDao.getAllComments())
         }
     }
 
     override fun handleDocumentsChanges(snapshot: QuerySnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
+            val updatedComments = mutableListOf<Comment>()
+            val removedComments = mutableListOf<Comment>()
+
             snapshot.documentChanges.forEach { change ->
                 try {
                     val comment = Comment.fromFirestore(change.document)
 
                     Log.d(TAG, "Processing document change: $comment")
                     when (change.type) {
-                        DocumentChange.Type.ADDED -> {
-                            commentDao.deleteExistingComment()
+                        DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
                             insert(comment)
-                        }
-
-                        DocumentChange.Type.MODIFIED -> {
-                            update(comment)
+                            updatedComments.add(comment)
                         }
 
                         DocumentChange.Type.REMOVED -> {
                             delete(comment)
+                            removedComments.add(comment)
                         }
                     }
                 } catch (e: Exception) {
@@ -71,88 +70,29 @@ class CommentRepository private constructor(private val commentDao: CommentDao) 
                     )
                 }
             }
-
-            _commentLiveData.postValue(commentDao.getComment())
-
             Log.d(
                 TAG,
-                "Processed Firestore comment changes. Comment: ${commentDao.getComment()}"
+                "Processed Firestore changes: ${updatedComments.size} added/modified, ${removedComments.size} removed"
             )
         }
     }
 
     override fun handleDocumentChange(snapshot: DocumentSnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
-            Log.d(TAG, "Processing document change: $snapshot")
             val comment = Comment.fromFirestore(snapshot)
-
-            if (commentDao.getComment() == null) {
-                insert(comment)
-            } else {
-                update(comment)
-            }
-
-            _commentLiveData.postValue(commentDao.getComment())
+            update(comment)
         }
     }
 
-    fun deleteComment() {
+    fun insertComment(comment: Comment, callback: (String?, Exception?) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            commentDao.deleteExistingComment()
-        }
-    }
-
-    fun insertComment(comment: Comment, callback: TaskCallback<String>) {
-
-            insertCommentToFirebase(comment) { commentId, error ->
-                if (error != null) {
-                    callback(null, error)
-                    return@insertCommentToFirebase
-                }
-
-                callback(commentId, null)
-            }
-
-    }
-
-    private fun insertCommentToFirebase(comment: Comment, callback: TaskCallback<String>) {
-        FirebaseModel.instance.add(
-            Collections.COMMENTS,
-            comment.id,
-            comment.json
-        ) { documentReference, error ->
-            if (error != null) {
-                callback(null, error)
-                return@add
-            }
-
-            CoroutineScope(Dispatchers.IO).launch {
-                if (commentDao.getComment() == null) {
-                    insert(comment)
-                } else {
-                    update(comment)
+            FirebaseModel.instance.add(Collections.COMMENTS, comment.json) { document, error ->
+                if (document != null) {
+                    comment.id = document.id
+                    callback(comment.id, null)
                 }
             }
-            callback(comment.id, null)
         }
-    }
 
-    private fun updateCommentInFirestore(
-        comment: Comment,
-        callback: TaskCallback<Void?>
-    ) {
-        FirebaseModel.instance.update(
-            Collections.COMMENTS, comment.id, comment.json
-        ) { _, error ->
-            if (error != null) {
-                callback(null, error)
-                return@update
-            }
-
-            CoroutineScope(Dispatchers.IO).launch {
-                update(comment)
-                callback(null, null)
-            }
-        }
     }
 }

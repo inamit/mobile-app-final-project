@@ -8,13 +8,18 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.group147.appartmentblog.databinding.FragmentAddReviewBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.screens.MainActivity
+import kotlin.getValue
 
 class AdReviewFragment : Fragment() {
     private lateinit var binding: FragmentAddReviewBinding
     private lateinit var viewModel: AddReviewViewModel
-
+    private val args: AdReviewFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,7 +36,7 @@ class AdReviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val comment = args.toComment()
         viewModel =
             ViewModelProvider(
                 requireActivity(),
@@ -41,7 +46,7 @@ class AdReviewFragment : Fragment() {
                 )
             )[AddReviewViewModel::class.java]
         binding.saveButton.setOnClickListener {
-            viewModel.saveComment() {
+            viewModel.saveComment(comment) {
                 findNavController().popBackStack()
             }
         }
@@ -58,4 +63,12 @@ class AdReviewFragment : Fragment() {
         (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
+    private fun AdReviewFragmentArgs.toComment(): Comment {
+        return Comment(
+            postId = postId,
+            authorName = Firebase.auth.currentUser?.displayName.toString(),
+            review = binding.reviewEditText.toString(),
+            rate = binding.ratingBar.rating.toDouble(),
+            )
+    }
 }

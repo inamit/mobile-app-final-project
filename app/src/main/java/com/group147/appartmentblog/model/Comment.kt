@@ -6,8 +6,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 
 @Entity(tableName = "comments")
 data class Comment(
-    @PrimaryKey val id: String = "",
-    val postId: String = "",
+    @PrimaryKey var id: String = "",
+    val postId: String,
     val authorName: String,
     val review: String,
     val rate: Double,

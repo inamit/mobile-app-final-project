@@ -5,15 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.group147.appartmentblog.databinding.FragmentPostBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
 import java.util.Date
 
-class PostViewModel(private val binding: FragmentPostBinding) : ViewModel() {
+class PostViewModel(private val binding: FragmentPostBinding, commentRepository: CommentRepository) : ViewModel() {
 
     private var isEditMode = false
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
+    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData;
 
     fun setPost(post: Post) {
         _post.value = post
@@ -31,7 +34,6 @@ class PostViewModel(private val binding: FragmentPostBinding) : ViewModel() {
 
         return address
     }
-
 
     fun setupEditButton() {
         binding.editButton.setOnClickListener {
@@ -87,6 +89,14 @@ class PostViewModel(private val binding: FragmentPostBinding) : ViewModel() {
                 binding.priceEditText.text.isNotEmpty() &&
                 binding.roomsEditText.text.isNotEmpty() &&
                 binding.floorEditText.text.isNotEmpty()
+    }
+
+    fun showAddReviewButton() {
+        binding.addCommentButton.show()
+    }
+
+    fun hideAddReviewButton() {
+        binding.addCommentButton.hide()
     }
 
 }

@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.database.Comment
+package com.group147.appartmentblog.database.post
 
 import androidx.room.Dao
 import androidx.room.Query
@@ -11,8 +11,8 @@ interface CommentDao : IDao<Comment> {
     @Query("SELECT * FROM comments WHERE postId = :postId")
     fun getCommentsByPost(postId: String): Comment?
 
-    @Query("SELECT * FROM comments limit 1")
-    fun getComment(): Comment?
+    @Query("SELECT * FROM comments")
+    fun getAllComments(): List<Comment>
 
     @Query("DELETE FROM comments")
     fun deleteExistingComment()

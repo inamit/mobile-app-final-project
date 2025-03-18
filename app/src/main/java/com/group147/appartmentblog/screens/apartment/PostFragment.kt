@@ -8,13 +8,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.adapters.CommentAdapter
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -23,7 +28,7 @@ class PostFragment : Fragment() {
     private lateinit var binding: FragmentPostBinding
     private lateinit var  viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
-
+    private lateinit var commentAdapter: CommentAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -32,7 +37,7 @@ class PostFragment : Fragment() {
         (activity as MainActivity).hideBottomNavBar()
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
-        (activity as MainActivity).showAddReviewButton()
+
 
         return binding.root
     }
@@ -44,12 +49,24 @@ class PostFragment : Fragment() {
             ViewModelProvider(
                 requireActivity(),
                 PostViewModelFactory(
-                    binding
+                    binding,
+                   (activity as MainActivity).getCommentRepository()
                 )
             )[PostViewModel::class.java]
         observePost()
         viewModel.setPost(post)
         viewModel.setupEditButton()
+        viewModel.showAddReviewButton()
+        binding.addCommentButton.setOnClickListener {
+            val action = PostFragmentDirections
+                .actionPostFragmentToAddReviewFragment(
+                    post.id,
+                )
+
+            findNavController().navigate(action)
+        }
+        setupRecyclerView()
+        observeComments()
     }
 
     override fun onDestroyView() {
@@ -58,7 +75,17 @@ class PostFragment : Fragment() {
         (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
-        (activity as MainActivity).hideAddReviewButton()
+        viewModel.hideAddReviewButton()
+    }
+
+    private fun setupRecyclerView() {
+        commentAdapter = CommentAdapter { comment ->
+
+        }
+        binding.commentsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = commentAdapter
+        }
     }
 
     private fun observePost() {
@@ -97,6 +124,13 @@ class PostFragment : Fragment() {
         }
     }
 
+    private fun observeComments() {
+        viewModel.comments.observe(viewLifecycleOwner) { comments ->
+            comments?.let {
+                commentAdapter.submitList(it)
+            }
+        }
+    }
 
     private fun PostFragmentArgs.toPost(): Post {
         return Post(
@@ -109,7 +143,7 @@ class PostFragment : Fragment() {
             location = GeoPoint(location[0].toDouble(), location[1].toDouble()),
             image = this.image,
             updateTime = Date().time,
-            userId = this.id
+            userId = Firebase.auth.currentUser?.uid
         )
     }
 }

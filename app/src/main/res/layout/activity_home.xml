@@ -42,20 +42,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/add_icon" />
 
-    <!--only visible in post-->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_comment_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:contentDescription="@string/add_comment"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/add_icon" />
-
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
