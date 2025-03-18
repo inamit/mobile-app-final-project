@@ -2,7 +2,10 @@ package com.group147.appartmentblog.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.group147.appartmentblog.base.UPDATE_TIME_KEY
+import java.util.Date
 
 @Entity(tableName = "comments")
 data class Comment(
@@ -11,6 +14,7 @@ data class Comment(
     val authorName: String,
     val review: String,
     val rate: Double,
+    val updateTime: Long = Date().time
 ) {
     companion object {
         const val POST_ID_KEY = "postId"
@@ -24,7 +28,9 @@ data class Comment(
                 postId = documentSnapshot.getString(POST_ID_KEY) ?: "",
                 authorName = documentSnapshot.getString(AUTHOR_NAME_KEY) ?: "",
                 review = documentSnapshot.getString(REVIEW_KEY) ?: "",
-                rate = documentSnapshot.getDouble(RATE_KEY) ?: 0.0
+                rate = documentSnapshot.getDouble(RATE_KEY) ?: 0.0,
+                updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time
+                    ?: Date().time,
             )
         }
     }
@@ -34,7 +40,8 @@ data class Comment(
             POST_ID_KEY to postId,
             AUTHOR_NAME_KEY to authorName,
             REVIEW_KEY to review,
-            RATE_KEY to rate
+            RATE_KEY to rate,
+            UPDATE_TIME_KEY to Timestamp(Date(updateTime)),
         )
 }
 

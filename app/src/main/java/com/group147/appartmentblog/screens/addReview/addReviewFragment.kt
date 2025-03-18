@@ -65,7 +65,6 @@ class AddReviewFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         (activity as MainActivity).showBottomNavBar()
-        (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
     }
 

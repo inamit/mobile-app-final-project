@@ -17,4 +17,7 @@ interface CommentDao : IDao<Comment> {
     @Query("DELETE FROM comments")
     fun deleteExistingComment()
 
+    @Query("SELECT MAX(updateTime) FROM comments")
+    fun getLatestUpdateTime(): Long?
+
 }

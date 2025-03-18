@@ -38,7 +38,6 @@ class PostFragment : Fragment() {
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
 
-
         return binding.root
     }
 
@@ -71,11 +70,9 @@ class PostFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         (activity as MainActivity).showBottomNavBar()
-        (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
-        viewModel.hideAddReviewButton()
+
     }
 
     private fun setupRecyclerView() {
