@@ -2,6 +2,7 @@ package com.group147.appartmentblog.repositories
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.annotation.Nullable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentChange
@@ -37,8 +38,9 @@ class PostRepository private constructor(
     }
 
     private val _postsLiveData = MutableLiveData<List<Post>>()
+    private val _userPostsLiveData = MutableLiveData<List<Post>>()
     val postsLiveData: LiveData<List<Post>> get() = _postsLiveData
-
+    val userPostsLiveData: LiveData<List<Post>> get() = _userPostsLiveData
     fun getLatestUpdatedTime(): Long {
         return postDao.getLatestUpdateTime() ?: 0
     }
@@ -184,5 +186,12 @@ class PostRepository private constructor(
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    fun getPostsByCurrentUser(userId: String): LiveData<List<Post>> {
+        CoroutineScope(Dispatchers.IO).launch {
+            _userPostsLiveData.postValue(postDao.getPostsByUserId(userId))
+        }
+        return userPostsLiveData
     }
 }

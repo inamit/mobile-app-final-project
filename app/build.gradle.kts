@@ -66,6 +66,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.play.services.maps)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
     ksp(libs.androidx.room.compiler)
     implementation (libs.picasso)
     implementation(libs.kotlinx.serialization.json)
