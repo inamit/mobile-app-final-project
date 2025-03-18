@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.screens.userProfile
+package com.group147.appartmentblog.screens.userEdit
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,14 +15,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.databinding.FragmentProfileBinding
+import com.group147.appartmentblog.databinding.FragmentUserEditBinding
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.screens.MainActivity
 import com.squareup.picasso.Picasso
 
-class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
-    private lateinit var viewModel: ProfileViewModel
-    private lateinit var binding: FragmentProfileBinding
+class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
+    private lateinit var viewModel: UserEditViewModel
+    private lateinit var binding: FragmentUserEditBinding
 
     private var galleryLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { galleryUri ->
@@ -42,28 +42,23 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentProfileBinding.inflate(layoutInflater)
+        binding = FragmentUserEditBinding.inflate(layoutInflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val userRepository = (activity as MainActivity).getUserRepository()
-
-        val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
-        userPostButton.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
-        }
+        (activity as MainActivity).showToolbarNavigationIcon()
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            ProfileViewModelFactory(userRepository)
-        )[ProfileViewModel::class.java]
+            UserEditViewModelFactory(userRepository)
+        )[UserEditViewModel::class.java]
 
         binding.editIcon.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
-                setOnMenuItemClickListener(this@ProfileFragment)
+                setOnMenuItemClickListener(this@UserEditFragment)
                 menuInflater.inflate(R.menu.image_picker_menu, menu)
                 setForceShowIcon(true)
                 show()
@@ -81,23 +76,10 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         loadUserProfile()
     }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as MainActivity).showProfileToolbarMenu {
-            when (it.itemId) {
-                R.id.logout -> {
-                    onLogoutClicked()
-                    true
-                }
-
-                else -> false
-            }
-        }
-    }
-
     override fun onStop() {
         super.onStop()
         (activity as MainActivity).hideToolbarMenu()
+        (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
     private fun loadUserProfile() {
@@ -142,9 +124,9 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         viewModel.updateUser(updatedUser, image)
     }
 
-    private fun onLogoutClicked() {
-        viewModel.signOut()
-        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showToolbarNavigationIcon()
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
