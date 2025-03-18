@@ -35,11 +35,7 @@ class FeedFragment : Fragment() {
 
         feedViewModel = ViewModelProvider(
             requireActivity(),
-            FeedViewModelFactory(
-                binding,
-                postAdapter,
-                (activity as MainActivity).getPostRepository()
-            )
+            FeedViewModelFactory((activity as MainActivity).getPostRepository())
         )[FeedViewModel::class.java]
 
         observePosts()
@@ -84,7 +80,7 @@ class FeedFragment : Fragment() {
             posts?.let {
                 // Log to check the number of posts
                 Log.d("FeedFragment", "Number of posts: ${it.size}")
-                feedViewModel.filterPosts(it) // Ensure filtering happens when posts change
+                feedViewModel.filterPosts(binding, it) // Ensure filtering happens when posts change
             }
         }
 
@@ -95,6 +91,7 @@ class FeedFragment : Fragment() {
 
     fun resetFilters() {
         feedViewModel.resetSlider(
+            binding,
             binding.priceRangeSlider,
             0f,
             1000000f,
@@ -102,6 +99,7 @@ class FeedFragment : Fragment() {
             binding.priceCubeCancel
         )
         feedViewModel.resetSlider(
+            binding,
             binding.roomsRangeSlider,
             1f,
             20f,
@@ -109,6 +107,7 @@ class FeedFragment : Fragment() {
             binding.roomsCubeCancel
         )
         feedViewModel.resetSlider(
+            binding,
             binding.floorRangeSlider,
             0f,
             50f,
@@ -154,23 +153,24 @@ class FeedFragment : Fragment() {
     private fun slidersEvents() {
         binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
             feedViewModel.fieldTouchedMap["priceRangeSlider"] = true
-            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(binding, it) }
         }
 
         binding.roomsRangeSlider.addOnChangeListener { _, _, _ ->
             feedViewModel.fieldTouchedMap["roomsRangeSlider"] = true
-            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(binding, it) }
         }
 
         binding.floorRangeSlider.addOnChangeListener { _, _, _ ->
             feedViewModel.fieldTouchedMap["floorRangeSlider"] = true
-            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(binding, it) }
         }
     }
 
     private fun cancelButtonsEvents() {
         binding.priceCubeCancel.setOnClickListener {
             feedViewModel.resetSlider(
+                binding,
                 binding.priceRangeSlider,
                 0f,
                 1000000f,
@@ -182,6 +182,7 @@ class FeedFragment : Fragment() {
 
         binding.roomsCubeCancel.setOnClickListener {
             feedViewModel.resetSlider(
+                binding,
                 binding.roomsRangeSlider,
                 1f,
                 20f,
@@ -193,6 +194,7 @@ class FeedFragment : Fragment() {
 
         binding.floorCubeCancel.setOnClickListener {
             feedViewModel.resetSlider(
+                binding,
                 binding.floorRangeSlider,
                 0f,
                 50f,

@@ -10,11 +10,8 @@ import com.google.android.material.slider.RangeSlider
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
-import com.group147.appartmentblog.screens.adapters.PostAdapter
 
 class FeedViewModel(
-    private val binding: FragmentFeedBinding,
-    private val postAdapter: PostAdapter,
     postRepository: PostRepository
 ) : ViewModel() {
 
@@ -29,7 +26,7 @@ class FeedViewModel(
         "floorRangeSlider" to false
     )
 
-    fun filterPosts(posts: List<Post>) {
+    fun filterPosts(binding: FragmentFeedBinding, posts: List<Post>) {
         val priceRange = getSliderRange(binding.priceRangeSlider)
         val roomsRange = getSliderRange(binding.roomsRangeSlider)
         val floorRange = getSliderRange(binding.floorRangeSlider)
@@ -70,11 +67,18 @@ class FeedViewModel(
         cancelButton.visibility = visibility
     }
 
-    fun resetSlider(slider: RangeSlider, from: Float, to: Float, key: String, button: ImageButton) {
+    fun resetSlider(
+        binding: FragmentFeedBinding,
+        slider: RangeSlider,
+        from: Float,
+        to: Float,
+        key: String,
+        button: ImageButton
+    ) {
         slider.setValues(from, to)
         fieldTouchedMap[key] = false
         toggleSliderVisibility(slider, button, View.GONE)
-        allPosts.value?.let { filterPosts(it) }
+        allPosts.value?.let { filterPosts(binding, it) }
     }
 
     private fun getSliderRange(slider: RangeSlider): Pair<Float, Float> {
