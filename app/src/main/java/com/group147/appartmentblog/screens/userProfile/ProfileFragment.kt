@@ -57,7 +57,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        hideUpdateFields()
         val userRepository = (activity as MainActivity).getUserRepository()
 
         //val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
@@ -123,13 +122,6 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
-    private fun hideUpdateFields(){
-        binding.emailText.visibility = View.GONE
-        binding.phoneInput.visibility = View.GONE
-        binding.usernameInput.visibility = View.GONE
-        binding.updateProfileButton.visibility = View.GONE
-    }
-
     private fun updateProfile() {
         val existingUser = viewModel.user.value
 
@@ -159,7 +151,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun onLogoutClicked() {
-        viewModel.signOut(findNavController())
+      viewModel.signOut(findNavController())
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

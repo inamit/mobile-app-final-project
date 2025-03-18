@@ -8,10 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentUserPostsBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
+import com.squareup.picasso.Picasso
 
 class UserPostsFragment : Fragment() {
     private lateinit var binding: FragmentUserPostsBinding
@@ -28,16 +30,27 @@ class UserPostsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as MainActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).showProfileToolbarMenu {
+            when (it.itemId) {
+                R.id.logout -> {
+                    onLogoutClicked()
+                    true
+                }
+
+                else -> false
+            }
+        }
         userPostsViewModel = ViewModelProvider(
             requireActivity(),
             UserPostsViewModelFactory(
                 (activity as MainActivity).getPostRepository(),
+                (activity as MainActivity).getUserRepository(),
             )
         )[UserPostsViewModel::class.java]
 
         setupRecyclerView()
         observePosts()
+        loadUserProfile()
     }
 
     private fun setupRecyclerView() {
@@ -80,8 +93,18 @@ class UserPostsFragment : Fragment() {
         (activity as MainActivity).hideToolbarNavigationIcon()
     }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as MainActivity).showToolbarNavigationIcon()
+    private fun loadUserProfile() {
+        userPostsViewModel.user.observe(viewLifecycleOwner) { user ->
+            binding.emailText.text = user?.email
+
+            if (user?.imageUrl.isNullOrEmpty()) {
+                binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
+            } else {
+                Picasso.get().load(user.imageUrl).into(binding.profileImage)
+            }
+        }
+    }
+    private fun onLogoutClicked() {
+        userPostsViewModel.signOut(findNavController())
     }
 }
