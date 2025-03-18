@@ -6,10 +6,13 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
+import kotlinx.coroutines.launch
 
 class PostViewModel(
     private val postRepository: PostRepository
@@ -37,6 +40,17 @@ class PostViewModel(
                 _toastMessage.postValue("Failed to update post")
             } else {
                 _toastMessage.postValue("Post updated successfully")
+            }
+        }
+    }
+
+    fun deletePost(post: Post, navController: NavController) {
+        viewModelScope.launch {
+            try {
+                postRepository.deletePost(post)
+                navController.popBackStack()
+            } catch (e: Exception) {
+                _toastMessage.postValue("Failed to delete post")
             }
         }
     }

@@ -15,6 +15,8 @@ import com.group147.appartmentblog.model.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class PostRepository private constructor(
     private val postDao: PostDao
@@ -66,6 +68,7 @@ class PostRepository private constructor(
                             }
                             updatedPosts.add(post)
                         }
+
                         DocumentChange.Type.REMOVED -> {
                             delete(post)
                             removedPosts.add(post)
@@ -78,7 +81,10 @@ class PostRepository private constructor(
 
             postSortedPosts()
 
-            Log.d(TAG, "Processed Firestore changes: ${updatedPosts.size} added/modified, ${removedPosts.size} removed")
+            Log.d(
+                TAG,
+                "Processed Firestore changes: ${updatedPosts.size} added/modified, ${removedPosts.size} removed"
+            )
         }
     }
 
@@ -103,7 +109,11 @@ class PostRepository private constructor(
 
     fun updatePost(post: Post, image: Bitmap?, callback: TaskCallback<Void?>) {
         if (image != null) {
-            FirebaseModel.instance.uploadImage(image, Collections.POSTS, post.id) { imageUrl, error ->
+            FirebaseModel.instance.uploadImage(
+                image,
+                Collections.POSTS,
+                post.id
+            ) { imageUrl, error ->
                 if (error != null || imageUrl == null) {
                     callback(null, error)
                     return@uploadImage
@@ -124,21 +134,24 @@ class PostRepository private constructor(
                 return@update
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                update(post)
-                callback(null, null)
-            }
+            callback(null, null)
         }
     }
 
     fun insertPost(post: Post, image: Bitmap?, callback: TaskCallback<String>) {
         if (image != null) {
-            FirebaseModel.instance.uploadImage(image, Collections.POSTS, post.id) { imageUrl, error ->
+            val uid = UUID.randomUUID().toString()
+            FirebaseModel.instance.uploadImage(
+                image,
+                Collections.POSTS,
+                uid
+            ) { imageUrl, error ->
                 if (error != null) {
                     callback(null, error)
                     return@uploadImage
                 }
 
+                post.imageId = uid
                 post.image = imageUrl
                 insertPostInFirestore(post, callback)
             }
@@ -148,16 +161,28 @@ class PostRepository private constructor(
     }
 
     private fun insertPostInFirestore(post: Post, callback: TaskCallback<String>) {
-        FirebaseModel.instance.add(Collections.POSTS, post.id, post.json) { documentReference, error ->
+        FirebaseModel.instance.add(Collections.POSTS, post.json) { documentReference, error ->
             if (error != null) {
                 callback(null, error)
                 return@add
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                insert(post)
-                callback(post.id, null)
+            callback(post.id, null)
+        }
+    }
+
+    suspend fun deletePost(post: Post) {
+        try {
+            if (post.imageId != null) {
+                FirebaseModel.instance.deleteImage(Collections.POSTS, post.imageId!!).await()
             }
+            FirebaseModel.instance.delete(Collections.POSTS, post.id).await()
+            CoroutineScope(Dispatchers.IO).launch {
+                delete(post)
+                postSortedPosts()
+            }
+        } catch (e: Exception) {
+            throw e
         }
     }
 }

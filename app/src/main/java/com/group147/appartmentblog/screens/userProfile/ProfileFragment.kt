@@ -78,7 +78,7 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        (activity as MainActivity).showProfileToolbarMenu {
+        (activity as MainActivity).showToolbarMenu(R.menu.profile_toolbar_menu) {
             when (it.itemId) {
                 R.id.logout -> {
                     onLogoutClicked()

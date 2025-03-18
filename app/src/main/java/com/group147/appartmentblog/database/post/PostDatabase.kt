@@ -9,7 +9,7 @@ import com.group147.appartmentblog.base.Collections
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.util.converter.GeoPointConverter
 
-@Database(entities = [Post::class], version = 2, exportSchema = false)
+@Database(entities = [Post::class], version = 3, exportSchema = false)
 @TypeConverters(GeoPointConverter::class)
 abstract class PostDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao

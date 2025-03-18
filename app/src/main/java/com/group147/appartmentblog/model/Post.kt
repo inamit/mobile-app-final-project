@@ -19,6 +19,7 @@ data class Post(
     val floor: Int,
     val location: GeoPoint,
     var image: String? = null,
+    var imageId: String? = null,
     val updateTime: Long = Date().time
 ) {
 
@@ -31,6 +32,7 @@ data class Post(
         const val FLOOR_KEY = "floor"
         const val LOCATION_KEY = "location"
         const val IMAGE_URL_KEY = "imageUrl"
+        const val IMAGE_ID_KEY = "imageId"
 
         fun fromFirestore(documentSnapshot: DocumentSnapshot): Post {
             return Post(
@@ -44,7 +46,8 @@ data class Post(
                 location = documentSnapshot.getGeoPoint(LOCATION_KEY) ?: GeoPoint(0.0, 0.0),
                 updateTime = documentSnapshot.getTimestamp(UPDATE_TIME_KEY)?.toDate()?.time
                     ?: Date().time,
-                image = documentSnapshot.getString(IMAGE_URL_KEY) ?: ""
+                image = documentSnapshot.getString(IMAGE_URL_KEY) ?: "",
+                imageId = documentSnapshot.getString(IMAGE_ID_KEY) ?: ""
             )
         }
     }
@@ -59,6 +62,7 @@ data class Post(
             PRICE_KEY to price,
             LOCATION_KEY to location,
             UPDATE_TIME_KEY to Timestamp(Date(updateTime)),
-            IMAGE_URL_KEY to image
+            IMAGE_URL_KEY to image,
+            IMAGE_ID_KEY to imageId
         )
 }

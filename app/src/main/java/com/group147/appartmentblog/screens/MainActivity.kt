@@ -150,8 +150,8 @@ class MainActivity : AppCompatActivity() {
         binding.toolbar.navigationIcon = null
     }
 
-    fun showProfileToolbarMenu(onMenuItemClickListener: Toolbar.OnMenuItemClickListener) {
-        binding.toolbar.inflateMenu(R.menu.profile_toolbar_menu)
+    fun showToolbarMenu(menuId: Int, onMenuItemClickListener: Toolbar.OnMenuItemClickListener) {
+        binding.toolbar.inflateMenu(menuId)
         binding.toolbar.setOnMenuItemClickListener(onMenuItemClickListener)
     }
 

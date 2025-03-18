@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -13,6 +14,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.group147.appartmentblog.R
@@ -76,6 +78,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             requireActivity(),
             PostViewModelFactory((activity as MainActivity).getPostRepository())
         )[PostViewModel::class.java]
+
         observePost()
         observeUser()
         viewModel.setupEditButton(binding)
@@ -87,11 +90,19 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
+        (activity as MainActivity).hideToolbarMenu()
     }
 
     private fun observePost() {
         viewModel.allPosts.observe(viewLifecycleOwner) { allPosts ->
-            viewModel.setPost(allPosts.find { it.id == args.id }!!)
+            val post = allPosts.find { it.id == args.id }
+
+            if (post != null) {
+                viewModel.setPost(post)
+            } else {
+                Toast.makeText(requireContext(), "Post not found", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
         }
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
@@ -100,6 +111,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private fun observeUser() {
         userRepository.userLiveData.observe(viewLifecycleOwner) { user ->
+            showMenu(user)
             setupEditButton(user)
         }
     }
@@ -130,6 +142,24 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             priceEditText.setText(post.price.toString())
             roomsEditText.setText(post.rooms.toString())
             floorEditText.setText(post.floor.toString())
+        }
+    }
+
+    private fun showMenu(user: User?) {
+        val post = viewModel.post.value
+
+        if (user != null && post != null && user.id == post.userId) {
+            (activity as MainActivity).showToolbarMenu(R.menu.post_toolbar_menu) {
+                when (it.itemId) {
+                    R.id.delete_post -> {
+                        viewModel.deletePost(post, findNavController())
+
+                        true
+                    }
+
+                    else -> false
+                }
+            }
         }
     }
 
