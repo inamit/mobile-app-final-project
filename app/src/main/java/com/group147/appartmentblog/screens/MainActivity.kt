@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         hideAddApartmentButton()
         hideBottomNavBar()
 
-        navController?.navigate(R.id.loginFragment)
+        navController?.navigate(R.id.action_feedFragment_to_loginFragment)
     }
 
     fun showAddApartmentButton() {

@@ -31,7 +31,7 @@ class LoginFragment : Fragment() {
                     val account = task.getResult(ApiException::class.java)
                     if (account != null) {
                         viewModel.onLoginWithGoogle(account, {
-                            findNavController().navigate(R.id.feedFragment)
+                            findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                         }, {
                             Toast.makeText(
                                 requireContext(),
@@ -81,7 +81,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.signUpButton.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment)
+            findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
         }
 
         binding.googleLoginButton.setOnClickListener {
@@ -105,7 +105,7 @@ class LoginFragment : Fragment() {
         val password = binding.passwordInput.text.toString()
         viewModel.onLogin(
             email, password, {
-                findNavController().navigate(R.id.feedFragment)
+                findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             },
             { message ->
                 Toast.makeText(requireContext(), "Failed to login. $message", Toast.LENGTH_SHORT)
