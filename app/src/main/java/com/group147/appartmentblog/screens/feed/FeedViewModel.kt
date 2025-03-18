@@ -18,19 +18,11 @@ class FeedViewModel(
 ) : ViewModel() {
 
     val allPosts: LiveData<List<Post>> = postRepository.postsLiveData
-    private var fieldTouchedMap: MutableMap<String, Boolean> = mutableMapOf(
+    var fieldTouchedMap: MutableMap<String, Boolean> = mutableMapOf(
         "priceRangeSlider" to false,
         "roomsRangeSlider" to false,
         "floorRangeSlider" to false
     )
-
-    fun setupFilters() {
-        initRanges()
-        toggleSlidersGone()
-        cubeEvents()
-        slidersEvents()
-        cancelButtonsEvents()
-    }
 
     fun filterPosts(posts: List<Post>) {
         val priceRange = getSliderRange(binding.priceRangeSlider)
@@ -67,26 +59,12 @@ class FeedViewModel(
         postAdapter.submitList(filteredPosts)  // Update the RecyclerView with filtered posts
     }
 
-    fun resetFilters() {
-        resetSlider(binding.priceRangeSlider, 0f, 1000000f, "priceRangeSlider",binding.priceCubeCancel)
-        resetSlider(binding.roomsRangeSlider, 1f, 20f, "roomsRangeSlider", binding.roomsCubeCancel)
-        resetSlider(binding.floorRangeSlider, 0f, 50f, "floorRangeSlider",binding.floorCubeCancel)
-
-        Log.d("FeedViewModel", "Filters reset")
-    }
-
-    private fun toggleSlidersGone() {
-        toggleSliderVisibility(binding.priceRangeSlider, binding.priceCubeCancel, View.GONE)
-        toggleSliderVisibility(binding.roomsRangeSlider, binding.roomsCubeCancel, View.GONE)
-        toggleSliderVisibility(binding.floorRangeSlider, binding.floorCubeCancel, View.GONE)
-    }
-
-    private fun toggleSliderVisibility(slider: RangeSlider, cancelButton: ImageButton, visibility: Int) {
+    fun toggleSliderVisibility(slider: RangeSlider, cancelButton: ImageButton, visibility: Int) {
         slider.visibility = visibility
         cancelButton.visibility = visibility
     }
 
-    private fun resetSlider(slider: RangeSlider, from: Float, to: Float, key: String, button: ImageButton) {
+    fun resetSlider(slider: RangeSlider, from: Float, to: Float, key: String, button: ImageButton) {
         slider.setValues(from, to)
         fieldTouchedMap[key] = false
         toggleSliderVisibility(slider, button, View.GONE)
@@ -98,72 +76,6 @@ class FeedViewModel(
             slider.values[0] to slider.values[1]
         } else {
             slider.valueFrom to slider.valueTo
-        }
-    }
-
-    private fun initRanges() {
-        binding.priceRangeSlider.setValues(0f, 1000000f)
-        binding.roomsRangeSlider.setValues(1f, 20f)
-        binding.floorRangeSlider.setValues(0f, 50f)
-    }
-
-    private fun slidersEvents() {
-        binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["priceRangeSlider"] = true
-            allPosts.value?.let { filterPosts(it) }
-        }
-
-        binding.roomsRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["roomsRangeSlider"] = true
-            allPosts.value?.let { filterPosts(it) }
-        }
-
-        binding.floorRangeSlider.addOnChangeListener { _, _, _ ->
-            fieldTouchedMap["floorRangeSlider"] = true
-            allPosts.value?.let { filterPosts(it) }
-        }
-    }
-
-    private fun cancelButtonsEvents() {
-        binding.priceCubeCancel.setOnClickListener {
-            resetSlider(binding.priceRangeSlider, 0f, 1000000f, "priceRangeSlider", it as ImageButton)
-            binding.priceRangeSlider.bringToFront()
-        }
-
-        binding.roomsCubeCancel.setOnClickListener {
-            resetSlider(binding.roomsRangeSlider, 1f, 20f, "roomsRangeSlider", it as ImageButton)
-            binding.roomsRangeSlider.bringToFront()
-        }
-
-        binding.floorCubeCancel.setOnClickListener {
-            resetSlider(binding.floorRangeSlider, 0f, 50f, "floorRangeSlider", it as ImageButton)
-            binding.floorRangeSlider.bringToFront()
-        }
-    }
-
-    private fun cubeEvents() {
-        binding.priceCube.setOnClickListener {
-            toggleSliderVisibility(
-                binding.priceRangeSlider,
-                binding.priceCubeCancel,
-                View.VISIBLE
-            )
-        }
-
-        binding.roomsCube.setOnClickListener {
-            toggleSliderVisibility(
-                binding.roomsRangeSlider,
-                binding.roomsCubeCancel,
-                View.VISIBLE
-            )
-        }
-
-        binding.floorCube.setOnClickListener {
-            toggleSliderVisibility(
-                binding.floorRangeSlider,
-                binding.floorCubeCancel,
-                View.VISIBLE
-            )
         }
     }
 }

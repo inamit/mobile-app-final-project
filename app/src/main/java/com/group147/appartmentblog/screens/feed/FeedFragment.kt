@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -42,14 +43,14 @@ class FeedFragment : Fragment() {
         )[FeedViewModel::class.java]
 
         observePosts()
-        feedViewModel.setupFilters()
+        setupFilters()
     }
 
     override fun onPause() {
         super.onPause()
         // Reset filters or update ViewModel if needed
-        feedViewModel.resetFilters()
-        feedViewModel.setupFilters()
+        resetFilters()
+        setupFilters()
     }
 
     private fun setupRecyclerView() {
@@ -86,6 +87,142 @@ class FeedFragment : Fragment() {
                 Log.d("FeedFragment", "Number of posts: ${it.size}")
                 feedViewModel.filterPosts(it) // Ensure filtering happens when posts change
             }
+        }
+    }
+
+    fun resetFilters() {
+        feedViewModel.resetSlider(
+            binding.priceRangeSlider,
+            0f,
+            1000000f,
+            "priceRangeSlider",
+            binding.priceCubeCancel
+        )
+        feedViewModel.resetSlider(
+            binding.roomsRangeSlider,
+            1f,
+            20f,
+            "roomsRangeSlider",
+            binding.roomsCubeCancel
+        )
+        feedViewModel.resetSlider(
+            binding.floorRangeSlider,
+            0f,
+            50f,
+            "floorRangeSlider",
+            binding.floorCubeCancel
+        )
+
+        Log.d("FeedViewModel", "Filters reset")
+    }
+
+    fun setupFilters() {
+        initRanges()
+        toggleSlidersGone()
+        cubeEvents()
+        slidersEvents()
+        cancelButtonsEvents()
+    }
+
+    private fun initRanges() {
+        binding.priceRangeSlider.setValues(0f, 1000000f)
+        binding.roomsRangeSlider.setValues(1f, 20f)
+        binding.floorRangeSlider.setValues(0f, 50f)
+    }
+
+    fun toggleSlidersGone() {
+        feedViewModel.toggleSliderVisibility(
+            binding.priceRangeSlider,
+            binding.priceCubeCancel,
+            View.GONE
+        )
+        feedViewModel.toggleSliderVisibility(
+            binding.roomsRangeSlider,
+            binding.roomsCubeCancel,
+            View.GONE
+        )
+        feedViewModel.toggleSliderVisibility(
+            binding.floorRangeSlider,
+            binding.floorCubeCancel,
+            View.GONE
+        )
+    }
+
+    private fun slidersEvents() {
+        binding.priceRangeSlider.addOnChangeListener { _, _, _ ->
+            feedViewModel.fieldTouchedMap["priceRangeSlider"] = true
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+        }
+
+        binding.roomsRangeSlider.addOnChangeListener { _, _, _ ->
+            feedViewModel.fieldTouchedMap["roomsRangeSlider"] = true
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+        }
+
+        binding.floorRangeSlider.addOnChangeListener { _, _, _ ->
+            feedViewModel.fieldTouchedMap["floorRangeSlider"] = true
+            feedViewModel.allPosts.value?.let { feedViewModel.filterPosts(it) }
+        }
+    }
+
+    private fun cancelButtonsEvents() {
+        binding.priceCubeCancel.setOnClickListener {
+            feedViewModel.resetSlider(
+                binding.priceRangeSlider,
+                0f,
+                1000000f,
+                "priceRangeSlider",
+                it as ImageButton
+            )
+            binding.priceRangeSlider.bringToFront()
+        }
+
+        binding.roomsCubeCancel.setOnClickListener {
+            feedViewModel.resetSlider(
+                binding.roomsRangeSlider,
+                1f,
+                20f,
+                "roomsRangeSlider",
+                it as ImageButton
+            )
+            binding.roomsRangeSlider.bringToFront()
+        }
+
+        binding.floorCubeCancel.setOnClickListener {
+            feedViewModel.resetSlider(
+                binding.floorRangeSlider,
+                0f,
+                50f,
+                "floorRangeSlider",
+                it as ImageButton
+            )
+            binding.floorRangeSlider.bringToFront()
+        }
+    }
+
+    private fun cubeEvents() {
+        binding.priceCube.setOnClickListener {
+            feedViewModel.toggleSliderVisibility(
+                binding.priceRangeSlider,
+                binding.priceCubeCancel,
+                View.VISIBLE
+            )
+        }
+
+        binding.roomsCube.setOnClickListener {
+            feedViewModel.toggleSliderVisibility(
+                binding.roomsRangeSlider,
+                binding.roomsCubeCancel,
+                View.VISIBLE
+            )
+        }
+
+        binding.floorCube.setOnClickListener {
+            feedViewModel.toggleSliderVisibility(
+                binding.floorRangeSlider,
+                binding.floorCubeCancel,
+                View.VISIBLE
+            )
         }
     }
 }
