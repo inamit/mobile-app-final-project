@@ -68,7 +68,7 @@
                 android:id="@+id/phone_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="130dp"
+                android:layout_marginBottom="35dp"
                 android:hint="New Phone Number"
                 android:inputType="phone"
                 android:textSize="24sp" />
@@ -80,6 +80,14 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="32dp"
                 android:text="Update Profile" />
+
+            <Button
+                android:id="@+id/user_posts_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="32dp"
+                android:text="Show User Posts" />
         </LinearLayout>
     </ScrollView>
 

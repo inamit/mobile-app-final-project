@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.screens.feed
+package com.group147.appartmentblog.screens.userPosts
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,32 +8,33 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.group147.appartmentblog.databinding.FragmentFeedBinding
-import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.databinding.FragmentUserPostsBinding
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.screens.adapters.PostAdapter
 
-class FeedFragment : Fragment() {
-    private lateinit var binding: FragmentFeedBinding
-    private lateinit var feedViewModel: FeedViewModel
+class UserPostsFragment : Fragment() {
+    private lateinit var binding: FragmentUserPostsBinding
+    private lateinit var userPostsViewModel: UserPostsViewModel
     private lateinit var postAdapter: PostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentFeedBinding.inflate(layoutInflater)
-
+        binding = FragmentUserPostsBinding.inflate(layoutInflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as MainActivity).showAddApartmentButton()
-        feedViewModel = ViewModelProvider(
+        (activity as MainActivity).showToolbarNavigationIcon()
+        userPostsViewModel = ViewModelProvider(
             requireActivity(),
-            FeedViewModelFactory((activity as MainActivity).getPostRepository())
-        )[FeedViewModel::class.java]
+            UserPostsViewModelFactory(
+                (activity as MainActivity).getPostRepository(),
+            )
+        )[UserPostsViewModel::class.java]
 
         setupRecyclerView()
         observePosts()
@@ -44,14 +45,15 @@ class FeedFragment : Fragment() {
             openPostFragment(post)
         }
 
-        binding.postsRecyclerView.apply {
+        binding.userPostsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = postAdapter
         }
     }
+
     private fun openPostFragment(post: Post) {
-        val action = FeedFragmentDirections
-            .actionFragmentFeedFragmentToFragmentPostFragment(
+        val action = UserPostsFragmentDirections
+            .actionFragmentUserPostsFragmentToFragmentPostFragment(
                 post.id,
                 post.title,
                 post.content,
@@ -59,17 +61,27 @@ class FeedFragment : Fragment() {
                 post.rooms.toFloat(),
                 post.floor,
                 post.image.toString(),
-                floatArrayOf( post.location.latitude.toFloat(),post.location.longitude.toFloat())
+                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
             )
 
         findNavController().navigate(action)
     }
 
     private fun observePosts() {
-        feedViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
+        userPostsViewModel.allUserPosts?.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 postAdapter.submitList(it)
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as MainActivity).hideToolbarNavigationIcon()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showToolbarNavigationIcon()
     }
 }
