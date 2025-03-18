@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.material.slider.RangeSlider
 import com.group147.appartmentblog.databinding.FragmentFeedBinding
@@ -18,6 +19,10 @@ class FeedViewModel(
 ) : ViewModel() {
 
     val allPosts: LiveData<List<Post>> = postRepository.postsLiveData
+
+    private val _filteredPosts = MutableLiveData<List<Post>>()
+    val filteredPosts: LiveData<List<Post>> = _filteredPosts
+
     var fieldTouchedMap: MutableMap<String, Boolean> = mutableMapOf(
         "priceRangeSlider" to false,
         "roomsRangeSlider" to false,
@@ -56,7 +61,8 @@ class FeedViewModel(
 
         Log.d("FeedFragment", "Number of posts after filtering: ${filteredPosts.size}")
 
-        postAdapter.submitList(filteredPosts)  // Update the RecyclerView with filtered posts
+        _filteredPosts.postValue(filteredPosts)
+//        postAdapter.submitList(filteredPosts)  // Update the RecyclerView with filtered posts
     }
 
     fun toggleSliderVisibility(slider: RangeSlider, cancelButton: ImageButton, visibility: Int) {

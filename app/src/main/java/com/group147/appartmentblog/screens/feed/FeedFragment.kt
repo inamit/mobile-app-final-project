@@ -50,7 +50,6 @@ class FeedFragment : Fragment() {
         super.onPause()
         // Reset filters or update ViewModel if needed
         resetFilters()
-        setupFilters()
     }
 
     private fun setupRecyclerView() {
@@ -87,6 +86,10 @@ class FeedFragment : Fragment() {
                 Log.d("FeedFragment", "Number of posts: ${it.size}")
                 feedViewModel.filterPosts(it) // Ensure filtering happens when posts change
             }
+        }
+
+        feedViewModel.filteredPosts.observe(viewLifecycleOwner) {
+            postAdapter.submitList(it)
         }
     }
 
