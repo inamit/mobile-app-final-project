@@ -57,13 +57,13 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        hideUpdateFields()
         val userRepository = (activity as MainActivity).getUserRepository()
 
-        val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
-        userPostButton.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
-        }
+        //val userPostButton = view.findViewById<Button>(R.id.user_posts_button)
+        //userPostButton.setOnClickListener {
+        //    findNavController().navigate(R.id.action_profileFragment_to_userPostsFragment)
+        //}
 
         viewModel = ViewModelProvider(
             requireActivity(),
@@ -121,6 +121,13 @@ class ProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 Picasso.get().load(user.imageUrl).into(binding.profileImage)
             }
         }
+    }
+
+    private fun hideUpdateFields(){
+        binding.emailText.visibility = View.GONE
+        binding.phoneInput.visibility = View.GONE
+        binding.usernameInput.visibility = View.GONE
+        binding.updateProfileButton.visibility = View.GONE
     }
 
     private fun updateProfile() {
