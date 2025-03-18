@@ -108,6 +108,7 @@ class UserProfileFragment : Fragment() {
         }
     }
     private fun onLogoutClicked() {
-        userPostsViewModel.signOut(findNavController())
+        userPostsViewModel.signOut()
+        findNavController().navigate(R.id.action_userProfileFragment_to_loginFragment)
     }
 }

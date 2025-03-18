@@ -22,8 +22,7 @@ class UserProfileViewModel (val postRepository: PostRepository, val userReposito
             postRepository.getPostsByCurrentUser(user?.id.toString())
         }
 
-    fun signOut(navController: NavController) {
+    fun signOut() {
         authService.signOut(userRepository)
-        navController.navigate(R.id.loginFragment)
     }
 }

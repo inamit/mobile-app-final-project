@@ -25,8 +25,7 @@ class UserEditViewModel(private val userRepository: UserRepository) : ViewModel(
         }
     }
 
-    fun signOut(navController: NavController) {
+    fun signOut() {
         authService.signOut(userRepository)
-        navController.navigate(R.id.loginFragment)
     }
 }
