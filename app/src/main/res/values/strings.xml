@@ -15,7 +15,6 @@
     <string name="map">Map</string>
     <string name="account">Account</string>
     <string name="add_apartment">Add new apartment</string>
-    <string name="add_comment">Add new comment</string>
     <string name="apartment_image_content_description">Apartment Image</string>
     <string name="pick_image_button">Pick Image</string>
     <string name="title_edit_text_hint">Title</string>
@@ -25,7 +24,6 @@
     <string name="from_camera">From camera</string>
     <string name="logout">Logout</string>
     <string name="price">Price</string>
-    <string name="number_of_rooms">Rooms</string>
     <string name="floor">Floor</string>
     <string name="update_time">Update Time</string>
     <string name="update_post">Update Post</string>
@@ -44,4 +42,6 @@
     <string name="comment">Comment</string>
     <string name="subtitle_for_comments">What do you think?</string>
     <string name="add_review">Add Review</string>
+    <string name="review">Review</string>
+    <string name="rating">Rating</string>
 </resources>
