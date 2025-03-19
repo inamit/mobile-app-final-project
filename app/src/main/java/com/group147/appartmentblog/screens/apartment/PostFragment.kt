@@ -65,16 +65,14 @@ class PostFragment : Fragment() {
             findNavController().navigate(action)
         }
         setupRecyclerView()
-        observeComments()
+        observeComments(post.id)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         (activity as MainActivity).showBottomNavBar()
-        (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
-        viewModel.hideAddReviewButton()
+
     }
 
     private fun setupRecyclerView() {
@@ -123,10 +121,11 @@ class PostFragment : Fragment() {
         }
     }
 
-    private fun observeComments() {
+    private fun observeComments(postId:String) {
         viewModel.comments.observe(viewLifecycleOwner) { comments ->
             comments?.let {
-                commentAdapter.submitList(it)
+                val filteredComments = it.filter { comment -> comment.postId == postId }
+                commentAdapter.submitList(filteredComments)
             }
         }
     }

@@ -96,7 +96,9 @@ class CommentRepository private constructor(
                 }
             }
         }
-
+    }
+    fun getLatestUpdatedTime(): Long {
+        return commentDao.getLatestUpdateTime() ?: 0
     }
 
 }

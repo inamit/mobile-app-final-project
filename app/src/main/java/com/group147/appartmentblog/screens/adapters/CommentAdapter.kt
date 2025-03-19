@@ -30,7 +30,7 @@ class CommentAdapter(private val onCommentClick: (Comment) -> Unit) :
 
         fun bind(comment: Comment, onCommentClick: (Comment) -> Unit) {
             binding.usernameTextView.text = comment.authorName
-            binding.ratingTextView.text = "Rate: \$${comment.rate}"
+            binding.ratingTextView.text = "Rate: ${comment.rate}"
             binding.commentTextView.text = "Review: ${comment.review}"
 
             // Handle click event

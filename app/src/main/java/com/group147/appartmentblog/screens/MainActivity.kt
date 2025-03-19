@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                     if (commentSubscriptionService == null) {
                         commentSubscriptionService = SubscriptionService(commentRepository)
                     }
-                    commentSubscriptionService?.listenForEntity(Collections.COMMENTS, it.id)
+                    commentSubscriptionService?.listenForCollection(Collections.COMMENTS,  commentRepository.getLatestUpdatedTime())
                 }
             }
         }
