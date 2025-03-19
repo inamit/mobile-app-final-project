@@ -18,7 +18,8 @@ class AddReviewViewModel(
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: MutableLiveData<String>
         get() = _toastMessage
-    fun saveComment(comment:Comment,callback: (String?) -> Unit) {
+
+    fun saveComment(comment: Comment, callback: (String?) -> Unit) {
         if (!validateForm()) {
             return
         }
@@ -27,7 +28,7 @@ class AddReviewViewModel(
                 _toastMessage.postValue("Failed adding review. Please try again.")
             } else {
                 callback(document)
-                _toastMessage.postValue("Apartment posted successfully")
+                _toastMessage.postValue("Review posted successfully")
             }
         }
     }
@@ -35,11 +36,10 @@ class AddReviewViewModel(
     fun validateForm(): Boolean {
         var valid = true
 
-        val requiredEditTexts = listOf(
-            Pair(binding.reviewEditText, "Review is required"),
-            Pair(binding.ratingBar.rating, "rating is required"),
-        )
-
+        if (binding.reviewEditText.text.isEmpty()) {
+            valid = false
+            _toastMessage.postValue("Review is required. Please try again.")
+        }
 
         return valid
     }
