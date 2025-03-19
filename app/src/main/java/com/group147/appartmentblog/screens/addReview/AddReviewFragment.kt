@@ -47,12 +47,17 @@ class AddReviewFragment : Fragment() {
                 )
             )[AddReviewViewModel::class.java]
         user = viewModel.user.value
+
         binding.saveButton.setOnClickListener {
             val comment = args.toComment()
             viewModel.saveComment(comment) {
                 findNavController().popBackStack()
             }
         }
+        binding.cancelButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         viewModel.toastMessage.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
