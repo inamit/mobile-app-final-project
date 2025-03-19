@@ -41,19 +41,19 @@
     </fragment>
 
     <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.group147.appartmentblog.screens.userProfile.ProfileFragment"
+        android:id="@+id/userEditFragment"
+        android:name="com.group147.appartmentblog.screens.userEdit.UserEditFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_user_edit">
         <action
-            android:id="@+id/action_profileFragment_to_feedFragment"
+            android:id="@+id/action_userEditFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_userEditFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
         <action
-            android:id="@+id/action_profileFragment_to_loginFragment"
+            android:id="@+id/action_userEditFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-        <action
-            android:id="@+id/action_profileFragment_to_userPostsFragment"
-            app:destination="@id/userPostsFragment" />
     </fragment>
 
     <fragment
@@ -137,13 +137,19 @@
     </fragment>
 
     <fragment
-        android:id="@+id/userPostsFragment"
-        android:name="com.group147.appartmentblog.screens.userPosts.UserPostsFragment"
+        android:id="@+id/userProfileFragment"
+        android:name="com.group147.appartmentblog.screens.userProfile.UserProfileFragment"
         android:label="User Posts"
-        tools:layout="@layout/fragment_user_posts">
+        tools:layout="@layout/fragment_user_profile">
         <action
-            android:id="@+id/action_fragment_userPostsFragment_to_fragment_postFragment"
+            android:id="@+id/action_fragment_userProfileFragment_to_fragment_postFragment"
             app:destination="@id/postFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_userEditFragment"
+            app:destination="@id/userEditFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
 </navigation>
