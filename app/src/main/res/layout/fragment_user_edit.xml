@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/profileFragment"
-    tools:context=".screens.userProfile.ProfileFragment">
+    tools:context=".screens.userEdit.UserEditFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -68,7 +68,7 @@
                 android:id="@+id/phone_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="130dp"
+                android:layout_marginBottom="35dp"
                 android:hint="New Phone Number"
                 android:inputType="phone"
                 android:textSize="24sp" />

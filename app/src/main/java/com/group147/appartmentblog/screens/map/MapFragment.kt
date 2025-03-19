@@ -21,8 +21,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.model.Post
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
@@ -33,7 +33,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         (activity as MainActivity).hideAddApartmentButton()
 
         return inflater.inflate(R.layout.fragment_map, container, false)
