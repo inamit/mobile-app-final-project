@@ -59,14 +59,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 }
             }
 
-        binding.postImageView.setOnClickListener {
-            PopupMenu(requireContext(), it).apply {
-                setOnMenuItemClickListener(this@PostFragment)
-                menuInflater.inflate(R.menu.image_picker_menu, menu)
-                show()
-            }
-        }
-
         return binding.root
     }
 
@@ -165,8 +157,16 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         val post = viewModel.post.value
 
         if (user != null && post != null && user.id == post.userId) {
+
             binding.editButton.visibility = View.VISIBLE
             binding.editButton.setOnClickListener {
+                binding.postImageView.setOnClickListener {
+                    PopupMenu(requireContext(), it).apply {
+                        setOnMenuItemClickListener(this@PostFragment)
+                        menuInflater.inflate(R.menu.image_picker_menu, menu)
+                        show()
+                    }
+                }
                 viewModel.toggleEditMode(binding, true)
             }
 
@@ -182,6 +182,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                     )
                     val imageBitmap = binding.postImageView.drawable.toBitmap()
                     viewModel.updatePost(updatedPost, imageBitmap)
+                    binding.postImageView.setOnClickListener { }
                     viewModel.toggleEditMode(binding, false)
                 }
             }
