@@ -9,12 +9,14 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.group147.appartmentblog.base.Collections
+import com.group147.appartmentblog.base.TaskCallback
 import com.group147.appartmentblog.database.post.PostDao
 import com.group147.appartmentblog.model.FirebaseModel
 import com.group147.appartmentblog.model.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 class PostRepository private constructor(
@@ -58,10 +60,14 @@ class PostRepository private constructor(
                 try {
                     val post = Post.fromFirestore(change.document)
 
-                    Log.d(TAG, "Processing document change: $post")
+                    Log.d(TAG, "Processing document change (${change.type}): $post")
                     when (change.type) {
                         DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                            insert(post)
+                            try {
+                                insert(post)
+                            } catch (_: Exception) {
+                                update(post)
+                            }
                             updatedPosts.add(post)
                         }
 
@@ -71,11 +77,7 @@ class PostRepository private constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(
-                        TAG,
-                        "Error processing document change: ${change.document.id}",
-                        e
-                    )
+                    Log.e(TAG, "Error processing document change: ${change.document.id}", e)
                 }
             }
 
@@ -88,6 +90,16 @@ class PostRepository private constructor(
         }
     }
 
+    override fun handleDocumentChange(snapshot: DocumentSnapshot) {
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d(TAG, "Processing document change: $snapshot")
+            val post = Post.fromFirestore(snapshot)
+
+            update(post)
+            postSortedPosts()
+        }
+    }
+
     private fun postSortedPosts() {
         val sortedPosts = postDao.getAllPosts().sortedByDescending { it.updateTime }
         if (sortedPosts.isNotEmpty()) {
@@ -97,53 +109,82 @@ class PostRepository private constructor(
         }
     }
 
-    override fun handleDocumentChange(snapshot: DocumentSnapshot) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val post = Post.fromFirestore(snapshot)
+    fun updatePost(post: Post, image: Bitmap?, callback: TaskCallback<Void?>) {
+        if (image != null) {
+            FirebaseModel.instance.uploadImage(
+                image,
+                Collections.POSTS,
+                post.id
+            ) { imageUrl, error ->
+                if (error != null || imageUrl == null) {
+                    callback(null, error)
+                    return@uploadImage
+                }
 
-            update(post)
-            postSortedPosts()
+                post.image = imageUrl
+                updatePostInFirestore(post, callback)
+            }
+        } else {
+            updatePostInFirestore(post, callback)
         }
     }
 
-    fun insertPost(post: Post, image: Bitmap, callback: (String?, Exception?) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                Log.d(TAG, "Uploading image for new post")
-                val uid = UUID.randomUUID().toString()
-                FirebaseModel.instance.uploadImage(
-                    image,
-                    Collections.POSTS,
-                    uid
-                ) { imageUrl, error ->
-                    if (error != null || imageUrl == null) {
-                        callback(null, error)
-                        return@uploadImage
-                    }
-
-                    post.image = imageUrl
-
-                    FirebaseModel.instance.add(Collections.POSTS, post.json) { document, error ->
-                        if (error != null) {
-                            FirebaseModel.instance.deleteImage(Collections.POSTS, uid) { _, error ->
-                                if (error != null) {
-                                    Log.d(TAG, "Failed to upload post, deleting image")
-                                }
-
-                                callback(null, error)
-                            }
-                            return@add
-                        }
-
-                        if (document != null) {
-                            post.id = document.id
-                            callback(post.id, null)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Exception during post insertion", e)
+    private fun updatePostInFirestore(post: Post, callback: TaskCallback<Void?>) {
+        FirebaseModel.instance.update(Collections.POSTS, post.id, post.json) { _, error ->
+            if (error != null) {
+                callback(null, error)
+                return@update
             }
+
+            callback(null, null)
+        }
+    }
+
+    fun insertPost(post: Post, image: Bitmap?, callback: TaskCallback<String>) {
+        if (image != null) {
+            val uid = UUID.randomUUID().toString()
+            FirebaseModel.instance.uploadImage(
+                image,
+                Collections.POSTS,
+                uid
+            ) { imageUrl, error ->
+                if (error != null) {
+                    callback(null, error)
+                    return@uploadImage
+                }
+
+                post.imageId = uid
+                post.image = imageUrl
+                insertPostInFirestore(post, callback)
+            }
+        } else {
+            insertPostInFirestore(post, callback)
+        }
+    }
+
+    private fun insertPostInFirestore(post: Post, callback: TaskCallback<String>) {
+        FirebaseModel.instance.add(Collections.POSTS, post.json) { documentReference, error ->
+            if (error != null) {
+                callback(null, error)
+                return@add
+            }
+
+            callback(post.id, null)
+        }
+    }
+
+    suspend fun deletePost(post: Post) {
+        try {
+            if (post.imageId != null) {
+                FirebaseModel.instance.deleteImage(Collections.POSTS, post.imageId!!).await()
+            }
+            FirebaseModel.instance.delete(Collections.POSTS, post.id).await()
+            CoroutineScope(Dispatchers.IO).launch {
+                delete(post)
+                postSortedPosts()
+            }
+        } catch (e: Exception) {
+            throw e
         }
     }
 
