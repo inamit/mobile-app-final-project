@@ -52,7 +52,6 @@ class AddApartmentViewModel(
                 _toastMessage.postValue("Failed post apartment. Please try again.")
             } else {
                 callback(document)
-                _toastMessage.postValue("Apartment posted successfully")
             }
         }
     }

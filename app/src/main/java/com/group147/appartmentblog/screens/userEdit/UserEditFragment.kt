@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -84,6 +83,21 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         loadUserProfile()
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as MainActivity).showToolbarNavigationIcon()
+        (activity as MainActivity).showToolbarMenu(R.menu.profile_toolbar_menu) {
+            when (it.itemId) {
+                R.id.logout -> {
+                    onLogoutClicked()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         (activity as MainActivity).hideToolbarMenu()
@@ -135,9 +149,9 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         viewModel.updateUser(updatedUser, image)
     }
 
-    override fun onResume() {
-        super.onResume()
-        (activity as MainActivity).showToolbarNavigationIcon()
+    private fun onLogoutClicked() {
+        viewModel.signOut()
+        findNavController().navigate(R.id.action_userEditFragment_to_loginFragment)
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
