@@ -17,7 +17,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Comment
@@ -25,8 +24,8 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.screens.MainActivity
-import com.squareup.picasso.Picasso
 import com.group147.appartmentblog.screens.adapters.CommentAdapter
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
 class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
@@ -70,6 +69,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val postId = args.id
 
         viewModel = ViewModelProvider(
             requireActivity(),
@@ -78,25 +78,23 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 (activity as MainActivity).getCommentRepository()
             )
         )[PostViewModel::class.java]
-        val postId = args.id
-        observePost()
-        observeUser()
         viewModel.setupEditButton(binding)
         viewModel.showAddReviewButton(binding)
-
-        binding.addCommentButton.setOnClickListener {
-            val action = PostFragmentDirections
-                .actionPostFragmentToAddReviewFragment(postId)
-            findNavController().navigate(action)
-        }
-        setupRecyclerView()
-        observeComments(postId)
-
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
+        binding.addCommentButton.setOnClickListener {
+            val action = PostFragmentDirections
+                .actionPostFragmentToAddReviewFragment(postId)
+            findNavController().navigate(action)
+        }
+
+        observePost()
+        observeUser()
+        setupRecyclerView()
+        observeComments(postId)
     }
 
     override fun onDestroyView() {
