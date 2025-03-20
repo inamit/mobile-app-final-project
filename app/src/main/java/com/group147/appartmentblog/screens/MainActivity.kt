@@ -113,6 +113,14 @@ class MainActivity : AppCompatActivity() {
         navController?.navigate(R.id.action_feedFragment_to_loginFragment)
     }
 
+    fun showLoadingOverlay() {
+        binding.progressOverlay.visibility = View.VISIBLE
+    }
+
+    fun hideLoadingOverlay() {
+        binding.progressOverlay.visibility = View.GONE
+    }
+
     fun showAddApartmentButton() {
         binding.addApartmentButton.show()
     }
@@ -150,8 +158,8 @@ class MainActivity : AppCompatActivity() {
         binding.toolbar.navigationIcon = null
     }
 
-    fun showProfileToolbarMenu(onMenuItemClickListener: Toolbar.OnMenuItemClickListener) {
-        binding.toolbar.inflateMenu(R.menu.profile_toolbar_menu)
+    fun showToolbarMenu(menuId: Int, onMenuItemClickListener: Toolbar.OnMenuItemClickListener) {
+        binding.toolbar.inflateMenu(menuId)
         binding.toolbar.setOnMenuItemClickListener(onMenuItemClickListener)
     }
 

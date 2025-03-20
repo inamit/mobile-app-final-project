@@ -62,21 +62,16 @@ class FeedFragment : Fragment() {
 
     private fun openPostFragment(post: Post) {
         val action = FeedFragmentDirections
-            .actionFragmentFeedFragmentToFragmentPostFragment(
-                post.id,
-                post.title,
-                post.content,
-                post.price.toFloat(),
-                post.rooms.toFloat(),
-                post.floor,
-                post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
-            )
+            .actionFragmentFeedFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
     }
 
     private fun observePosts() {
+        feedViewModel.loadingPosts.observe(viewLifecycleOwner) {
+            binding.listProgressBar.visibility = if (it) View.VISIBLE else View.GONE
+            binding.postsRecyclerView.visibility = if (it) View.GONE else View.VISIBLE
+        }
         feedViewModel.allPosts.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 // Log to check the number of posts

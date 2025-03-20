@@ -101,6 +101,14 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel.loading.observe(viewLifecycleOwner) {
+            if (it) {
+                (activity as MainActivity).showLoadingOverlay()
+            } else {
+                (activity as MainActivity).hideLoadingOverlay()
+            }
+        }
+
         binding.pickImage.setOnClickListener {
             PopupMenu(requireContext(), it).apply {
                 setOnMenuItemClickListener(this@AddApartmentFragment)

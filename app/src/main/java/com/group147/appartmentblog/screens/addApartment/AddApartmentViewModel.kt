@@ -18,13 +18,20 @@ class AddApartmentViewModel(
     val toastMessage: MutableLiveData<String>
         get() = _toastMessage
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: MutableLiveData<Boolean>
+        get() = _loading
+
     fun savePost(location: GeoPoint?, callback: (String?) -> Unit) {
+        _loading.postValue(true)
         if (location == null) {
             _toastMessage.postValue("Location is required to upload a post")
+            _loading.postValue(false)
             return
         }
 
         if (!validateForm()) {
+            _loading.postValue(false)
             return
         }
 
@@ -40,11 +47,11 @@ class AddApartmentViewModel(
         val image = binding.imagePreview.drawable.toBitmap()
 
         postRepository.insertPost(post, image) { document, error ->
+            _loading.postValue(false)
             if (error != null) {
                 _toastMessage.postValue("Failed post apartment. Please try again.")
             } else {
                 callback(document)
-                _toastMessage.postValue("Apartment posted successfully")
             }
         }
     }

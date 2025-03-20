@@ -97,30 +97,6 @@
         <argument
             android:name="id"
             app:argType="string" />
-        <argument
-            android:name="title"
-            app:argType="string" />
-        <argument
-            android:name="content"
-            app:argType="string" />
-        <argument
-            android:name="price"
-            app:argType="float" />
-        <argument
-            android:name="rooms"
-            app:argType="float" />
-        <argument
-            android:name="floor"
-            app:argType="integer" />
-        <argument
-            android:name="image"
-            app:argType="string" />
-        <argument
-            android:name="location"
-            app:argType="float[]" />
-        <action
-            android:id="@+id/action_postFragment_to_chatboxFragment"
-            app:destination="@id/chatboxFragment" />
     </fragment>
 
     <fragment
