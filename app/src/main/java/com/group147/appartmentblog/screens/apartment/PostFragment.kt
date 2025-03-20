@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
@@ -21,7 +22,7 @@ import java.util.Date
 class PostFragment : Fragment() {
 
     private lateinit var binding: FragmentPostBinding
-    private lateinit var  viewModel: PostViewModel
+    private lateinit var viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -48,11 +49,14 @@ class PostFragment : Fragment() {
         observePost()
         viewModel.setPost(post)
         viewModel.setupEditButton()
+
+        binding.chatButton.setOnClickListener {
+            findNavController().navigate(R.id.action_postFragment_to_chatboxFragment)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()

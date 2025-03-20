@@ -118,6 +118,9 @@
         <argument
             android:name="location"
             app:argType="float[]" />
+        <action
+            android:id="@+id/action_postFragment_to_chatboxFragment"
+            app:destination="@id/chatboxFragment" />
     </fragment>
 
     <fragment
@@ -135,5 +138,11 @@
             android:id="@+id/action_userProfileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/chatboxFragment"
+        android:name="com.group147.appartmentblog.screens.chat.ChatboxFragment"
+        android:label="Chatbox"
+        tools:layout="@layout/fragment_chatbox" />
 
 </navigation>
