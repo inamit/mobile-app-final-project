@@ -22,8 +22,11 @@ class PostViewModel(
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
 
-    private val _toastMessage = MutableLiveData<String>()
-    val toastMessage: LiveData<String> get() = _toastMessage
+    private val _toastMessage = MutableLiveData<String?>(null)
+    val toastMessage: LiveData<String?> get() = _toastMessage
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     fun setPost(post: Post) {
         _post.value = post
@@ -34,22 +37,24 @@ class PostViewModel(
     }
 
     fun updatePost(post: Post, image: Bitmap?) {
+        _isLoading.postValue(true)
         postRepository.updatePost(post, image) { _, error ->
             if (error != null) {
                 _toastMessage.postValue("Failed to update post")
-            } else {
-                _toastMessage.postValue("Post updated successfully")
             }
+            _isLoading.postValue(false)
         }
     }
 
     fun deletePost(post: Post) {
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
                 postRepository.deletePost(post)
             } catch (e: Exception) {
                 _toastMessage.postValue("Failed to delete post")
             }
+            _isLoading.postValue(false)
         }
     }
 

@@ -41,14 +41,20 @@ class PostRepository private constructor(
     private val _userPostsLiveData = MutableLiveData<List<Post>>()
     val postsLiveData: LiveData<List<Post>> get() = _postsLiveData
     val userPostsLiveData: LiveData<List<Post>> get() = _userPostsLiveData
+
+    private val _loadingPostsLiveData = MutableLiveData<Boolean>()
+    val loadingPostsLiveData: LiveData<Boolean> get() = _loadingPostsLiveData
+
     fun getLatestUpdatedTime(): Long {
         return postDao.getLatestUpdateTime() ?: 0
     }
 
     override fun streamAllExistingEntities() {
+        _loadingPostsLiveData.postValue(true)
         CoroutineScope(Dispatchers.IO).launch {
             _postsLiveData.postValue(postDao.getAllPosts())
         }
+        _loadingPostsLiveData.postValue(false)
     }
 
     override fun handleDocumentsChanges(snapshot: QuerySnapshot) {

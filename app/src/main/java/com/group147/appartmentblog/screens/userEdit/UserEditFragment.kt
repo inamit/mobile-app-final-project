@@ -72,6 +72,14 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel.loading.observe(viewLifecycleOwner) {
+            if (it) {
+                (activity as MainActivity).showLoadingOverlay()
+            } else {
+                (activity as MainActivity).hideLoadingOverlay()
+            }
+        }
+
         loadUserProfile()
     }
 
@@ -105,7 +113,10 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             if (user?.imageUrl.isNullOrEmpty()) {
                 binding.profileImage.setImageResource(R.drawable.ic_user_placeholder)
             } else {
-                Picasso.get().load(user.imageUrl).into(binding.profileImage)
+                Picasso.get()
+                    .load(user.imageUrl)
+                    .placeholder(R.drawable.ic_user_placeholder)
+                    .into(binding.profileImage)
             }
         }
     }

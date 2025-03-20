@@ -26,13 +26,16 @@ class LoginFragment : Fragment() {
     private val googleSignInLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
+                (activity as MainActivity).showLoadingOverlay()
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 try {
                     val account = task.getResult(ApiException::class.java)
                     if (account != null) {
                         viewModel.onLoginWithGoogle(account, {
+                            (activity as MainActivity).hideLoadingOverlay()
                             findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                         }, {
+                            (activity as MainActivity).hideLoadingOverlay()
                             Toast.makeText(
                                 requireContext(),
                                 "Failed to login with Google",
@@ -41,6 +44,7 @@ class LoginFragment : Fragment() {
                         })
                     }
                 } catch (e: ApiException) {
+                    (activity as MainActivity).hideLoadingOverlay()
                     Toast.makeText(
                         requireContext(),
                         "Failed to login with Google",
@@ -103,11 +107,18 @@ class LoginFragment : Fragment() {
     private fun loginWithEmailAndPassword() {
         val email = binding.emailInput.text.toString()
         val password = binding.passwordInput.text.toString()
+
+        (activity as MainActivity).showLoadingOverlay()
+
         viewModel.onLogin(
             email, password, {
+                (activity as MainActivity).hideLoadingOverlay()
+
                 findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             },
             { message ->
+                (activity as MainActivity).hideLoadingOverlay()
+
                 Toast.makeText(requireContext(), "Failed to login. $message", Toast.LENGTH_SHORT)
                     .show()
             })
