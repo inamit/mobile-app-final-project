@@ -21,7 +21,7 @@ class PostViewModel(
 ) : ViewModel() {
 
     val allPosts = postRepository.postsLiveData
-    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData;
+    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
 
@@ -111,13 +111,5 @@ class PostViewModel(
                 binding.priceEditText.text.isNotEmpty() &&
                 binding.roomsEditText.text.isNotEmpty() &&
                 binding.floorEditText.text.isNotEmpty()
-    }
-
-    fun showAddReviewButton(binding: FragmentPostBinding) {
-        binding.addCommentButton.show()
-    }
-
-    fun hideAddReviewButton(binding: FragmentPostBinding) {
-        binding.addCommentButton.hide()
     }
 }

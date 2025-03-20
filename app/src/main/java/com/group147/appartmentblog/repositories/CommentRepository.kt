@@ -74,7 +74,7 @@ class CommentRepository private constructor(
                 }
             }
 
-            commentSortedComments()
+            postSortedComments()
 
             Log.d(
                 TAG,
@@ -88,11 +88,11 @@ class CommentRepository private constructor(
             Log.d(TAG, "Processing document change: $snapshot")
             val comment = Comment.fromFirestore(snapshot)
             update(comment)
-            commentSortedComments()
+            postSortedComments()
         }
     }
 
-    private fun commentSortedComments() {
+    private fun postSortedComments() {
         val sortedComments = commentDao.getAllComments().sortedByDescending { it.updateTime }
         if (sortedComments.isNotEmpty()) {
             _commentsLiveData.postValue(sortedComments)

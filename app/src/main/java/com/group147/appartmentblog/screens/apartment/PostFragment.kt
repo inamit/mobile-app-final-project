@@ -79,7 +79,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             )
         )[PostViewModel::class.java]
         viewModel.setupEditButton(binding)
-        viewModel.showAddReviewButton(binding)
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -97,10 +96,18 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         observeComments(postId)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
 
-        (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
         (activity as MainActivity).hideToolbarMenu()
@@ -241,9 +248,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     }
 
     private fun setupRecyclerView() {
-        commentAdapter = CommentAdapter { comment ->
-
-        }
+        commentAdapter = CommentAdapter {}
         binding.commentsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = commentAdapter
