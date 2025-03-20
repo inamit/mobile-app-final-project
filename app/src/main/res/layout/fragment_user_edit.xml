@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/profileFragment"
-    tools:context=".screens.userProfile.ProfileFragment">
+    tools:context=".screens.userEdit.UserEditFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -80,14 +80,6 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="32dp"
                 android:text="Update Profile" />
-
-            <Button
-                android:id="@+id/user_posts_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="32dp"
-                android:text="Show User Posts" />
         </LinearLayout>
     </ScrollView>
 
