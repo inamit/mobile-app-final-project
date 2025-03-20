@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
@@ -40,6 +39,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
+
         (activity as MainActivity).hideBottomNavBar()
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
@@ -97,6 +97,14 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showLoadingOverlay()
+            } else {
+                (activity as MainActivity).hideLoadingOverlay()
+            }
         }
     }
 

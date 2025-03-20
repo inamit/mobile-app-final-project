@@ -25,6 +25,9 @@ class PostViewModel(
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: LiveData<String> get() = _toastMessage
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun setPost(post: Post) {
         _post.value = post
     }
@@ -34,12 +37,14 @@ class PostViewModel(
     }
 
     fun updatePost(post: Post, image: Bitmap?) {
+        _isLoading.postValue(true)
         postRepository.updatePost(post, image) { _, error ->
             if (error != null) {
                 _toastMessage.postValue("Failed to update post")
             } else {
                 _toastMessage.postValue("Post updated successfully")
             }
+            _isLoading.postValue(false)
         }
     }
 
