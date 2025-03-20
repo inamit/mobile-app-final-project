@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.databinding.FragmentChatboxBinding
-import com.group147.appartmentblog.repositories.GeminiRepository
+import com.group147.appartmentblog.model.service.GeminiService
 import com.group147.appartmentblog.screens.MainActivity
 import retrofit2.Call
 import retrofit2.Callback
@@ -15,12 +15,13 @@ import retrofit2.Response
 class ChatboxFragment : Fragment() {
 
     private lateinit var binding: FragmentChatboxBinding
-    private val geminiRepository = GeminiRepository()
+    private lateinit var geminiService: GeminiService
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentChatboxBinding.inflate(inflater, container, false)
+        geminiService = GeminiService(requireContext())
 
         (activity as MainActivity).hideBottomNavBar()
         (activity as MainActivity).hideAddApartmentButton()
@@ -60,8 +61,8 @@ class ChatboxFragment : Fragment() {
     }
 
     private fun getGeminiResponse(input: String) {
-        geminiRepository.generateContent(input, object : Callback<GeminiRepository.GeminiResponse> {
-            override fun onResponse(call: Call<GeminiRepository.GeminiResponse>, response: Response<GeminiRepository.GeminiResponse>) {
+        geminiService.generateContent(input, object : Callback<GeminiService.GeminiResponse> {
+            override fun onResponse(call: Call<GeminiService.GeminiResponse>, response: Response<GeminiService.GeminiResponse>) {
                 if (response.isSuccessful) {
                     val reply = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
                     if (reply != null) {
@@ -74,7 +75,7 @@ class ChatboxFragment : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<GeminiRepository.GeminiResponse>, t: Throwable) {
+            override fun onFailure(call: Call<GeminiService.GeminiResponse>, t: Throwable) {
                 binding.chatTextView.append("Error: ${t.message}\n")
             }
         })

@@ -1,14 +1,16 @@
-package com.group147.appartmentblog.repositories
+package com.group147.appartmentblog.model.service
 
+import android.content.Context
+import com.group147.appartmentblog.R
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-class GeminiRepository {
+class GeminiService(context: Context) {
 
-    private val apiKey = "AIzaSyBCEHp-I_N_BcXVxenFA8rLV-UC2Pmd22A"
+    private val apiKey: String = context.getString(R.string.gemini_api_key)
     private val service: GeminiAIService
 
     init {
