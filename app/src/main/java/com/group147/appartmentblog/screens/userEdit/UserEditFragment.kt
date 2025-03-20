@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -141,7 +140,7 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private fun onLogoutClicked() {
         viewModel.signOut()
-        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+        findNavController().navigate(R.id.action_userEditFragment_to_loginFragment)
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
