@@ -24,8 +24,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.group147.appartmentblog.R
-import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.screens.MainActivity
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
@@ -103,7 +103,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         )
                     )
 
-                    // Add marker for user location
                     map.addMarker(
                         MarkerOptions()
                             .position(userLatLng)
