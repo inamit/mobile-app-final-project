@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -100,7 +99,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             if (post != null) {
                 viewModel.setPost(post)
             } else {
-                Toast.makeText(requireContext(), "Post not found", Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()
             }
         }
