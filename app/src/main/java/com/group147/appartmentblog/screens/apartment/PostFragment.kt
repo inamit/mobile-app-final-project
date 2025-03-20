@@ -81,6 +81,21 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.chatButton.setOnClickListener {
+            val post = viewModel.post.value
+            if (post != null) {
+                val apartmentInfo = "This is an apartment post information.\n" +
+                        "Price: ${post.price}$\n" +
+                        "Rooms: ${post.rooms}\n" +
+                        "Floor: ${post.floor}\n" +
+                        "Address: ${binding.addressTextView.text}\n" +
+                        "What do you think about this apartment? summarize your answer in one sentence."
+
+                val action = PostFragmentDirections.actionPostFragmentToChatboxFragment(apartmentInfo)
+                findNavController().navigate(action)
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -225,5 +240,4 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             else -> false
         }
     }
-}
 }

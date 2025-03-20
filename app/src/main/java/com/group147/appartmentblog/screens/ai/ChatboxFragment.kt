@@ -1,39 +1,45 @@
 package com.group147.appartmentblog.screens.chat
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.databinding.FragmentChatboxBinding
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.Query
+import com.group147.appartmentblog.repositories.GeminiRepository
+import com.group147.appartmentblog.screens.MainActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ChatboxFragment : Fragment() {
 
     private lateinit var binding: FragmentChatboxBinding
-    private val apiKey = "AIzaSyBCEHp-I_N_BcXVxenFA8rLV-UC2Pmd22A"
+    private val geminiRepository = GeminiRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentChatboxBinding.inflate(inflater, container, false)
+
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.closeButton.setOnClickListener {
-            parentFragmentManager.popBackStack()
+        val apartmentInfo = arguments?.getString("apartmentInfo") ?: ""
+        if (apartmentInfo.isNotEmpty()) {
+            getGeminiResponse(apartmentInfo)
         }
 
         binding.sendButton.setOnClickListener {
             val userInput = binding.messageEditText.text.toString().trim()
+            binding.messageEditText.text.clear()
             if (userInput.isNotEmpty()) {
                 binding.chatTextView.append("You: $userInput\n")
                 getGeminiResponse(userInput)
@@ -43,17 +49,19 @@ class ChatboxFragment : Fragment() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigateUp()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun getGeminiResponse(input: String) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://generativelanguage.googleapis.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(GeminiAIService::class.java)
-        val request = GeminiRequest(listOf(Content(input)))  // Ensure proper request format
-
-        service.generateContent(request, apiKey).enqueue(object : Callback<GeminiResponse> {
-            override fun onResponse(call: Call<GeminiResponse>, response: Response<GeminiResponse>) {
+        geminiRepository.generateContent(input, object : Callback<GeminiRepository.GeminiResponse> {
+            override fun onResponse(call: Call<GeminiRepository.GeminiResponse>, response: Response<GeminiRepository.GeminiResponse>) {
                 if (response.isSuccessful) {
                     val reply = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
                     if (reply != null) {
@@ -66,28 +74,9 @@ class ChatboxFragment : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<GeminiResponse>, t: Throwable) {
+            override fun onFailure(call: Call<GeminiRepository.GeminiResponse>, t: Throwable) {
                 binding.chatTextView.append("Error: ${t.message}\n")
             }
         })
     }
 }
-
-interface GeminiAIService {
-    @POST("v1/models/gemini-1.5-flash:generateContent")  // Updated model
-    fun generateContent(
-        @Body request: GeminiRequest,
-        @Query("key") apiKey: String
-    ): Call<GeminiResponse>
-}
-
-// Ensure correct request format
-data class GeminiRequest(val contents: List<Content>)
-data class Content(val parts: List<Part>) {
-    constructor(text: String) : this(listOf(Part(text)))
-}
-data class Part(val text: String)
-
-// Ensure correct response format
-data class GeminiResponse(val candidates: List<Candidate>)
-data class Candidate(val content: Content)

@@ -97,6 +97,13 @@
         <argument
             android:name="id"
             app:argType="string" />
+        <action
+            android:id="@+id/action_postFragment_to_chatboxFragment"
+            app:destination="@id/chatboxFragment">
+            <argument
+                android:name="apartmentInfo"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <fragment
