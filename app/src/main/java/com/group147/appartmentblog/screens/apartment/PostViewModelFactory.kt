@@ -2,7 +2,6 @@ package com.group147.appartmentblog.screens.apartment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
 

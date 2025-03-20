@@ -17,11 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
@@ -33,12 +31,11 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private lateinit var binding: FragmentPostBinding
     private lateinit var viewModel: PostViewModel
-    commentRepository: CommentRepository
     private val args: PostFragmentArgs by navArgs()
 
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
-
+    private lateinit var commentAdapter: CommentAdapter
     private lateinit var userRepository: UserRepository
 
     override fun onCreateView(
@@ -73,41 +70,33 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            PostViewModelFactory((activity as MainActivity).getPostRepository(), (activity as MainActivity).getCommentRepository())
+            PostViewModelFactory(
+                (activity as MainActivity).getPostRepository(),
+                (activity as MainActivity).getCommentRepository()
+            )
         )[PostViewModel::class.java]
-
+        val postId = args.id
         observePost()
         observeUser()
         viewModel.setupEditButton(binding)
-        viewModel.setPost(post)
-        viewModel.setupEditButton()
-        viewModel.showAddReviewButton()
+        viewModel.showAddReviewButton(binding)
 
         binding.addCommentButton.setOnClickListener {
             val action = PostFragmentDirections
-                .actionPostFragmentToAddReviewFragment(post.id,)
+                .actionPostFragmentToAddReviewFragment(postId)
             findNavController().navigate(action)
         }
         setupRecyclerView()
-        observeComments(post.id)
+        observeComments(postId)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
         (activity as MainActivity).hideToolbarMenu()
-
-    }
-
-    private fun setupRecyclerView() {
-        commentAdapter = CommentAdapter { comment ->
-
-        }
-        binding.commentsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = commentAdapter
-        }
     }
 
     private fun observePost() {
@@ -216,15 +205,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             binding.editButton.visibility = View.GONE
             binding.saveButton.visibility = View.GONE
         }
-    private fun observeComments(postId:String) {
-        viewModel.comments.observe(viewLifecycleOwner) { comments ->
-            comments?.let {
-                val filteredComments = it.filter { comment -> comment.postId == postId }
-                commentAdapter.submitList(filteredComments)
-            }
-        }
     }
-
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -241,3 +222,23 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             else -> false
         }
     }
+
+    private fun setupRecyclerView() {
+        commentAdapter = CommentAdapter { comment ->
+
+        }
+        binding.commentsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = commentAdapter
+        }
+    }
+
+    private fun observeComments(postId: String) {
+        viewModel.comments.observe(viewLifecycleOwner) { comments: List<Comment>? ->
+            comments?.let {
+                val filteredComments = it.filter { comment: Comment -> comment.postId == postId }
+                commentAdapter.submitList(filteredComments)
+            }
+        }
+    }
+}

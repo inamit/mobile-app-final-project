@@ -12,7 +12,6 @@ import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
-import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
 import kotlinx.coroutines.launch
 
@@ -22,19 +21,20 @@ class PostViewModel(
 ) : ViewModel() {
 
     val allPosts = postRepository.postsLiveData
+    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData;
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
-    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData;
 
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: LiveData<String> get() = _toastMessage
-
     fun setPost(post: Post) {
         _post.value = post
     }
 
     suspend fun getAddressFromGeo(post: Post, apiKey: String): String? {
         return getGoogleAddressFromLatLng(post.location.latitude, post.location.longitude, apiKey)
+    }
+
     fun updatePost(post: Post, image: Bitmap?) {
         postRepository.updatePost(post, image) { _, error ->
             if (error != null) {
@@ -107,12 +107,11 @@ class PostViewModel(
                 binding.floorEditText.text.isNotEmpty()
     }
 
-    fun showAddReviewButton() {
+    fun showAddReviewButton(binding: FragmentPostBinding) {
         binding.addCommentButton.show()
     }
 
-    fun hideAddReviewButton() {
+    fun hideAddReviewButton(binding: FragmentPostBinding) {
         binding.addCommentButton.hide()
     }
-
 }
