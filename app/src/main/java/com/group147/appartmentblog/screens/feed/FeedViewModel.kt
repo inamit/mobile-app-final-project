@@ -16,6 +16,7 @@ class FeedViewModel(
 ) : ViewModel() {
 
     val allPosts: LiveData<List<Post>> = postRepository.postsLiveData
+    val loadingPosts: LiveData<Boolean> = postRepository.loadingPostsLiveData
 
     private val _filteredPosts = MutableLiveData<List<Post>>()
     val filteredPosts: LiveData<List<Post>> = _filteredPosts

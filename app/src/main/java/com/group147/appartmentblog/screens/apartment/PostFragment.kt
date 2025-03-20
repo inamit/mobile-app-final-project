@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -24,6 +25,7 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.screens.MainActivity
+import com.squareup.picasso.Picasso
 import com.group147.appartmentblog.screens.adapters.CommentAdapter
 import kotlinx.coroutines.launch
 
@@ -42,6 +44,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
+
         (activity as MainActivity).hideBottomNavBar()
         (activity as MainActivity).hideAddApartmentButton()
         (activity as MainActivity).showToolbarNavigationIcon()
@@ -88,6 +91,12 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
         setupRecyclerView()
         observeComments(postId)
+
+        viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
+            if (message != null) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -111,6 +120,14 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showLoadingOverlay()
+            } else {
+                (activity as MainActivity).hideLoadingOverlay()
+            }
         }
     }
 
@@ -137,8 +154,10 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             floorTextView.text = "Floor: ${post.floor}"
 
             post.image?.let {
-                Glide.with(this@PostFragment)
+                Picasso
+                    .get()
                     .load(it)
+                    .placeholder(R.drawable.camera_icon)
                     .into(postImageView)
             }
 
