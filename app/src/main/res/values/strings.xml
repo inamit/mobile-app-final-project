@@ -38,6 +38,7 @@
     <string name="aparttment_image">apparttment</string>
     <string name="save">Save</string>
     <string name="address">Address</string>
+    <string name="delete_post">Delete Post</string>
     <string name="username">Username</string>
     <string name="comment">Comment</string>
     <string name="subtitle_for_comments">What do you think?</string>

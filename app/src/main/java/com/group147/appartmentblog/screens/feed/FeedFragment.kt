@@ -62,16 +62,7 @@ class FeedFragment : Fragment() {
 
     private fun openPostFragment(post: Post) {
         val action = FeedFragmentDirections
-            .actionFragmentFeedFragmentToFragmentPostFragment(
-                post.id,
-                post.title,
-                post.content,
-                post.price.toFloat(),
-                post.rooms.toFloat(),
-                post.floor,
-                post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
-            )
+            .actionFragmentFeedFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
     }

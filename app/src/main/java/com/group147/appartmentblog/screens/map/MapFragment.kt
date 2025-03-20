@@ -19,7 +19,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.screens.MainActivity
 import com.group147.appartmentblog.model.Post
@@ -132,16 +135,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun openPostFragment(post: Post) {
         val action = MapFragmentDirections
-            .actionFragmentMapFragmentToFragmentPostFragment(
-                post.id,
-                post.title,
-                post.content,
-                post.price.toFloat(),
-                post.rooms.toFloat(),
-                post.floor,
-                post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
-            )
+            .actionFragmentMapFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
     }

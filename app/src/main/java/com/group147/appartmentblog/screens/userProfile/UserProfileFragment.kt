@@ -30,7 +30,7 @@ class UserProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as MainActivity).showProfileToolbarMenu {
+        (activity as MainActivity).showToolbarMenu(R.menu.profile_toolbar_menu) {
             when (it.itemId) {
                 R.id.logout -> {
                     onLogoutClicked()
@@ -68,22 +68,13 @@ class UserProfileFragment : Fragment() {
 
     private fun openPostFragment(post: Post) {
         val action = UserProfileFragmentDirections
-            .actionFragmentUserProfileFragmentToFragmentPostFragment(
-                post.id,
-                post.title,
-                post.content,
-                post.price.toFloat(),
-                post.rooms.toFloat(),
-                post.floor,
-                post.image.toString(),
-                floatArrayOf(post.location.latitude.toFloat(), post.location.longitude.toFloat())
-            )
+            .actionFragmentUserProfileFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
     }
 
     private fun observePosts() {
-        userPostsViewModel.allUserPosts?.observe(viewLifecycleOwner) { posts ->
+        userPostsViewModel.allUserPosts.observe(viewLifecycleOwner) { posts ->
             posts?.let {
                 postAdapter.submitList(it)
             }
@@ -107,6 +98,7 @@ class UserProfileFragment : Fragment() {
             }
         }
     }
+
     private fun onLogoutClicked() {
         userPostsViewModel.signOut()
         findNavController().navigate(R.id.action_userProfileFragment_to_loginFragment)
