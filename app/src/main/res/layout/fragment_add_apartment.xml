@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:hint="@string/number_of_rooms"
+        android:hint="@string/rooms"
         android:inputType="number"
         android:minHeight="48dp"
         android:textColorHint="#546E7A"

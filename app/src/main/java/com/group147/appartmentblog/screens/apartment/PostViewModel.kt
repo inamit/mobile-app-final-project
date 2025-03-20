@@ -8,17 +8,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group147.appartmentblog.databinding.FragmentPostBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
 import kotlinx.coroutines.launch
 
 class PostViewModel(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    commentRepository: CommentRepository
 ) : ViewModel() {
 
     val allPosts = postRepository.postsLiveData
-
+    val comments: LiveData<List<Comment>> = commentRepository.commentsLiveData
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
 

@@ -8,5 +8,6 @@ const val ID_KEY = "id"
 
 enum class Collections(val collectionName: String) {
     POSTS("posts"),
-    USERS("users")
+    USERS("users"),
+    COMMENTS("comments")
 }
