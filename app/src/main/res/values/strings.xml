@@ -24,7 +24,6 @@
     <string name="from_camera">From camera</string>
     <string name="logout">Logout</string>
     <string name="price">Price</string>
-    <string name="number_of_rooms">Rooms</string>
     <string name="floor">Floor</string>
     <string name="update_time">Update Time</string>
     <string name="update_post">Update Post</string>
@@ -40,4 +39,10 @@
     <string name="save">Save</string>
     <string name="address">Address</string>
     <string name="delete_post">Delete Post</string>
+    <string name="username">Username</string>
+    <string name="comment">Comment</string>
+    <string name="subtitle_for_comments">What do you think?</string>
+    <string name="add_review">Add Review</string>
+    <string name="review">Review</string>
+    <string name="rating">Rating</string>
 </resources>

@@ -16,12 +16,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentPostBinding
+import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.adapters.CommentAdapter
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 
@@ -33,7 +36,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
-
+    private lateinit var commentAdapter: CommentAdapter
     private lateinit var userRepository: UserRepository
 
     override fun onCreateView(
@@ -66,20 +69,26 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val postId = args.id
 
         viewModel = ViewModelProvider(
             requireActivity(),
-            PostViewModelFactory((activity as MainActivity).getPostRepository())
+            PostViewModelFactory(
+                (activity as MainActivity).getPostRepository(),
+                (activity as MainActivity).getCommentRepository()
+            )
         )[PostViewModel::class.java]
-
-        observePost()
-        observeUser()
         viewModel.setupEditButton(binding)
 
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
+        }
+        binding.addCommentButton.setOnClickListener {
+            val action = PostFragmentDirections
+                .actionPostFragmentToAddReviewFragment(postId)
+            findNavController().navigate(action)
         }
 
         binding.chatButton.setOnClickListener {
@@ -96,13 +105,26 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 findNavController().navigate(action)
             }
         }
+
+        observePost()
+        observeUser()
+        setupRecyclerView()
+        observeComments(postId)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onResume() {
+        super.onResume()
 
-        (activity as MainActivity).showBottomNavBar()
+        (activity as MainActivity).hideBottomNavBar()
+        (activity as MainActivity).hideAddApartmentButton()
+        (activity as MainActivity).showToolbarNavigationIcon()
+
+    }
+
+    override fun onStop() {
+        super.onStop()
         (activity as MainActivity).showAddApartmentButton()
+        (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).hideToolbarNavigationIcon()
         (activity as MainActivity).hideToolbarMenu()
     }
@@ -238,6 +260,23 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             }
 
             else -> false
+        }
+    }
+
+    private fun setupRecyclerView() {
+        commentAdapter = CommentAdapter {}
+        binding.commentsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = commentAdapter
+        }
+    }
+
+    private fun observeComments(postId: String) {
+        viewModel.comments.observe(viewLifecycleOwner) { comments: List<Comment>? ->
+            comments?.let {
+                val filteredComments = it.filter { comment: Comment -> comment.postId == postId }
+                commentAdapter.submitList(filteredComments)
+            }
         }
     }
 }
