@@ -105,12 +105,16 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-
+    override fun onStop() {
+        super.onStop()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
         (activity as MainActivity).hideToolbarMenu()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as MainActivity).showBottomNavBar()
     }
 
     private fun observePost() {
