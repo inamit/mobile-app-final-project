@@ -53,10 +53,14 @@ class CommentRepository private constructor(
                 try {
                     val comment = Comment.fromFirestore(change.document)
 
-                    Log.d(TAG, "Processing document change: $comment")
+                    Log.d(TAG, "Processing document change (${change.type}): $comment")
                     when (change.type) {
                         DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                            insert(comment)
+                            try {
+                                insert(comment)
+                            } catch (_: Exception) {
+                                update(comment)
+                            }
                             updatedComments.add(comment)
                         }
 
@@ -66,13 +70,12 @@ class CommentRepository private constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(
-                        TAG,
-                        "Error processing document change: ${change.document.id}",
-                        e
-                    )
+                    Log.e(TAG, "Error processing document change: ${change.document.id}", e)
                 }
             }
+
+            commentSortedComments()
+
             Log.d(
                 TAG,
                 "Processed Firestore changes: ${updatedComments.size} added/modified, ${removedComments.size} removed"
@@ -82,8 +85,19 @@ class CommentRepository private constructor(
 
     override fun handleDocumentChange(snapshot: DocumentSnapshot) {
         CoroutineScope(Dispatchers.IO).launch {
+            Log.d(TAG, "Processing document change: $snapshot")
             val comment = Comment.fromFirestore(snapshot)
             update(comment)
+            commentSortedComments()
+        }
+    }
+
+    private fun commentSortedComments() {
+        val sortedComments = commentDao.getAllComments().sortedByDescending { it.updateTime }
+        if (sortedComments.isNotEmpty()) {
+            _commentsLiveData.postValue(sortedComments)
+        } else {
+            _commentsLiveData.postValue(emptyList())
         }
     }
 
@@ -97,6 +111,7 @@ class CommentRepository private constructor(
             }
         }
     }
+
     fun getLatestUpdatedTime(): Long {
         return commentDao.getLatestUpdateTime() ?: 0
     }
