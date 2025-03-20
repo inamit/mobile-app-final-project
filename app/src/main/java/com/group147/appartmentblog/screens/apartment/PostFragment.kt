@@ -79,6 +79,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             )
         )[PostViewModel::class.java]
         viewModel.setupEditButton(binding)
+
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -88,6 +89,21 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             val action = PostFragmentDirections
                 .actionPostFragmentToAddReviewFragment(postId)
             findNavController().navigate(action)
+        }
+
+        binding.chatButton.setOnClickListener {
+            val post = viewModel.post.value
+            if (post != null) {
+                val apartmentInfo = "This is an apartment post information.\n" +
+                        "Price: ${post.price}$\n" +
+                        "Rooms: ${post.rooms}\n" +
+                        "Floor: ${post.floor}\n" +
+                        "Address: ${binding.addressTextView.text}\n" +
+                        "What do you think about this apartment? summarize your answer in one sentence."
+
+                val action = PostFragmentDirections.actionPostFragmentToChatboxFragment(apartmentInfo)
+                findNavController().navigate(action)
+            }
         }
 
         observePost()
