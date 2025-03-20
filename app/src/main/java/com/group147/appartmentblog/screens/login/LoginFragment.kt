@@ -33,7 +33,7 @@ class LoginFragment : Fragment() {
                     if (account != null) {
                         viewModel.onLoginWithGoogle(account, {
                             (activity as MainActivity).hideLoadingOverlay()
-                            findNavController().navigate(R.id.feedFragment)
+                            findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
                         }, {
                             (activity as MainActivity).hideLoadingOverlay()
                             Toast.makeText(
@@ -85,7 +85,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.signUpButton.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment)
+            findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
         }
 
         binding.googleLoginButton.setOnClickListener {
@@ -114,7 +114,7 @@ class LoginFragment : Fragment() {
             email, password, {
                 (activity as MainActivity).hideLoadingOverlay()
 
-                findNavController().navigate(R.id.feedFragment)
+                findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             },
             { message ->
                 (activity as MainActivity).hideLoadingOverlay()

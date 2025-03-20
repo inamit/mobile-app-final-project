@@ -98,7 +98,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                     )
                         .show()
                 } else {
-                    findNavController().navigate(R.id.feedFragment)
+                    findNavController().navigate(R.id.action_signUpFragment_to_feedFragment)
                 }
             }
         }

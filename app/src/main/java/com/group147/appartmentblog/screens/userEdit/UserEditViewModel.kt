@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.screens.userProfile
+package com.group147.appartmentblog.screens.userEdit
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
@@ -10,7 +10,7 @@ import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.repositories.UserRepository
 
-class ProfileViewModel(private val userRepository: UserRepository) : ViewModel() {
+class UserEditViewModel(private val userRepository: UserRepository) : ViewModel() {
     val user: LiveData<User> = userRepository.userLiveData
     val authService = AuthService()
 
@@ -31,10 +31,9 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
         }
     }
 
-    fun signOut(navController: NavController) {
+    fun signOut() {
         _loading.postValue(true)
         authService.signOut(userRepository)
         _loading.postValue(false)
-        navController.navigate(R.id.loginFragment)
     }
 }

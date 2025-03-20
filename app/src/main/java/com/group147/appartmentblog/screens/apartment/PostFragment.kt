@@ -24,7 +24,6 @@ class PostFragment : Fragment() {
     private lateinit var  viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -95,7 +94,6 @@ class PostFragment : Fragment() {
             floorEditText.setText(post.floor.toString())
         }
     }
-
 
     private fun PostFragmentArgs.toPost(): Post {
         return Post(
