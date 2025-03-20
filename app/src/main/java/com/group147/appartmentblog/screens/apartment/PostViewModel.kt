@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.group147.appartmentblog.databinding.FragmentPostBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
@@ -44,11 +43,10 @@ class PostViewModel(
         }
     }
 
-    fun deletePost(post: Post, navController: NavController) {
+    fun deletePost(post: Post) {
         viewModelScope.launch {
             try {
                 postRepository.deletePost(post)
-                navController.popBackStack()
             } catch (e: Exception) {
                 _toastMessage.postValue("Failed to delete post")
             }

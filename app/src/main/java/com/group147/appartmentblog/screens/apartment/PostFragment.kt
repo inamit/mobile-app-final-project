@@ -150,7 +150,7 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             (activity as MainActivity).showToolbarMenu(R.menu.post_toolbar_menu) {
                 when (it.itemId) {
                     R.id.delete_post -> {
-                        viewModel.deletePost(post, findNavController())
+                        viewModel.deletePost(post)
 
                         true
                     }
