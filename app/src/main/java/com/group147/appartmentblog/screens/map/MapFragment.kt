@@ -23,8 +23,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentMapBinding
 import com.group147.appartmentblog.model.Post
-import com.group147.appartmentblog.model.service.LocationService
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.service.LocationService
 import kotlinx.coroutines.launch
 
 class MapFragment : Fragment(), OnMapReadyCallback {

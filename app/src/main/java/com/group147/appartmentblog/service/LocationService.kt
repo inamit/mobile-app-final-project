@@ -1,4 +1,4 @@
-package com.group147.appartmentblog.model.service
+package com.group147.appartmentblog.service
 
 import android.Manifest
 import android.app.Activity

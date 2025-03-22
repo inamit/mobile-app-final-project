@@ -22,10 +22,10 @@ import com.group147.appartmentblog.databinding.ActivityHomeBinding
 import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
-import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.repositories.UserRepository
+import com.group147.appartmentblog.service.SubscriptionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

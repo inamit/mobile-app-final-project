@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.group147.appartmentblog.base.TaskCallback
-import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.repositories.UserRepository
+import com.group147.appartmentblog.service.AuthService
 
 class SignUpViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _toastMessage = MutableLiveData<String>()

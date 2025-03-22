@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group147.appartmentblog.model.User
-import com.group147.appartmentblog.model.service.AuthService
+import com.group147.appartmentblog.service.AuthService
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {

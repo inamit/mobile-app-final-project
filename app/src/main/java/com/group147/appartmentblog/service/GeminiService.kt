@@ -1,8 +1,10 @@
-package com.group147.appartmentblog.model.service
+package com.group147.appartmentblog.service
 
 import android.content.Context
 import com.group147.appartmentblog.R
-import retrofit2.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
