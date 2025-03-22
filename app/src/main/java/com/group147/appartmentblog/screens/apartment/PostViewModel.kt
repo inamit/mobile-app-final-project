@@ -101,6 +101,7 @@ class PostViewModel(
             editButton.visibility = if (editMode) View.GONE else View.VISIBLE
             addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
             saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
+            chatButton.visibility = if (editMode) View.GONE else View.VISIBLE
         }
     }
 
