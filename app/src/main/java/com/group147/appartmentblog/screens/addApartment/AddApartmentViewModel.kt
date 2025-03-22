@@ -11,7 +11,6 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
 
 class AddApartmentViewModel(
-    private val binding: FragmentAddApartmentBinding,
     private val postRepository: PostRepository
 ) : ViewModel() {
     private val _toastMessage = MutableLiveData<String>()
@@ -22,7 +21,11 @@ class AddApartmentViewModel(
     val loading: MutableLiveData<Boolean>
         get() = _loading
 
-    fun savePost(location: GeoPoint?, callback: (String?) -> Unit) {
+    fun savePost(
+        binding: FragmentAddApartmentBinding,
+        location: GeoPoint?,
+        callback: (String?) -> Unit
+    ) {
         _loading.postValue(true)
         if (location == null) {
             _toastMessage.postValue("Location is required to upload a post")
@@ -30,7 +33,7 @@ class AddApartmentViewModel(
             return
         }
 
-        if (!validateForm()) {
+        if (!validateForm(binding)) {
             _loading.postValue(false)
             return
         }
@@ -56,7 +59,7 @@ class AddApartmentViewModel(
         }
     }
 
-    fun validateForm(): Boolean {
+    fun validateForm(binding: FragmentAddApartmentBinding): Boolean {
         var valid = true
 
         val requiredEditTexts = listOf(

@@ -1,20 +1,16 @@
 package com.group147.appartmentblog.screens.map
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -23,23 +19,43 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.group147.appartmentblog.R
+import com.group147.appartmentblog.databinding.FragmentMapBinding
 import com.group147.appartmentblog.model.Post
+import com.group147.appartmentblog.model.service.LocationService
 import com.group147.appartmentblog.screens.MainActivity
+import kotlinx.coroutines.launch
 
 class MapFragment : Fragment(), OnMapReadyCallback {
+    private lateinit var binding: FragmentMapBinding
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var viewModel: MapViewModel
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (LocationService.arePermissionsGranted(permissions)) {
+                getUserLocation()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    "Failed to get location. Please enable location permissions.",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentMapBinding.inflate(inflater, container, false)
+
         (activity as MainActivity).showLoadingOverlay()
         (activity as MainActivity).hideAddApartmentButton()
 
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,51 +88,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun getUserLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-            return
+        lifecycleScope.launch {
+            LocationService.getUserLocation(
+                requireActivity(),
+                requestPermissionLauncher,
+                fusedLocationClient
+            )?.let {
+                val userLatLng = LatLng(it.latitude, it.longitude)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12f))
+                val icon = BitmapDescriptorFactory.fromBitmap(
+                    viewModel.getBitmapFromDrawable(
+                        requireContext(),
+                        R.drawable.user_location_icon
+                    )
+                )
+
+                map.addMarker(
+                    MarkerOptions()
+                        .position(userLatLng)
+                        .title("You are here")
+                        .icon(icon)
+                )
+            }
         }
-
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-            .addOnSuccessListener { location ->
-                if (location != null) {
-                    val userLatLng = LatLng(location.latitude, location.longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12f))
-                    val icon = BitmapDescriptorFactory.fromBitmap(
-                        viewModel.getBitmapFromDrawable(
-                            requireContext(),
-                            R.drawable.user_location_icon
-                        )
-                    )
-
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(userLatLng)
-                            .title("You are here")
-                            .icon(icon)
-                    )
-                } else {
-                    Toast.makeText(requireContext(), "Unable to get location", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("MapFragment", "Error getting location", e)
-            }
     }
 
     private fun observePosts() {
@@ -149,9 +143,5 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .actionFragmentMapFragmentToFragmentPostFragment(post.id)
 
         findNavController().navigate(action)
-    }
-
-    companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 }
