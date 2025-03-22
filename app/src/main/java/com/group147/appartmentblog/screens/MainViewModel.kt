@@ -13,11 +13,22 @@ class MainViewModel : ViewModel() {
     private val _currentUser = MutableLiveData<User?>()
     val currentUser: LiveData<User?> get() = _currentUser
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
     init {
         viewModelScope.launch {
             authService.currentUser.collect {
                 _currentUser.postValue(it)
             }
         }
+    }
+
+    fun startLoading() {
+        _loading.postValue(true)
+    }
+
+    fun stopLoading() {
+        _loading.postValue(false)
     }
 }

@@ -9,32 +9,30 @@ import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.PostRepository
+import com.group147.appartmentblog.screens.MainViewModel
 
 class AddApartmentViewModel(
+    private val mainViewModel: MainViewModel,
     private val postRepository: PostRepository
 ) : ViewModel() {
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: MutableLiveData<String>
         get() = _toastMessage
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: MutableLiveData<Boolean>
-        get() = _loading
-
     fun savePost(
         binding: FragmentAddApartmentBinding,
         location: GeoPoint?,
         callback: (String?) -> Unit
     ) {
-        _loading.postValue(true)
+        mainViewModel.startLoading()
         if (location == null) {
             _toastMessage.postValue("Location is required to upload a post")
-            _loading.postValue(false)
+            mainViewModel.stopLoading()
             return
         }
 
         if (!validateForm(binding)) {
-            _loading.postValue(false)
+            mainViewModel.stopLoading()
             return
         }
 
@@ -50,7 +48,7 @@ class AddApartmentViewModel(
         val image = binding.imagePreview.drawable.toBitmap()
 
         postRepository.insertPost(post, image) { document, error ->
-            _loading.postValue(false)
+            mainViewModel.stopLoading()
             if (error != null) {
                 _toastMessage.postValue("Failed post apartment. Please try again.")
             } else {

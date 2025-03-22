@@ -24,6 +24,7 @@ import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentMapBinding
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.MainViewModel
 import com.group147.appartmentblog.service.LocationService
 import kotlinx.coroutines.launch
 
@@ -31,6 +32,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentMapBinding
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: MapViewModel
 
     private val requestPermissionLauncher =
@@ -52,7 +54,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ): View? {
         binding = FragmentMapBinding.inflate(inflater, container, false)
 
-        (activity as MainActivity).showLoadingOverlay()
+        mainViewModel.startLoading()
         (activity as MainActivity).hideAddApartmentButton()
 
         return binding.root
@@ -65,6 +67,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.googleMapFragment) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel = ViewModelProvider(
             requireActivity(),
             MapViewModelFactory((activity as MainActivity).getPostRepository())
@@ -84,7 +87,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         getUserLocation()
         observePosts()
-        (activity as MainActivity).hideLoadingOverlay()
+        mainViewModel.stopLoading()
     }
 
     private fun getUserLocation() {

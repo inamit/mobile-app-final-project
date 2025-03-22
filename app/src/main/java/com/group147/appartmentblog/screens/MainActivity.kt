@@ -91,6 +91,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.loading.observe(this) {
+            if (it) {
+                showLoadingOverlay()
+            } else {
+                hideLoadingOverlay()
+            }
+        }
+
         binding.addApartmentButton.setOnClickListener {
             navController?.navigate(R.id.addApartmentFragment)
         }
@@ -132,11 +140,11 @@ class MainActivity : AppCompatActivity() {
         navController?.navigate(R.id.action_feedFragment_to_loginFragment)
     }
 
-    fun showLoadingOverlay() {
+    private fun showLoadingOverlay() {
         binding.progressOverlay.visibility = View.VISIBLE
     }
 
-    fun hideLoadingOverlay() {
+    private fun hideLoadingOverlay() {
         binding.progressOverlay.visibility = View.GONE
     }
 

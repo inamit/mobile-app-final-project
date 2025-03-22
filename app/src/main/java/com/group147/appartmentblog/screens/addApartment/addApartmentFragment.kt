@@ -21,11 +21,13 @@ import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.MainViewModel
 import com.group147.appartmentblog.service.LocationService
 import kotlinx.coroutines.launch
 
 class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentAddApartmentBinding
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: AddApartmentViewModel
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -82,24 +84,18 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         getCurrentLocation()
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel =
             ViewModelProvider(
                 requireActivity(),
                 AddApartmentViewModelFactory(
+                    mainViewModel,
                     (activity as MainActivity).getPostRepository()
                 )
             )[AddApartmentViewModel::class.java]
 
         viewModel.toastMessage.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) {
-            if (it) {
-                (activity as MainActivity).showLoadingOverlay()
-            } else {
-                (activity as MainActivity).hideLoadingOverlay()
-            }
         }
 
         binding.pickImage.setOnClickListener {

@@ -24,6 +24,7 @@ import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.repositories.UserRepository
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.MainViewModel
 import com.group147.appartmentblog.screens.adapters.CommentAdapter
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
     private lateinit var binding: FragmentPostBinding
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: PostViewModel
     private val args: PostFragmentArgs by navArgs()
 
@@ -71,9 +73,11 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         val postId = args.id
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel = ViewModelProvider(
             requireActivity(),
             PostViewModelFactory(
+                mainViewModel,
                 (activity as MainActivity).getPostRepository(),
                 (activity as MainActivity).getCommentRepository()
             )
@@ -101,7 +105,8 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                         "Address: ${binding.addressTextView.text}\n" +
                         "What do you think about this apartment? summarize your answer in one sentence."
 
-                val action = PostFragmentDirections.actionPostFragmentToChatboxFragment(apartmentInfo)
+                val action =
+                    PostFragmentDirections.actionPostFragmentToChatboxFragment(apartmentInfo)
                 findNavController().navigate(action)
             }
         }
@@ -141,14 +146,6 @@ class PostFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
         viewModel.post.observe(viewLifecycleOwner) { post ->
             bindPostData(post)
-        }
-
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                (activity as MainActivity).showLoadingOverlay()
-            } else {
-                (activity as MainActivity).hideLoadingOverlay()
-            }
         }
     }
 
