@@ -1,7 +1,6 @@
 package com.group147.appartmentblog.screens
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -84,9 +83,16 @@ class MainActivity : AppCompatActivity() {
                     if (commentSubscriptionService == null) {
                         commentSubscriptionService = SubscriptionService(commentRepository)
                     }
-                    commentSubscriptionService?.listenForCollection(Collections.COMMENTS,  commentRepository.getLatestUpdatedTime())
+                    commentSubscriptionService?.listenForCollection(
+                        Collections.COMMENTS,
+                        commentRepository.getLatestUpdatedTime()
+                    )
                 }
             }
+        }
+
+        binding.addApartmentButton.setOnClickListener {
+            navController?.navigate(R.id.addApartmentFragment)
         }
 
         if (viewModel.authService.hasUser()) {
@@ -117,10 +123,6 @@ class MainActivity : AppCompatActivity() {
     private fun goToApp() {
         showAddApartmentButton()
         showBottomNavBar()
-
-        binding.addApartmentButton.setOnClickListener {
-            navController?.navigate(R.id.addApartmentFragment)
-        }
     }
 
     private fun goToLogin() {
@@ -147,12 +149,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showBottomNavBar() {
-        Log.d("HomeActivity", "showBottomNavBar")
         binding.bottomNavigationView.visibility = View.VISIBLE
     }
 
     fun hideBottomNavBar() {
-        Log.d("HomeActivity", "hideBottomNavBar")
         binding.bottomNavigationView.visibility = View.GONE
     }
 
