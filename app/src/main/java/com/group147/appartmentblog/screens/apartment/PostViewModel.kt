@@ -102,6 +102,8 @@ class PostViewModel(
             addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
             saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
             chatButton.visibility = if (editMode) View.GONE else View.VISIBLE
+            reviewsScrollView.visibility = if (editMode) View.GONE else View.VISIBLE
+            addCommentButton.visibility = if (editMode) View.GONE else View.VISIBLE
         }
     }
 
