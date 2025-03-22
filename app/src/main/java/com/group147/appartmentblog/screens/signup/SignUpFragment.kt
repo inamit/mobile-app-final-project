@@ -16,9 +16,11 @@ import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentSignUpBinding
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.MainViewModel
 
 class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentSignUpBinding
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: SignUpViewModel
 
     private val galleryLauncher =
@@ -51,6 +53,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel = ViewModelProvider(
             requireActivity(),
             SignUpViewModelFactory((activity as MainActivity).getUserRepository())
@@ -80,7 +83,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                     null
                 )?.constantState
             ) (binding.userImage.drawable.toBitmap()) else null
-            (activity as MainActivity).showLoadingOverlay()
+            mainViewModel.startLoading()
             viewModel.signUp(
                 binding.emailInput,
                 binding.passwordInput,
@@ -89,7 +92,7 @@ class SignUpFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
                 binding.confirmPasswordInput,
                 image
             ) { userId, error ->
-                (activity as MainActivity).hideLoadingOverlay()
+                mainViewModel.stopLoading()
                 if (error != null) {
                     Toast.makeText(
                         requireContext(),

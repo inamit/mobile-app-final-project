@@ -12,10 +12,12 @@ import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
+import com.group147.appartmentblog.screens.MainViewModel
 import com.group147.appartmentblog.util.geoToAddress.getGoogleAddressFromLatLng
 import kotlinx.coroutines.launch
 
 class PostViewModel(
+    private val mainViewModel: MainViewModel,
     private val postRepository: PostRepository,
     commentRepository: CommentRepository
 ) : ViewModel() {
@@ -28,9 +30,6 @@ class PostViewModel(
     private val _toastMessage = MutableLiveData<String?>(null)
     val toastMessage: LiveData<String?> get() = _toastMessage
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
-
     fun setPost(post: Post) {
         _post.value = post
     }
@@ -40,24 +39,24 @@ class PostViewModel(
     }
 
     fun updatePost(post: Post, image: Bitmap?) {
-        _isLoading.postValue(true)
+        mainViewModel.startLoading()
         postRepository.updatePost(post, image) { _, error ->
             if (error != null) {
                 _toastMessage.postValue("Failed to update post")
             }
-            _isLoading.postValue(false)
+            mainViewModel.stopLoading()
         }
     }
 
     fun deletePost(post: Post) {
-        _isLoading.postValue(true)
+        mainViewModel.startLoading()
         viewModelScope.launch {
             try {
                 postRepository.deletePost(post)
             } catch (e: Exception) {
                 _toastMessage.postValue("Failed to delete post")
             }
-            _isLoading.postValue(false)
+            mainViewModel.stopLoading()
         }
     }
 
@@ -103,6 +102,8 @@ class PostViewModel(
             addressTextView.visibility = if (editMode) View.GONE else View.VISIBLE
             saveButton.visibility = if (editMode) View.VISIBLE else View.GONE
             chatButton.visibility = if (editMode) View.GONE else View.VISIBLE
+            reviewsScrollView.visibility = if (editMode) View.GONE else View.VISIBLE
+            addCommentButton.visibility = if (editMode) View.GONE else View.VISIBLE
         }
     }
 

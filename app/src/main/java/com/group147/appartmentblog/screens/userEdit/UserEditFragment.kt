@@ -17,9 +17,11 @@ import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentUserEditBinding
 import com.group147.appartmentblog.model.User
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.screens.MainViewModel
 import com.squareup.picasso.Picasso
 
 class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: UserEditViewModel
     private lateinit var binding: FragmentUserEditBinding
 
@@ -50,9 +52,10 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         val userRepository = (activity as MainActivity).getUserRepository()
         (activity as MainActivity).showToolbarNavigationIcon()
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel = ViewModelProvider(
             requireActivity(),
-            UserEditViewModelFactory(userRepository)
+            UserEditViewModelFactory(mainViewModel, userRepository)
         )[UserEditViewModel::class.java]
 
         binding.editIcon.setOnClickListener {
@@ -70,14 +73,6 @@ class UserEditFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
 
         viewModel.toastMessage.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) {
-            if (it) {
-                (activity as MainActivity).showLoadingOverlay()
-            } else {
-                (activity as MainActivity).hideLoadingOverlay()
-            }
         }
 
         loadUserProfile()

@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.group147.appartmentblog.ERROR_TAG
-import com.group147.appartmentblog.model.service.AuthService
 import com.group147.appartmentblog.repositories.UserRepository
+import com.group147.appartmentblog.service.AuthService
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

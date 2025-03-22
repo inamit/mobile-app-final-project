@@ -1,13 +1,16 @@
 package com.group147.appartmentblog.screens.chat
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.group147.appartmentblog.databinding.FragmentChatboxBinding
-import com.group147.appartmentblog.model.service.GeminiService
 import com.group147.appartmentblog.screens.MainActivity
+import com.group147.appartmentblog.service.GeminiService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

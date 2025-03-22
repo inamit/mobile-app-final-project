@@ -1,7 +1,6 @@
 package com.group147.appartmentblog.screens
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -23,10 +22,10 @@ import com.group147.appartmentblog.databinding.ActivityHomeBinding
 import com.group147.appartmentblog.model.Comment
 import com.group147.appartmentblog.model.Post
 import com.group147.appartmentblog.model.User
-import com.group147.appartmentblog.model.service.SubscriptionService
 import com.group147.appartmentblog.repositories.CommentRepository
 import com.group147.appartmentblog.repositories.PostRepository
 import com.group147.appartmentblog.repositories.UserRepository
+import com.group147.appartmentblog.service.SubscriptionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,9 +83,24 @@ class MainActivity : AppCompatActivity() {
                     if (commentSubscriptionService == null) {
                         commentSubscriptionService = SubscriptionService(commentRepository)
                     }
-                    commentSubscriptionService?.listenForCollection(Collections.COMMENTS,  commentRepository.getLatestUpdatedTime())
+                    commentSubscriptionService?.listenForCollection(
+                        Collections.COMMENTS,
+                        commentRepository.getLatestUpdatedTime()
+                    )
                 }
             }
+        }
+
+        viewModel.loading.observe(this) {
+            if (it) {
+                showLoadingOverlay()
+            } else {
+                hideLoadingOverlay()
+            }
+        }
+
+        binding.addApartmentButton.setOnClickListener {
+            navController?.navigate(R.id.addApartmentFragment)
         }
 
         if (viewModel.authService.hasUser()) {
@@ -117,10 +131,6 @@ class MainActivity : AppCompatActivity() {
     private fun goToApp() {
         showAddApartmentButton()
         showBottomNavBar()
-
-        binding.addApartmentButton.setOnClickListener {
-            navController?.navigate(R.id.addApartmentFragment)
-        }
     }
 
     private fun goToLogin() {
@@ -130,11 +140,11 @@ class MainActivity : AppCompatActivity() {
         navController?.navigate(R.id.action_feedFragment_to_loginFragment)
     }
 
-    fun showLoadingOverlay() {
+    private fun showLoadingOverlay() {
         binding.progressOverlay.visibility = View.VISIBLE
     }
 
-    fun hideLoadingOverlay() {
+    private fun hideLoadingOverlay() {
         binding.progressOverlay.visibility = View.GONE
     }
 
@@ -147,12 +157,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showBottomNavBar() {
-        Log.d("HomeActivity", "showBottomNavBar")
         binding.bottomNavigationView.visibility = View.VISIBLE
     }
 
     fun hideBottomNavBar() {
-        Log.d("HomeActivity", "hideBottomNavBar")
         binding.bottomNavigationView.visibility = View.GONE
     }
 

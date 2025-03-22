@@ -1,37 +1,33 @@
 package com.group147.appartmentblog.screens.addApartment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.GeoPoint
 import com.group147.appartmentblog.R
 import com.group147.appartmentblog.databinding.FragmentAddApartmentBinding
-import com.group147.appartmentblog.permissions.LocationPermission
 import com.group147.appartmentblog.screens.MainActivity
-import com.group147.appartmentblog.util.showSnackbar
+import com.group147.appartmentblog.screens.MainViewModel
+import com.group147.appartmentblog.service.LocationService
+import kotlinx.coroutines.launch
 
 class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
     private lateinit var binding: FragmentAddApartmentBinding
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var viewModel: AddApartmentViewModel
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -49,16 +45,15 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
 
     private val requestPermissionLauncher =
-        registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (LocationService.arePermissionsGranted(permissions)) {
                 getCurrentLocation()
             } else {
-                binding.root.showSnackbar(
+                Snackbar.make(
+                    binding.root,
                     "Location permission is required to upload a post",
-                    Snackbar.LENGTH_INDEFINITE, "I agree"
-                ) {
-                    getCurrentLocation()
-                }
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -86,27 +81,21 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         getCurrentLocation()
 
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         viewModel =
             ViewModelProvider(
                 requireActivity(),
                 AddApartmentViewModelFactory(
-                    binding,
+                    mainViewModel,
                     (activity as MainActivity).getPostRepository()
                 )
             )[AddApartmentViewModel::class.java]
 
         viewModel.toastMessage.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) {
-            if (it) {
-                (activity as MainActivity).showLoadingOverlay()
-            } else {
-                (activity as MainActivity).hideLoadingOverlay()
-            }
         }
 
         binding.pickImage.setOnClickListener {
@@ -119,11 +108,23 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         }
 
         binding.saveButton.setOnClickListener {
-            viewModel.savePost(location) {
+            viewModel.savePost(binding, location) {
                 findNavController().popBackStack()
             }
         }
 
+    }
+
+    private fun getCurrentLocation() {
+        lifecycleScope.launch {
+            LocationService.getUserLocation(
+                requireActivity(),
+                requestPermissionLauncher,
+                fusedLocationClient
+            )?.let {
+                location = GeoPoint(it.latitude, it.longitude)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -132,34 +133,6 @@ class AddApartmentFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         (activity as MainActivity).showBottomNavBar()
         (activity as MainActivity).showAddApartmentButton()
         (activity as MainActivity).hideToolbarNavigationIcon()
-    }
-
-    private fun getCurrentLocation() {
-        Log.i("AddApartmentFragment", "getCurrentLocation")
-
-        if (!LocationPermission.checkLocationPermission(
-                requireActivity() as AppCompatActivity,
-                binding.root,
-                requestPermissionLauncher
-            )
-        ) {
-            return
-        }
-
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            object : CancellationToken() {
-                override fun onCanceledRequested(p0: OnTokenCanceledListener) =
-                    CancellationTokenSource().token
-
-                override fun isCancellationRequested() = false
-            }).addOnSuccessListener { location ->
-            if (location == null) {
-                return@addOnSuccessListener
-            }
-
-            this.location = GeoPoint(location.latitude, location.longitude)
-        }
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
